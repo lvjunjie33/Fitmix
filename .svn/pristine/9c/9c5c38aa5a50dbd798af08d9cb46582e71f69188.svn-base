@@ -1,0 +1,296 @@
+package com.business.app.user;
+
+import com.business.core.constants.Constants;
+import com.business.core.entity.user.User;
+import com.business.core.entity.user.UserAddress;
+import com.business.core.entity.user.info.SmartDevice;
+import com.business.core.entity.user.info.UserDevice;
+import com.business.core.mongo.BaseMongoDaoSupport;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Created by Administrator on 2015/4/16.
+ */
+@Repository
+public class UserDao extends BaseMongoDaoSupport {
+
+    /**
+     * 根据 UDID 查询 安卓 User 信息
+     *
+     * @param udid 设备编号
+     * @param fields 列
+     * @return 用户信息
+     */
+    public User findUserByUDID (String udid, String...fields) {
+        Query query = new Query(Criteria.where("udid").is(udid));
+        includeFields(query, fields);
+        return getRoutingMongoOps().findOne(query, User.class);
+    }
+
+    /**
+     * 根据 idfa 查询 iOS User 信息
+     *
+     * @param idfa 设备编号
+     * @param fields 列
+     * @return 用户信息
+     */
+    public User findUserByIdfa (String idfa, String...fields) {
+        Query query = new Query(Criteria.where("idfa").is(idfa));
+        includeFields(query, fields);
+        return getRoutingMongoOps().findOne(query, User.class);
+    }
+
+    /**
+     * 根据 游客UDID 查询 安卓 User 信息
+     *
+     * @param touristUdid 设备编号
+     * @param fields 列
+     * @return 用户信息
+     */
+    public User findUserByTouristUdid(String touristUdid, String...fields) {
+        Query query = new Query(Criteria.where("touristUdid").is(touristUdid));
+        includeFields(query, fields);
+        return getRoutingMongoOps().findOne(query, User.class);
+    }
+
+    /**
+     * 根据 游客idfa 查询 iOS User 信息
+     *
+     * @param touristIdfa 设备编号
+     * @param fields 列
+     * @return 用户信息
+     */
+    public User findUserByTouristIdfa (String touristIdfa, String...fields) {
+        Query query = new Query(Criteria.where("touristIdfa").is(touristIdfa));
+        includeFields(query, fields);
+        return getRoutingMongoOps().findOne(query, User.class);
+    }
+
+    /**
+     * 根据 openid 查询 用户信息
+     *
+     * @param openid QQ 第三方 openid
+     * @param fields 列
+     * @return 用户信息
+     */
+    public User findUserByOpenid (String openid, String...fields) {
+        Query query = new Query(Criteria.where("openid").is(openid));
+        includeFields(query, fields);
+        return getRoutingMongoOps().findOne(query, User.class);
+    }
+
+    /**
+     * 查询 bpm 节拍匹配度，超越的用户
+     *
+     * @param bpmMatch bpm 匹配度
+     * @return 返回 超越的人数
+     */
+    public Integer findUserByLastRunLtBpmMatch (Double bpmMatch) {
+        Query query = new Query(Criteria.where("lastRun.bpmMatch").lt(bpmMatch).and("state").is(User.STATE_ACTIVATES));
+        return (int) getRoutingMongoOps().count(query, User.class);
+    }
+
+    /**
+     * 查询 bpm 节拍匹配度，超越的用户 (这个是用于排除，那些没有运动的用户)
+     *
+     * @param bpmMatch bpm 匹配度
+     * @return 返回 超越的人数
+     */
+    public Integer findUserByLastRunGtBpmMatch(Double bpmMatch) {
+        Query query = new Query(Criteria.where("lastRun.bpmMatch").gt(bpmMatch).and("state").is(User.STATE_ACTIVATES));
+        return (int) getRoutingMongoOps().count(query, User.class);
+    }
+
+    /**
+     * 添加 用户地址
+     *
+     * @param userAddress 地址信息
+     */
+    public void insertUserAddress(UserAddress userAddress) {
+        insertToMongo(userAddress);
+    }
+
+    /**
+     * 查询 用户所有地址
+     *
+     * @param uid 用户编号
+     * @param fields 列
+     * @return List地址集合
+     */
+    public List<UserAddress> findUserAddressByUid(Integer uid, String...fields) {
+        Query query = new Query(Criteria.where("uid").is(uid).and("status").is(UserAddress.STATUS_VALIDITY));
+        includeFields(query, fields);
+        return getRoutingMongoOps().find(query, UserAddress.class);
+    }
+
+    /**
+     * 查询 是否默认地址
+     *
+     * @param uid 用户编号
+     * @param isDefault 是否默认地址
+     * @param fields 列
+     * @return 地址信息
+     */
+    public UserAddress findUserAddressByUidAndIsDefault(Integer uid, boolean isDefault, String...fields) {
+        Query query = new Query(Criteria.where("uid").is(uid).and("status").is(UserAddress.STATUS_VALIDITY).and("isDefault").is(isDefault));
+        includeFields(query, fields);
+        return getRoutingMongoOps().findOne(query, UserAddress.class);
+    }
+
+    /**
+     * 更新 用户地址
+     *
+     * @param userAddressId 地址编号
+     * @param update 地址信息
+     */
+    public void updateUserAddressByIdAndUid(Integer userAddressId, Integer uid, Update update) {
+        Query query = new Query(Criteria.where("id").is(userAddressId).and("uid").is(uid));
+        getRoutingMongoOps().updateFirst(query, update, UserAddress.class);
+    }
+
+    /**
+     * 根据 用户编号 获取用户
+     * @param id 用户编号
+     * @param fields 列
+     * @return
+     */
+    public User findUserById(Integer id, String ... fields) {
+        return findEntityById(User.class, id, fields);
+    }
+
+    /**
+     * 查询用户信息，通过用户编号
+     *
+     * @param uids 用户编号
+     * @param fields 查询的字段
+     */
+    public List<User> findUserByIds(Set<Integer> uids, String...fields) {
+        Query query = new Query(Criteria.where("id").in(uids));
+        includeFields(query, fields);
+        return getRoutingMongoOps().find(query, User.class);
+    }
+
+    public Long count() {
+        return getRoutingMongoOps().count(new Query(), User.class);
+    }
+
+    public List<User> findUserByPageNo(Integer pageNo) {
+        Query query = new Query();
+        query.with(new Sort(Sort.Direction.ASC, "id"));
+        query.skip((pageNo-1) * 1000 ).limit(1000);
+        query.fields().include("id");
+        return getRoutingMongoOps().find(query, User.class);
+    }
+
+    /**
+     * 查询用户设备的活跃信息
+     *
+     * @param uid 用户编号
+     */
+    public UserDevice findUserDeviceByUid(Integer uid) {
+        return getRoutingMongoOps().findOne(Query.query(Criteria.where("uid").is(uid)), UserDevice.class);
+    }
+
+    /**
+     * 修改用户的设备信息
+     *
+     * @param uid 用户编号
+     */
+    public void modifyUserDeviceByUid(Integer uid, Update update) {
+        getRoutingMongoOps().updateFirst(Query.query(Criteria.where("uid").is(uid)), update, UserDevice.class);
+    }
+
+    /**
+     * 通过deviceToken 修改设备信息
+     *
+     * @param deviceToken
+     */
+    public void modifyUserDeviceByToken(String deviceToken, Update update) {
+        getRoutingMongoOps().updateMulti(Query.query(Criteria.where("deviceToken").is(deviceToken)), update, UserDevice.class);
+    }
+
+    /**
+     * 用户用户设备活跃信息
+     *
+     * @param userDevice 用户设备活跃信息
+     */
+    public void saveUserDevice(UserDevice userDevice) {
+        insertToMongo(userDevice);
+    }
+
+    /**
+     * 保存智能设备信息
+     *
+     * @param smartDevice 智能设备
+     */
+    public void saveSmartDevice(SmartDevice smartDevice) {
+        insertToMongo(smartDevice);
+    }
+
+    /**
+     * 删除设备用户记录
+     *
+     * @param uid 用户编号
+     * @param type 设备类型
+     * @param key 设备唯一标识
+     */
+    public void removeSmartDevice(Integer uid, Integer type, String key) {
+        Query query = Query.query(Criteria.where("uid").is(uid).and("type").is(type).and("key").is(key).and("status").is(Constants.STATUS_YES));
+        getRoutingMongoOps().remove(query, SmartDevice.class);
+    }
+
+    /**
+     * 根据设备物理信息查询智能设备信息
+     *
+     * @param type 智能设备类型
+     */
+    public SmartDevice findSmartDeviceByType(Integer type, String key, String...fields) {
+        Query query = Query.query(Criteria.where("type").is(type).and("key").regex(key).and("status").is(Constants.STATUS_YES));
+        includeFields(query, fields);
+        SmartDevice smartDevice = getRoutingMongoOps().findOne(query,SmartDevice.class);
+        return smartDevice;
+    }
+
+
+    /**
+     * 根据用户id查询智能设备信息
+     *
+     * @param uid 用户编号
+     * @param type 智能设备类型
+     */
+    public SmartDevice findSmartDeviceByUIdAndType(Integer uid,Integer type, String key, String...fields) {
+        Query query = Query.query(Criteria.where("type").is(type).and("key").regex(key).and("uid").is(uid).and("status").is(Constants.STATUS_YES));
+        includeFields(query, fields);
+        SmartDevice smartDevice = getRoutingMongoOps().findOne(query,SmartDevice.class);
+        return smartDevice;
+    }
+
+
+    /**
+     * 查询用户设备信息列表
+     *
+     * @param uid 用户编号
+     */
+    public List<SmartDevice> getSmartDevice(Integer uid) {
+        return getRoutingMongoOps().find(Query.query(Criteria.where("uid").is(uid).and("status").is(Constants.STATUS_YES)), SmartDevice.class);
+    }
+    /**
+     * 根据城市ID查询20个用户信息
+     *
+     * @param cityId 城市ID
+     */
+    public List<User> historyUserLimit(String cityId) {
+        Query query = new Query(Criteria.where("taoBaoIp.city_id").is(cityId));
+        query.with(new Sort(Sort.Direction.ASC, "id"));
+        query.skip(0).limit(20);
+        query.fields().include("id");
+        return getRoutingMongoOps().find(query, User.class);
+    }
+}

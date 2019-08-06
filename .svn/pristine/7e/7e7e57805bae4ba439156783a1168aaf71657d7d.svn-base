@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<style>body, h1, h2, h3, h4, h5, h6,a { font-family:  "Microsoft Yahei","微软雅黑","Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif; }</style>
+亲爱的乐享动用户：%s<br/><br>
+您好！<br/>
+感谢您使用乐享动服务，您的账号密码是：%s。<br/>
+    <br/><br/>
+乐享动团队<br>
+邮箱：service@igeekery.com<br/>
+QQ：3082329554<br/>
+时间：%s<br/><br/>
+更多内容，请登录：<a href="www.igeekery.com" target="_blank">www.igeekery.com</a><br/>
+(这是一封自动发送的邮件，请不要直接回复)<br>
+</body>
+</html>

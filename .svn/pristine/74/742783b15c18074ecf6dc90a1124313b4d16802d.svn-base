@@ -1,0 +1,105 @@
+body, .container {
+  background-color: #f9f9fc;
+  padding: 0;
+  margin: 0; }
+
+.container {
+  max-width: 16rem;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column; }
+  .container img {
+    width: 100%;
+    height: auto; }
+
+.logo {
+  margin-top: -2.13333rem;
+  text-align: center; }
+
+.logo img {
+  width: 3.41333rem;
+  height: 3.41333rem; }
+
+.content {
+  margin-top: 0.85333rem; }
+  .content .title {
+    color: #333333;
+    font-size: 0.59733rem;
+    display: block;
+    text-align: center;
+    margin-top: 1.70667rem;
+    margin-bottom: 0.64rem; }
+  .content .text {
+    display: block;
+    color: #4A4A4A;
+    font-size: 0.512rem;
+    text-align: center;
+    padding-left: 1.06667rem;
+    padding-right: 1.06667rem; }
+
+.drop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); }
+
+.drop-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  flex-direction: column; }
+
+.drop-content .button, .drop-content .text {
+  text-align: center; }
+
+.drop-content .text img {
+  width: 11.34933rem;
+  height: 2.048rem; }
+
+.drop-content .button {
+  margin-top: 30px; }
+  .drop-content .button img {
+    width: 4.26667rem;
+    height: 1.87733rem; }
+
+.drop .drop-arrow {
+  position: absolute;
+  top: 10px;
+  right: 30px; }
+  .drop .drop-arrow img {
+    width: 1.96267rem;
+    height: 1.96267rem; }
+
+.download {
+  height: 100%;
+  background-color: #fff9ec; }
+  .download .mark {
+    color: #4A4A4A;
+    font-size: 0.59733rem;
+    padding: 1.49333rem 0.85333rem; }
+  .download .logo1 {
+    margin-top: 1.06667rem;
+    margin-bottom: 0.42667rem;
+    text-align: center; }
+    .download .logo1 img {
+      width: 6.912rem;
+      height: 1.92rem; }
+  .download .slogan {
+    text-align: center;
+    margin-bottom: 3.41333rem; }
+    .download .slogan img {
+      width: 10.70933rem;
+      height: 1.10933rem; }
+  .download .download-wrapper {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center; }
+    .download .download-wrapper img {
+      width: 8.27733rem;
+      height: 2.56rem; }
+
+/*# sourceMappingURL=beats-generalize.css.map */

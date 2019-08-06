@@ -1,0 +1,28 @@
+// 节目列表
+
+.programs-box {
+  .programs-box-content {
+    .share {
+      text-align: center;
+      .share-row {
+        & a {
+          color: #666666;
+          text-decoration: none;
+          cursor: pointer;
+        }
+      }
+    }
+    .programs-manage {
+      & a {
+        color: #666666;
+        text-decoration: none;
+        cursor: pointer;
+      }
+    }
+  }
+}
+.warning {
+  & a {
+    color: @ugc-color;
+  }
+}

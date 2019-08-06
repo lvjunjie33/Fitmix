@@ -1,0 +1,675 @@
+@charset "UTF-8";
+@import "/static/user-run-share/css/animate.css";
+$ppr: 750px/16px/1rem;
+
+
+@font-face {
+  font-family: "fangzheng";
+  src: url("/static/user-run-share/css/fonts/fangzheng.eot"); /* IE9 */
+  src: url("/static/user-run-share/css/fonts/fangzheng.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+
+  url("/static/user-run-share/css/fonts/fangzheng.woff") format("woff"), /* chrome、firefox */
+  url("/static/user-run-share/css/fonts/fangzheng.ttf") format("truetype"), /* chrome、firefox、opera、Safari, Android, iOS 4.2+ */
+
+  url("/static/user-run-share/css/fonts/fangzheng.svg#fangzheng") format("svg"); /* iOS 4.1- */
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "fangzhengbold";
+  src: url("/static/user-run-share/css/fonts/fangzheng.eot"); /* IE9 */
+  src: url("/static/user-run-share/css/fonts/fangzheng.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+
+  url("/static/user-run-share/css/fonts/fangzheng.woff") format("woff"), /* chrome、firefox */
+  url("/static/user-run-share/css/fonts/fangzheng.ttf") format("truetype"), /* chrome、firefox、opera、Safari, Android, iOS 4.2+ */
+
+  url("/static/user-run-share/css/fonts/fangzheng.svg#fangzhengbold") format("svg"); /* iOS 4.1- */
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "big_noodle_titling";
+  src: url("/static/user-run-share/css/fonts/big_noodle_titling.eot"); /* IE9 */
+  src: url("/static/user-run-share/css/fonts/big_noodle_titling.svg#big_noodle_titling") format("svg"),
+       url("/static/user-run-share/css/fonts/big_noodle_titling.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+       url("/static/user-run-share/css/fonts/big_noodle_titling.ttf") format("truetype"),
+       url("/static/user-run-share/css/fonts/big_noodle_titling.woff") format("woff"); /* iOS 4.1- */
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'bignoodletitlingregular';
+  src: url('/static/user-run-share/css/fonts/big_noodle_titling-webfont.woff2') format('woff2'),
+  url('/static/user-run-share/css/fonts/big_noodle_titling-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+@font-face {
+  font-family: "iconfont";
+  src: url('/static/user-run-share/css/fonts/iconfont.eot?t=1489479206304'); /* IE9*/
+  src: url('/static/user-run-share/css/fonts/iconfont.eot?t=1489479206304#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('/static/user-run-share/css/fonts/iconfont.woff?t=1489479206304') format('woff'), /* chrome, firefox */
+  url('/static/user-run-share/css/fonts/iconfont.ttf?t=1489479206304') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('/static/user-run-share/css/fonts/iconfont.svg?t=1489479206304#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+.iconfont {
+  font-family:"iconfont" !important;
+  font-size:16px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+.icon-haiba:before { content: "\e601"; }
+
+.icon-bupin:before { content: "\e602"; }
+
+.icon-shisu:before { content: "\e603"; }
+
+.icon-xiaohao:before { content: "\e604"; }
+
+.icon-licheng:before { content: "\e60a"; }
+
+.icon-shijian:before { content: "\e60f"; }
+
+.icon-shisu1:before { content: "\e610"; }
+
+.icon-zongbushu:before { content: "\e613"; }
+
+.icon-down:before { content: "\e617"; }
+
+.icon-up:before { content: "\e618"; }
+
+.icon-bufu:before { content: "\e619"; }
+
+::-webkit-scrollbar-track {
+  background-color: #b46868;
+} /* 滚动条的滑轨背景颜色 */
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+} /* 滑块颜色 */
+::-webkit-scrollbar-button {
+  background-color: #7c2929;
+} /* 滑轨两头的监听按钮颜色 */
+::-webkit-scrollbar-corner {
+  background-color: black;
+} /* 横向滚动条和纵向滚动条相交处尖角的颜色 */
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #1A1A21;
+  SCROLLBAR-FACE-COLOR: #BED8EB;
+  SCROLLBAR-SHADOW-COLOR: #DDF8FF;
+  SCROLLBAR-HIGHLIGHT-COLOR: #92C0D1;
+  SCROLLBAR-3DLIGHT-COLOR: #DDF8FF;
+  SCROLLBAR-DARKSHADOW-COLOR: #92C0D1;
+  SCROLLBAR-TRACK-COLOR:#BED8EB;
+  SCROLLBAR-ARROW-COLOR: #92C0D1
+}
+@mixin flex-box {
+  display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;      /* TWEENER - IE 10 */
+  display: -webkit-flex;     /* NEW - Chrome */
+  display: flex;
+}
+
+.m-container {
+  position: absolute;
+  top: 0;
+  padding-bottom: 138/$ppr;
+  min-height: 100%;
+  width: 100%;
+  background-color: #1A1A21;
+  .map-wrapper {
+    position: relative;
+    width: 100%;
+    height: 330/$ppr;
+    .map {
+      width: 100%;
+      height: 330/$ppr;
+      background-color: #1a1b20 !important;
+    }
+  }
+
+  .speed-bar {
+    position: relative;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, #82e7fe, #fffa00, #e16323);
+  }
+  .speed-info {
+    position: relative;
+    margin: 5px 30/$ppr;
+    height: 24/$ppr;
+    .change-map {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-24/$ppr);
+      margin-top: -48/$ppr;
+      height: 24/$ppr;
+      width: 48/$ppr;
+      z-index: 9999;
+      i {
+        font-size: 48/$ppr;
+        font-weight: bold;
+        color: #cbcbcb;
+      }
+    }
+    .slow, .fast {
+      display: inline-block;
+      font-size: 24/$ppr;
+      color: #CBCBCB;
+    }
+    .slow {
+      float: left;
+    }
+    .fast {
+      float: right;
+    }
+  }
+  .overview-wrapper {
+    position: relative;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;
+    width: 100%;
+    margin-top: 30/$ppr;
+    padding: 0 22/$ppr;
+    .time, .distance{
+      -webkit-box-flex: 1;      /* OLD - iOS 6-, Safari 3.1-6 */
+      -moz-box-flex: 1;         /* OLD - Firefox 19- */
+      -webkit-flex: 1;          /* Chrome */
+      -ms-flex: 1;              /* IE 10 */
+      flex: 1;
+      height: 234/$ppr;
+      background-color: transparent;
+    }
+    .time {
+      .icon {
+        margin-top: 5/$ppr;
+        margin-bottom: 22/$ppr;
+        text-align: center;
+        height: 85/$ppr;
+        i {
+          font-size: 90/$ppr;
+          color: #f3a139;
+          margin-right: 72/$ppr;
+          width: 90/$ppr;
+          height: 90/$ppr;
+          border-radius: 50%;
+        }
+      }
+      .content {
+        margin-bottom: 10/$ppr;
+        text-align: center;
+        height: 44/$ppr;
+        line-height: 44/$ppr;
+        font-family: "bignoodletitlingregular";
+        font-size: 0px;
+         span {
+           display: inline-block;
+           font-size: 70/$ppr;
+           height: 44/$ppr;
+           line-height: 44/$ppr;
+           color: #cbcbcb;
+           transition: all 1s;
+           opacity: 0;
+           &:last-child {
+             margin-right: 72/$ppr;
+           }
+         }
+      }
+      .text {
+        text-align: center;
+        height: 44/$ppr;
+        line-height: 44/$ppr;
+        span {
+          font-family: fangzhengbold;
+          font-size: 25/$ppr;
+          height: 44/$ppr;
+          line-height: 44/$ppr;
+          color: #cbcbcb;
+          margin-right: 72/$ppr;
+        }
+      }
+    }
+    .distance {
+      .icon {
+        margin-top: 5/$ppr;
+        margin-bottom: 22/$ppr;
+        text-align: center;
+        height: 85/$ppr;
+        i {
+          font-size: 100/$ppr;
+          color: #f3a139;
+          margin-left: 72/$ppr;
+          width: 90/$ppr;
+          height: 90/$ppr;
+          border-radius: 50%;
+        }
+      }
+      .content {
+        margin-bottom: 10/$ppr;
+        text-align: center;
+        height: 44/$ppr;
+        line-height: 44/$ppr;
+        font-family: "bignoodletitlingregular";
+        span {
+          font-size: 70/$ppr;
+          height: 44/$ppr;
+          line-height: 44/$ppr;
+          color: #cbcbcb;
+          margin-left: 72/$ppr;
+        }
+      }
+      .text {
+        text-align: center;
+        height: 44/$ppr;
+        line-height: 44/$ppr;
+        span {
+          font-family: fangzhengbold;
+          font-size: 25/$ppr;
+          height: 44/$ppr;
+          line-height: 44/$ppr;
+          color: #cbcbcb;
+          margin-left: 72/$ppr;
+        }
+      }
+    }
+    .interval {
+      flex: 0 0 10/$ppr;
+    }
+    .avatar-wrapper {
+      position: absolute;
+      @include flex-box;
+      -webkit-box-orient: horizontal;
+      /* 12版 */
+      -webkit-flex-direction: column;
+      -moz-flex-direction: column;
+      -ms-flex-direction: column;
+      -o-flex-direction: column;
+      flex-direction: column;
+      background-color: transparent;
+      width: 154/$ppr;
+      top: 50%;
+      left: 50%;
+      margin-top: -(154/2 + 50)/$ppr;
+      margin-left: -154/2/$ppr;
+      border-radius: 50%;
+      outline: none;
+      border: none;
+      .avatar {
+        position: relative;
+        display: block;
+        width: 140/$ppr;
+        height: 140/$ppr;
+        margin: 7/$ppr 7/$ppr;
+        border: none;
+        border-radius: 50%;
+        outline: none;
+        box-shadow: 0px 0px 1px 3px #e2e0e0;
+        //box-shadow: 0px 0px 20px 6px rgba(254, 254, 255, 0.65);
+        img {
+          width: 140/$ppr;
+          height: 140/$ppr;
+          border-radius: 50%;
+          outline: none;
+          border: none;
+        }
+        .crown {
+          position: absolute;
+          width: 100/$ppr;
+          top: -90/$ppr;
+          left: 50%;
+          margin-left: -50/$ppr;
+          opacity: 0;
+          img {
+            width: 100/$ppr;
+          }
+        }
+      }
+      .name, .id {
+        display: block;
+        color: #b5b5b5;
+        text-align: center;
+      }
+      .name {
+        font-size: 30/$ppr;
+      }
+      .id {
+        font-size: 26/$ppr;
+      }
+    }
+  }
+  .info-wrapper {
+    @include flex-box;
+    width: 100%;
+    margin-top: 10/$ppr;
+    padding: 0 30/$ppr;
+    &:first-child {
+      margin-top: 14/$ppr;
+    }
+    .info-item {
+      @include flex-box;
+      -webkit-box-flex: 1;      /* OLD - iOS 6-, Safari 3.1-6 */
+      -moz-box-flex: 1;         /* OLD - Firefox 19- */
+      -webkit-flex: 1;          /* Chrome */
+      -ms-flex: 1;              /* IE 10 */
+      flex: 1;
+      height: 128/$ppr;
+      background-color: #212129;
+      -webkit-flex-wrap: nowrap;
+      -moz-flex-wrap: nowrap;
+      -ms-flex-wrap: nowrap;
+      -o-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+      .icon {
+        -webkit-box-flex: 0 0 76/$ppr;      /* OLD - iOS 6-, Safari 3.1-6 */
+        -moz-box-flex: 0 0 76/$ppr;         /* OLD - Firefox 19- */
+        -webkit-flex: 0 0 76/$ppr;          /* Chrome */
+        -ms-flex: 0 0 76/$ppr;              /* IE 10 */
+        flex: 0 0 76/$ppr;
+        height: 76/$ppr;
+        width: 76/$ppr;
+        margin-right: 28/$ppr;
+        i {
+          font-size: 76/$ppr;
+          color: #b5b5b5;
+          height: 76/$ppr;
+          width: 76/$ppr;
+        }
+      }
+      .content {
+        height: 90/$ppr;
+        width: 160/$ppr;
+        .text {
+          font-family: "bignoodletitlingregular";
+          height: 62/$ppr;
+          line-height: 62/$ppr;
+          transition: all 1s;
+          opacity: 0;
+          font-size: 60/$ppr;
+          color: #cbcbcb;
+        }
+        .desc {
+          font-family: fangzheng;
+          font-size: 20/$ppr;
+          color: #cbcbcb;
+          letter-spacing: 1px;
+        }
+      }
+    }
+    .interval {
+      -webkit-box-flex: 0 0 10/$ppr;      /* OLD - iOS 6-, Safari 3.1-6 */
+      -moz-box-flex: 0 0 10/$ppr;         /* OLD - Firefox 19- */
+      -webkit-flex: 0 0 10/$ppr;          /* Chrome */
+      -ms-flex: 0 0 10/$ppr;              /* IE 10 */
+      flex: 0 0 10/$ppr;
+    }
+  }
+  .diagram-wrapper {
+    .title-wrapper {
+      @include flex-box;
+      /* 09版 */
+      -webkit-box-pack: center;
+      /* 12版 */
+      -webkit-justify-content: center;
+      -moz-justify-content: center;
+      -ms-justify-content: center;
+      -o-justify-content: center;
+      justify-content: center;
+      /* 09版 */
+      -webkit-box-align: center;
+      /* 12版 */
+      -webkit-align-items: center;
+      -moz-align-items: center;
+      -ms-align-items: center;
+      -o-align-items: center;
+      align-items: center;
+      height: 112/$ppr;
+      background-color: #1A1A21;
+      .title {
+        display: flex;
+        width: 80%;
+        height: 16/$ppr;
+        /* 09版 */
+        -webkit-box-pack: center;
+        /* 12版 */
+        -webkit-justify-content: center;
+        -moz-justify-content: center;
+        -ms-justify-content: center;
+        -o-justify-content: center;
+        justify-content: center;
+        /* 09版 */
+        -webkit-box-align: center;
+        /* 12版 */
+        -webkit-align-items: center;
+        -moz-align-items: center;
+        -ms-align-items: center;
+        -o-align-items: center;
+        align-items: center;
+        .line {
+          -webkit-box-flex: 1;      /* OLD - iOS 6-, Safari 3.1-6 */
+          -moz-box-flex: 1;         /* OLD - Firefox 19- */
+          -webkit-flex: 1;          /* Chrome */
+          -ms-flex: 1;              /* IE 10 */
+          flex: 1;
+          width: 1px;
+          height: 1px;
+          background-color: #cbcbcb;
+        }
+        .text {
+          font-size: 28/$ppr;
+          color: #cbcbcb;
+          padding: 0 20/$ppr;
+        }
+      }
+    }
+    .speed-table, .step-table, .heart-rate-table {
+      background-color: #212129;
+    }
+    .myCanvas_div {
+      padding-left: 10/$ppr;
+      padding-right: 10/$ppr;
+      .myCanvas {
+        width: 690/$ppr !important;
+        height: 200px !important;
+        padding: 20px 30/$ppr;
+      }
+      .tableTd {
+        text-align: right;
+        font-family: "big_noodle_titling";
+        font-size: 20/$ppr;
+        color: #cbcbcb;
+        padding: 10/$ppr 30/$ppr;
+      }
+      .vertical {
+        text-align: left;
+        font-family: fangzheng;
+        font-size: 20/$ppr;
+        color: #cbcbcb;
+        padding: 10/$ppr 30/$ppr;
+        .avg-speed, .avg-step, .avg-heart {
+          font-family: "big_noodle_titling";
+          font-size: 20/$ppr;
+          float: right;
+        }
+      }
+    }
+
+  }
+}
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  @include flex-box;
+  width: 100%;
+  height: 128/$ppr;
+  padding: 0 30/$ppr;
+  background-color: #32323f;
+  /* 09版 */
+  -webkit-box-align: center;
+  /* 12版 */
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  -ms-align-items: center;
+  -o-align-items: center;
+  align-items: center;
+  /* 09版 */
+  -webkit-box-pack: center;
+  /* 12版 */
+  -webkit-justify-content: space-between;
+  -moz-justify-content: space-between;
+  -ms-justify-content: space-between;
+  -o-justify-content: space-between;
+  justify-content: space-between;
+  .left {
+    @include flex-box;
+    .logo {
+      width: 88/$ppr;
+      height: 88/$ppr;
+      margin-right: 18/$ppr;
+      img {
+        width: 88/$ppr;
+        height: 88/$ppr;
+      }
+    }
+    .content {
+      @include flex-box;
+      /* 09版 */
+      -webkit-box-orient: vertical;
+      /* 12版 */
+      -webkit-flex-direction: column;
+      -moz-flex-direction: column;
+      -ms-flex-direction: column;
+      -o-flex-direction: column;
+      flex-direction: column;
+      /* 09版 */
+      -webkit-box-pack: center;
+      /* 12版 */
+      -webkit-justify-content: center;
+      -moz-justify-content: center;
+      -ms-justify-content: center;
+      -o-justify-content: center;
+      justify-content: center;
+      .name {
+        font-family: fangzhengbold;
+        font-size: 24/$ppr;
+        color: #f3a139;
+        font-weight: bold;
+        margin-bottom: 14/$ppr;
+      }
+      .slogan {
+        font-family: fangzhengbold;
+        font-size: 24/$ppr;
+        color: #e5e5e5;
+      }
+    }
+  }
+  .right {
+    @include flex-box;
+    .download {
+      float: right;
+      color: #1A1A21;
+      width: 184/$ppr;
+      height: 58/$ppr;
+      margin-right: 18/$ppr;
+      button {
+        font-family: fangzheng;
+        width: 100%;
+        height: 100%;
+        font-size: 24/$ppr;
+        background-color: #f3a139;
+        border: none;
+        outline: none;
+      }
+    }
+    .open {
+      float: right;
+      color: #414152;
+      width: 184/$ppr;
+      height: 58/$ppr;
+      button {
+        font-family: fangzheng;
+        color: #cbcbcb;
+        width: 100%;
+        height: 100%;
+        font-size: 24/$ppr;
+        background-color: #414152;
+        border: none;
+        outline: none;
+      }
+    }
+  }
+
+}
+// 去掉百度地图logo
+.anchorBL{
+  display: none;
+}
+.BMap_stdMpZoom {
+  display: none;
+}
+.BMap_omCtrl {
+  display: none;
+}
+.BMap_cpyCtrl {
+  right: 22/$ppr !important;
+  bottom: 22/$ppr !important;
+}
+.mark-time{
+  position: absolute;
+  right: 22/$ppr;
+  bottom: 22/$ppr;
+  .time {
+    height: 30/$ppr;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 4px 8px;
+    border-radius: 4px;
+    span {
+      color: #cbcbcb;
+      font-size: 20/$ppr;
+      line-height: 20/$ppr;
+    }
+  }
+}
+
+.mark-logo {
+  position: absolute;
+  top: 22/$ppr;
+  left: 22/$ppr;
+  .logo {
+    margin-bottom: 6/$ppr;
+    text-align: left;
+    img {
+      height: 40/$ppr;
+      width: 40/$ppr;
+    }
+  }
+}
+
+// 数字过度效果
+#distance {
+  transition: all 1s;
+  opacity: 0;
+}
+
+.show {
+  opacity: 1 !important;
+}

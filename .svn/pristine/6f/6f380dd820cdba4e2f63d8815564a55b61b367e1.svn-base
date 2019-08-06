@@ -1,0 +1,31 @@
+// 用户信息
+
+@icon-size: 24px;
+
+.info-birthday {
+  & .form-control {
+    display: inline-block;
+  }
+}
+.info-update-pwd {
+  display: none;
+}
+.info-social {
+  & .icon-qq, .icon-weixin, .icon-weibo {
+    font-size: @icon-size;
+    margin-right: 10px;
+  }
+}
+.jcrop-avatar-box {
+  width: 400px;
+  height: 400px;
+  margin: 0 auto;
+  position:relative;
+  vertical-align:middle;
+  display:table-cell;
+  & img {
+    width: 400px;
+    vertical-align: middle;
+    display: block;
+  }
+}

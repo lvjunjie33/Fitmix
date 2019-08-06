@@ -1,0 +1,222 @@
+@import url(/static/user-run-share/css/animate.css);
+.container .fighting-wrapper {
+  overflow: hidden; }
+  .container .fighting-wrapper .fighting-item .flex-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; }
+  .container .fighting-wrapper .fighting-item .bg-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%; }
+    .container .fighting-wrapper .fighting-item .bg-wrapper .bg-width {
+      width: 100%; }
+    .container .fighting-wrapper .fighting-item .bg-wrapper .bg-height {
+      height: 100%;
+      width: auto; }
+    .container .fighting-wrapper .fighting-item .bg-wrapper .down-arrow {
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+      left: 0;
+      text-align: center; }
+      .container .fighting-wrapper .fighting-item .bg-wrapper .down-arrow img {
+        position: absolute;
+        height: auto;
+        width: 1.06667rem;
+        bottom: 1.49333rem;
+        margin-left: -0.53333rem; }
+  .container .fighting-wrapper .fighting-item .video-wrapper {
+    position: relative;
+    background: url("/static/channelApp/images/burnFatFighting/bg.png");
+    background-size: cover; }
+    .container .fighting-wrapper .fighting-item .video-wrapper .video-poster {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      flex-direction: column; }
+      .container .fighting-wrapper .fighting-item .video-wrapper .video-poster img {
+        width: 100%; }
+      .container .fighting-wrapper .fighting-item .video-wrapper .video-poster video {
+        width: 1px;
+        opacity: 0; }
+    .container .fighting-wrapper .fighting-item .video-wrapper .video-desc {
+      margin-top: 1.28rem;
+      width: 100%;
+      text-align: center; }
+      .container .fighting-wrapper .fighting-item .video-wrapper .video-desc img {
+        width: 8.832rem;
+        height: 2.66667rem; }
+    .container .fighting-wrapper .fighting-item .video-wrapper .skip-video {
+      position: absolute;
+      width: 1.70667rem;
+      height: 1.00267rem;
+      bottom: 2.13333rem;
+      left: 50%;
+      transform: translateX(-0.53333rem); }
+      .container .fighting-wrapper .fighting-item .video-wrapper .skip-video img {
+        width: 1.06667rem;
+        height: auto; }
+  .container .fighting-wrapper .fighting-item .ready-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: url("/static/channelApp/images/burnFatFighting/bg.png");
+    background-size: cover; }
+    .container .fighting-wrapper .fighting-item .ready-wrapper .bg-3 {
+      text-align: center; }
+      .container .fighting-wrapper .fighting-item .ready-wrapper .bg-3 img {
+        width: 12.33067rem;
+        height: 20.26667rem; }
+    .container .fighting-wrapper .fighting-item .ready-wrapper .go {
+      margin-top: 1.92rem; }
+      .container .fighting-wrapper .fighting-item .ready-wrapper .go img {
+        width: 6.54933rem;
+        height: 1.77067rem; }
+  .container .fighting-wrapper .fighting-item .content-wrapper {
+    background: url("/static/channelApp/images/burnFatFighting/bg.png");
+    background-size: cover; }
+    .container .fighting-wrapper .fighting-item .content-wrapper .img-box {
+      padding: 1.152rem 1.152rem 0.64rem 1.152rem; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .img-box .bg-4 {
+        padding-top: 1.28rem;
+        text-align: center;
+        background-color: #1d240f; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .img-box .bg-4 img {
+          width: 12.20267rem;
+          height: 1.96267rem; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .img-box .form {
+        width: 13.696rem;
+        height: 8.53333rem;
+        padding-top: 0.384rem;
+        background-color: #1d240f; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .img-box .form ul {
+          padding: 0.42667rem 1.92rem; }
+          .container .fighting-wrapper .fighting-item .content-wrapper .img-box .form ul li {
+            width: 9.81333rem;
+            font-size: 0.512rem;
+            color: #e0d3c2;
+            margin-bottom: 1.06667rem; }
+            .container .fighting-wrapper .fighting-item .content-wrapper .img-box .form ul li:last-child {
+              margin-bottom: 0; }
+            .container .fighting-wrapper .fighting-item .content-wrapper .img-box .form ul li span:first-child {
+              position: relative;
+              width: 0.704rem;
+              height: 0.704rem; }
+            .container .fighting-wrapper .fighting-item .content-wrapper .img-box .form ul li span:last-child {
+              margin: 0 0.10667rem; }
+            .container .fighting-wrapper .fighting-item .content-wrapper .img-box .form ul li span img {
+              width: 0.704rem;
+              height: 0.704rem;
+              vertical-align: bottom; }
+            .container .fighting-wrapper .fighting-item .content-wrapper .img-box .form ul li span input {
+              position: absolute;
+              opacity: 0;
+              top: 0;
+              left: 0;
+              width: 0.704rem;
+              height: 0.704rem;
+              vertical-align: bottom; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .img-box .submit {
+        padding-top: 0.53333rem;
+        padding-bottom: 0.53333rem;
+        text-align: center; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .img-box .submit img {
+          width: 4.608rem;
+          height: 1.216rem; }
+    .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box {
+      width: 100%;
+      padding: 2.13333rem 1.152rem 0rem 1.152rem; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .title {
+        text-align: center; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .title img {
+          width: 3.84rem;
+          height: 3.02933rem; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .time {
+        margin: 0 auto;
+        width: 90%;
+        height: 0.68267rem; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .time .audioScheduleLeft, .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .time .audioScheduleRight {
+          font-size: 0.512rem;
+          height: inherit;
+          width: 22%;
+          color: #e0d3c2; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .time .audioScheduleLeft {
+          text-align: left; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .time .audioScheduleRight {
+          float: right;
+          text-align: right; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .audioScheduleUl {
+        margin: 0.21333rem auto;
+        width: 90%;
+        list-style-type: none;
+        height: 0.42667rem;
+        top: 50%;
+        left: 5%;
+        /*margin-left: -140px;*/ }
+        .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .audioScheduleUl li {
+          float: left; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .audioScheduleUl .audioScheduleLi {
+          position: relative;
+          height: 4px;
+          background-color: #e0d3c2;
+          margin-top: 9px;
+          width: 100%; }
+          .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .audioScheduleUl .audioScheduleLi p {
+            width: 1px;
+            height: inherit;
+            background-color: #FF8B22; }
+          .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .audioScheduleUl .audioScheduleLi span {
+            position: absolute;
+            top: -0.32rem;
+            left: 0;
+            display: block;
+            width: 0.64rem;
+            height: 0.64rem;
+            background-color: #FF8B22;
+            border-radius: 50%;
+            cursor: pointer; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .controller {
+        margin-top: 0.53333rem;
+        text-align: center; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .controller img {
+          width: 2.13333rem;
+          height: 2.13333rem; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .click {
+        margin-top: 0.53333rem;
+        text-align: center;
+        margin-bottom: 1.06667rem; }
+        .container .fighting-wrapper .fighting-item .content-wrapper .hifi-box .click img {
+          width: 6.784rem;
+          height: 0.832rem; }
+    .container .fighting-wrapper .fighting-item .content-wrapper .share {
+      position: fixed;
+      display: none;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      transition: opacity .15s linear;
+      opacity: 0;
+      z-index: 1050;
+      background-color: rgba(0, 0, 0, 0.4);
+      width: 100%;
+      height: 100%;
+      text-align: center; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .share img {
+        width: 11.22133rem;
+        height: 2.66667rem; }
+      .container .fighting-wrapper .fighting-item .content-wrapper .share.fade {
+        opacity: 1; }
+
+.bgm {
+  position: fixed;
+  top: 0.42667rem;
+  right: 0.42667rem; }
+  .bgm img {
+    width: 1.70667rem;
+    height: 1.70667rem; }
+
+/*# sourceMappingURL=burn-fat-fighting.css.map */

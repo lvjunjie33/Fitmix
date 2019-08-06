@@ -1,0 +1,51 @@
+@charset "UTF-8";
+$ppr: 750px/16px/1rem;
+
+body, .container {
+  background-color: #f9f9fc;
+  padding: 0;
+  margin: 0;
+}
+
+.container {
+  max-width: 750/$ppr;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.logo, .slogan, .ios, .android {
+  text-align: center;
+}
+
+.logo img {
+  width: 300/$ppr;
+  height: auto;
+}
+
+.slogan {
+  margin-top: 100/$ppr;
+}
+.slogan img {
+  width: 464/$ppr;
+  height: auto;
+}
+
+.ios {
+  margin-top: 120/$ppr;
+}
+.ios img {
+  height: 100/$ppr;
+  width: auto;
+}
+
+.android {
+  margin-top: 50/$ppr;
+}
+.android  img {
+  height: 100/$ppr;
+  width: auto;
+}
+

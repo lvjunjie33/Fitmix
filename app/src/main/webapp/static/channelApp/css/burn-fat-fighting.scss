@@ -1,0 +1,297 @@
+@charset "UTF-8";
+$ppr: 750px/16px/1rem;
+@import "/static/user-run-share/css/animate.css";
+//html, body {
+//  overflow: hidden;
+//}
+
+.container {
+  .fighting-wrapper {
+    overflow: hidden;
+    .fighting-item {
+      .flex-box {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      .bg-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        img {
+        }
+        .bg-width {
+          width: 100%;
+        }
+        .bg-height {
+          height: 100%;
+          width: auto;
+        }
+        .down-arrow {
+          position: absolute;
+          width: 100%;
+          bottom: 0;
+          left: 0;
+          text-align: center;
+          img {
+            position: absolute;
+            height: auto;
+            width: 50/$ppr;
+            bottom: 70/$ppr;
+            margin-left: -25/$ppr;
+          }
+        }
+      }
+
+      .video-wrapper {
+        position: relative;
+        background: url("/static/channelApp/images/burnFatFighting/bg.png");
+        background-size: cover;
+        .video-poster {
+          display: flex;
+          justify-content: flex-start;
+          align-items: flex-start;
+          flex-direction: column;
+          img {
+            width: 100%;
+          }
+          video {
+            width: 1px;
+            opacity: 0;
+          }
+        }
+        .video-desc {
+          margin-top: 60/$ppr;
+          width: 100%;
+          text-align: center;
+          img {
+            width: 414/$ppr;
+            height: 125/$ppr;
+          }
+        }
+        .skip-video {
+          position: absolute;
+          width: 80/$ppr;
+          height: 47/$ppr;
+          bottom: 100/$ppr;
+          left: 50%;
+          transform: translateX(-25/$ppr);
+          img {
+            width: 50/$ppr;
+            height: auto;
+          }
+        }
+      }
+
+      .ready-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        background: url("/static/channelApp/images/burnFatFighting/bg.png");
+        background-size: cover;
+        .bg-3 {
+          text-align: center;
+          img {
+            width: 578/$ppr;
+            height: 950/$ppr;
+          }
+        }
+        .go {
+          margin-top: 90/$ppr;
+          img {
+            width: 307/$ppr;
+            height: 83/$ppr;
+          }
+        }
+      }
+      .content-wrapper {
+        background: url("/static/channelApp/images/burnFatFighting/bg.png");
+        background-size: cover;
+        .img-box {
+          padding: 54/$ppr 54/$ppr 30/$ppr 54/$ppr;
+          .bg-4 {
+            padding-top: 60/$ppr;
+            text-align: center;
+            background-color: #1d240f;
+            img {
+              width: 572/$ppr;
+              height: 92/$ppr;
+            }
+          }
+          .form {
+            width: 642/$ppr;
+            height: 400/$ppr;
+            padding-top: 18/$ppr;
+            background-color: #1d240f;
+            ul {
+              padding: 20/$ppr 90/$ppr;
+              li {
+                width: 460/$ppr;
+                font-size: 24/$ppr;
+                color: #e0d3c2;
+                margin-bottom: 50/$ppr;
+                &:last-child {
+                  margin-bottom: 0;
+                }
+                span {
+                  &:first-child {
+                    position: relative;
+                    width: 33/$ppr;
+                    height: 33/$ppr;
+                  }
+                  &:last-child {
+                    margin: 0 5/$ppr;
+                  }
+                  & img {
+                    width: 33/$ppr;
+                    height: 33/$ppr;
+                    vertical-align: bottom;
+                  }
+                  & input {
+                    position: absolute;
+                    opacity: 0;
+                    top: 0;
+                    left: 0;
+                    width: 33/$ppr;
+                    height: 33/$ppr;
+                    vertical-align: bottom;
+                  }
+                }
+              }
+            }
+          }
+          .submit {
+            padding-top: 25/$ppr;
+            padding-bottom: 25/$ppr;
+            text-align: center;
+            img {
+              width: 216/$ppr;
+              height: 57/$ppr;
+            }
+          }
+        }
+        .hifi-box {
+          width: 100%;
+          padding: 100/$ppr 54/$ppr 0/$ppr 54/$ppr;
+          .title {
+            text-align: center;
+            img {
+              width: 180/$ppr;
+              height: 142/$ppr;
+            }
+          }
+          .time {
+            margin: 0 auto;
+            width: 90%;
+            height: 32/$ppr;
+            .audioScheduleLeft, .audioScheduleRight {
+              font-size: 24/$ppr;
+              height: inherit;
+              width: 22%;
+              color: #e0d3c2;
+            }
+
+            .audioScheduleLeft {
+              text-align: left
+            }
+
+            .audioScheduleRight {
+              float: right;
+              text-align: right;
+            }
+          }
+          .audioScheduleUl {
+            margin: 10/$ppr auto;
+            width: 90%;
+            list-style-type: none;
+            height: 20/$ppr;
+            top: 50%;
+            left: 5%;
+            /*margin-left: -140px;*/
+            li {
+              float: left;
+            }
+
+            .audioScheduleLi {
+              position: relative;
+              height: 4px;
+              background-color: #e0d3c2;
+              margin-top: 9px;
+              width: 100%;
+              p {
+                width: 1px;
+                height: inherit;
+                background-color: #FF8B22;
+              }
+              span {
+                position: absolute;
+                top: -15/$ppr;
+                left: 0;
+                display: block;
+                width: 30/$ppr;
+                height: 30/$ppr;
+                background-color: #FF8B22;
+                border-radius: 50%;
+                cursor: pointer;
+              }
+            }
+
+          }
+          .controller {
+            margin-top: 25/$ppr;
+            text-align: center;
+            img {
+              width: 100/$ppr;
+              height: 100/$ppr;
+            }
+          }
+          .click {
+            margin-top: 25/$ppr;
+            text-align: center;
+            margin-bottom: 50/$ppr;
+            img {
+              width: 318/$ppr;
+              height: 39/$ppr;
+            }
+          }
+        }
+        .share {
+          position: fixed;
+          display: none;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          transition: opacity .15s linear;
+          opacity: 0;
+          z-index: 1050;
+          background-color: rgba(0, 0, 0, 0.4);
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          img {
+            width: 526/$ppr;
+            height: 125/$ppr;
+          }
+          &.fade {
+            opacity: 1;
+          }
+        }
+      }
+
+    }
+  }
+
+}
+
+.bgm {
+  position: fixed;
+  top: 20/$ppr;
+  right: 20/$ppr;
+  img {
+    width: 80/$ppr;
+    height: 80/$ppr;
+  }
+}

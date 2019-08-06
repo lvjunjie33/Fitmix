@@ -1,0 +1,1110 @@
+package com.business.app.user;
+
+
+import com.alibaba.fastjson.JSON;
+import com.business.app.UserRunStatistics.UserRunStatisticsService;
+import com.business.app.app.AppService;
+import com.business.app.base.constants.CodeConstants;
+import com.business.app.base.support.BaseControllerSupport;
+import com.business.app.message.MessageService;
+import com.business.app.userCollection.UserCollectService;
+import com.business.app.userRun.UserRunService;
+import com.business.core.client.FileCenterClient;
+import com.business.core.constants.Constants;
+import com.business.core.constants.DicConstants;
+import com.business.core.constants.FileConstants;
+import com.business.core.entity.TaoBaoIp;
+import com.business.core.entity.user.User;
+import com.business.core.entity.user.UserCollect;
+import com.business.core.entity.user.info.UserDevice;
+import com.business.core.utils.CollectionUtil;
+import com.business.core.utils.DicUtil;
+import com.business.core.utils.HttpUtil;
+import com.business.core.utils.WXLoginUitl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by sin on 2015/5/4.
+ * update lvjj 2018/4/25
+ * <p/>
+ * 用户信息 controller
+ */
+@Controller
+@RequestMapping()
+public class UserController extends BaseControllerSupport {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserCollectService userCollectService;
+    @Autowired
+    private MessageService messageService;
+    @Autowired
+    private UserRunStatisticsService userRunStatisticsService;
+    @Autowired
+    private UserRunService userRunService;
+    @Autowired
+    private AppService appService;
+
+    private void clearUserInfo(User user) {
+        user.setPassword(null);
+        user.setNewPwd(null);
+    }
+
+    private void handleLogin(Model model, HttpServletRequest request, User user) {
+        clearUserInfo(user);
+        model.addAttribute("user", user);
+        getUserInfo(model, user);
+//lvjj  2018-04-25 登录时加载数据量过大频繁请求服务器，影响服务器资源，暂时注释
+//        try {
+//            if (StringUtils.isEmpty(user.getId())) {
+//                return;
+//            }
+//
+//            UserDevice device = new UserDevice();
+//            device.setUid(user.getId());
+//            device.setActive(1);
+//            device.setCurrentVersion(HttpUtil.getIntParameter(request, "_v"));
+//            device.setSdk(HttpUtil.getParameter(request, "_sdk"));
+//            device.setProduct(HttpUtil.getParameter(request, "_product"));
+//
+//            device.setTerminal(checkSDKType(request) ? Constants.TERMINAL_IOS : Constants.TERMINAL_ANDROID);
+              //登录发送异步消息
+              userService.sendAsyMessage(HttpUtil.getIP(request),user);
+//            TaoBaoIp taoBaoIp = HttpUtil.ipArea(HttpUtil.getIP(request));
+//            if (taoBaoIp != null) {
+//                userService.modifyUserIp(taoBaoIp, user.getId());
+//            }
+            //上传用户app device 活跃信息
+//            userService.uploadDeviceStatus(device);
+//        } catch (Exception e) {
+//
+//        }
+    }
+
+    /**
+     * 官网用户登录
+     *
+     * @param email    邮箱 or mobile or uid
+     * @param password 密码
+     */
+    @RequestMapping("/user/gw_login")
+    public void loginGW(Model model, HttpServletRequest request, String email, String password) {
+        if (StringUtils.isEmpty(password)) {
+            tip(model, CodeConstants.LOGIN_USER_PASSWORD_ERROR);
+            return;
+        }
+        if (password.length() < 6 || password.length() > 21) {
+            tip(model, CodeConstants.LOGIN_USER_PASSWORD_ERROR);
+            return;
+        }
+
+        Object[] objects = userService.loginGW(email, password, HttpUtil.getIntParameter(request, "_v"));
+        switch ((int) objects[0]) {
+            case 0:
+                handleLogin(model, request, (User) objects[1]);
+                break;
+            case 1:
+                tip(model, CodeConstants.LOGIN_USER_NOT_EXIST);
+                break;
+            case 2:
+                tip(model, CodeConstants.LOGIN_USER_STATE_NO_ACTIVATES);
+                break;
+            case 3:
+                tip(model, CodeConstants.LOGIN_USER_PASSWORD_ERROR);
+                break;
+        }
+    }
+
+    /**
+     * 用户登录
+     *
+     * @param email    邮箱 or mobile or uid
+     * @param password 密码
+     */
+    @RequestMapping("/user/login")
+    public void login(Model model, HttpServletRequest request, String email, String password) {
+        if (StringUtils.isEmpty(password)) {
+            tip(model, CodeConstants.LOGIN_USER_PASSWORD_ERROR);
+            return;
+        }
+        if (password.length() < 6 || password.length() > 21) {
+            tip(model, CodeConstants.LOGIN_USER_PASSWORD_ERROR);
+            return;
+        }
+        //lvjj 2018-07-30
+        if(email.startsWith("+86")){
+            String []strs=email.split("\\+86");
+            if(strs.length>1){
+                email=strs[1];
+            }
+
+        }
+
+        Object[] objects = userService.login(email, password, HttpUtil.getIntParameter(request, "_v"));
+        switch ((int) objects[0]) {
+            case 0:
+                handleLogin(model, request, (User) objects[1]);
+                break;
+            case 1:
+                tip(model, CodeConstants.LOGIN_USER_NOT_EXIST);
+                break;
+            case 2:
+                tip(model, CodeConstants.LOGIN_USER_STATE_NO_ACTIVATES);
+                break;
+            case 3:
+                tip(model, CodeConstants.LOGIN_USER_PASSWORD_ERROR);
+                break;
+        }
+    }
+
+    /**
+     * QQ 登录
+     *
+     * @param token  QQ token
+     * @param openid QQ userId
+     */
+    @RequestMapping("/user/login-qq")
+    public void loginQQ(Model model, HttpServletRequest request, String token, String openid) {
+        Object[] objects = userService.loginQQ(token, openid, getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"));
+        switch ((int) objects[0]) {
+            case 0:
+                handleLogin(model, request, (User) objects[1]);
+                break;
+        }
+    }
+
+    /**
+     * 微信 第三方登录
+     *
+     * @param token  wx token
+     * @param openid wx userId
+     */
+    @RequestMapping("/user/login-wx")
+    public void loginWX(Model model, HttpServletRequest request, String token, String openid) {
+        Long time = System.currentTimeMillis();
+        Object[] objects = userService.loginWX(token, openid, getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"), getProduct(request));
+        switch ((int) objects[0]) {
+            case 0:
+                handleLogin(model, request, (User) objects[1]);
+                break;
+        }
+        System.out.println((System.currentTimeMillis() - time));
+    }
+
+    /**
+     * 回调域，根据code获取token，openid
+     *
+     *
+     * @param code  wx code
+     * lvjj 2018/4/28
+     */
+    @RequestMapping("/user/getWxCode")
+    public void getWxCode(Model model, HttpServletRequest request, HttpServletResponse res, String code) throws IOException {
+        Long time = System.currentTimeMillis();
+        Map<String,String> resultData= WXLoginUitl.getToken(code);
+        //转发官网
+        res.sendRedirect("http://ifitmix.com?token="+resultData.get("access_token")+"&openid="+resultData.get("openid"));
+        System.out.println((System.currentTimeMillis() - time));
+    }
+
+
+    /**
+     *官网微信登录
+     *
+     * @param token  wx token
+     * @param openid  wx openid
+     * lvjj 2018/4/28
+     */
+    @RequestMapping("/user/gw-login-wx")
+    public Model loginWXGW(Model model, HttpServletRequest request, HttpServletResponse res, String token,String openid) throws IOException {
+        Long time = System.currentTimeMillis();
+        Object[] objects = userService.loginWXGW(token,openid,"",HttpUtil.getIP(request),-1,"");
+        switch ((int) objects[0]) {
+            case 0:
+                handleLogin(model, request, (User) objects[1]);
+                break;
+        }
+        System.out.println((System.currentTimeMillis() - time));
+        return model;
+    }
+
+    /**
+     * 微博登陆
+     *
+     * @param token  QQ token
+     * @param openid QQ userId
+     */
+    @RequestMapping("/user/login-wb")
+    public void loginWB(Model model, HttpServletRequest request, String token, String openid) {
+        Object[] objects = userService.loginWB(token, openid, getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"));
+        switch ((int) objects[0]) {
+            case 0:
+                handleLogin(model, request, (User) objects[1]);
+                break;
+        }
+    }
+
+    /**
+     * 用户信息修改
+     *
+     * @param uid       用户编号
+     * @param name      用户名 :1.0.8版本开始
+     * @param gender    性别
+     * @param age       年龄
+     * @param height    身高
+     * @param weight    体重 （斤）
+     * @param type      类型（kg/cm, ib/in）
+     * @param signature 个性签名
+     *                  TODO 迭代 2.0.2 版本 新增 signature city 几个版本后改为 必填
+     */
+    @RequestMapping("/user/modify-info")
+    public void modifyInfo(Model model, HttpServletRequest request, @RequestParam(required = true) Integer uid,
+                           @RequestParam(required = false) String name, // 用户名 1.2 版本开始
+                           Integer gender, Integer age, Double height, Double weight, Integer type,
+                           @RequestParam(required = false) String signature) throws IOException {
+        Map<String, MultipartFile> fileMap = FileCenterClient.buildMultipartFile(request);
+        String avatarUrl = null;
+        if (!CollectionUtils.isEmpty(fileMap)) {
+            for (Map.Entry<String, MultipartFile> multipartFile : fileMap.entrySet()) {
+                MultipartFile file = multipartFile.getValue();
+//                BufferedImage bufferedImage = ImageUtil.resize(file.getBytes(),
+//                        FileConstants.FILE_TYPE_AUDIO_USER_AVATAR_RESOLUTION[0], FileConstants.FILE_TYPE_AUDIO_USER_AVATAR_R665
+                avatarUrl = FileCenterClient.upload(file, FileConstants.FILE_TYPE_USER_AVATAR_IMAGE);  // 转发文件服务器
+            }
+        }
+        if (age < 1) {
+            tip(model, CodeConstants.USER_INFO_MODIFY_AGE_ERROR);
+            return;
+        }
+        if (DicUtil.getDictionary(DicConstants.DIC_TYPE_GENDER, gender) == null) {
+            tip(model, CodeConstants.USER_INFO_MODIFY_GENDER_ERROR);
+            return;
+        }
+        if (DicUtil.getDictionary(DicConstants.DIC_TYPE_USER_TYPE, type) == null) {
+            tip(model, CodeConstants.USER_INFO_MODIFY_TYPE_ERROR);
+            return;
+        }
+
+        int result = userService.userInfoModify(uid, name, gender, age, height, weight, type, avatarUrl, signature);
+        switch (result) {
+            case 0:
+                break;
+            case 4:
+                tip(model, CodeConstants.LOGIN_USER_NOT_EXIST);
+                break;
+        }
+    }
+
+    /**
+     * 最后用户运动记录
+     *
+     * @param uid 用户编号
+     */
+    @RequestMapping("/user/last-run")
+    public void lastRun(Model model, Integer uid) {
+        model.addAttribute("lastRun", userService.lastRun(uid));
+    }
+
+
+    ///
+    /// 用户真实信息
+
+
+    /**
+     * 修改真实信息
+     *
+     * @param name           名称
+     * @param gender         性别
+     * @param age            年龄
+     * @param bloodType      血型
+     * @param clothesSize    衣服尺码
+     * @param idCard         身份证
+     * @param mobilePhone    移动电话
+     * @param emergencyPhone 紧急联系人电话
+     * @param emergencyName  紧急联系人名称
+     * @param country        国家
+     * @param region         区域
+     * @param city           省市
+     * @param detail         详细地址
+     */
+    @RequestMapping("/user/modify-real-info")
+    public void modifyRealInfo(Integer uid, String name, Integer gender, Integer age, String bloodType, String clothesSize,
+                               String idCard, String mobilePhone, String email, String emergencyPhone,
+                               String emergencyName, String country, String region, String city, String detail) {
+        userService.modifyRealInfo(uid, name, gender, age, bloodType, clothesSize, idCard, email, mobilePhone, emergencyPhone, emergencyName, country, region, city, detail);
+    }
+
+
+    ///
+    /// 手机注册登录
+
+
+
+
+    /**
+     * 更换 手机号
+     *
+     * @param newMobile 手机号
+     */
+    @RequestMapping("/user/replace-mobile")
+    public void replaceMobile(HttpServletRequest request, String newMobile) {
+        userService.replaceMobile(getCurrentUserId(request), newMobile);
+    }
+
+    /**
+     * 绑定 用户账号
+     *
+     * @param bindingContent 绑定内容 ：微信 微博 QQ （openid） 和 手机、邮箱
+     * @param bindingName    绑定 名称 仅此 第三方有效 （2、QQ 注册 3、微信注册  4、微博注册）
+     * @param type           1、app注册 2、QQ 注册 3、微信注册  4、微博注册 5、手机
+     * @return 0、成功 1、用户不存在 2、已是乐享动账号不能绑定
+     */
+    @RequestMapping("/user/binding")
+    public void binding(Model model, HttpServletRequest request, String bindingContent, String bindingName,
+                        @RequestParam(required = false) String password, Integer type) {
+        //lvjj 2018-07-30
+        if (StringUtils.isEmpty(bindingContent) && StringUtils.isEmpty(bindingName)){
+            return;
+        }
+        if(bindingContent.startsWith("+86")){
+            String []strs=bindingContent.split("\\+86");
+            bindingContent=strs[1];
+        }
+        if(bindingName.startsWith("+86")){
+            String []strs=bindingName.split("\\+86");
+            bindingName=strs[1];
+        }
+        int result = userService.binding(getCurrentUserId(request), bindingContent, bindingName, password, type);
+        switch (result) {
+            case 0:
+                break;
+            case 1:
+                tip(model, CodeConstants.LOGIN_USER_NOT_EXIST);
+                break;
+            case 2:
+                tip(model, CodeConstants.USER_BINDING_IS_FITMIX_USER);
+                break;
+        }
+    }
+
+    /**
+     * 解除绑定 用户账号
+     *
+     * @param type 1、app注册 2、QQ 注册 3、微信注册  4、微博注册 5、手机
+     * @return 0、成功 1、用户不存在 2、已是乐享动账号不能绑定
+     */
+    @RequestMapping("/user/unbinding")
+    public void unbinding(Model model, HttpServletRequest request, Integer type) {
+        int result = userService.binding(getCurrentUserId(request), "", "", null, type);
+        switch (result) {
+            case 0:
+                break;
+            case 1:
+                tip(model, CodeConstants.LOGIN_USER_NOT_EXIST);
+                break;
+            case 2:
+                tip(model, CodeConstants.USER_BINDING_IS_FITMIX_USER);
+                break;
+            case 3:
+                tip(model, CodeConstants.USER_UNBINDING_LOGIN_NOT_OPERATION);
+                break;
+        }
+    }
+
+    /* ==============================================游客登录======================================================= */
+
+    /**
+     *
+     * @param udid Android 设备编号
+     * @param idfa iOS 设备编号
+     */
+    @RequestMapping("/user/tourist-login")
+    public void touristLogin(Model model, HttpServletRequest request, @RequestParam(required = false) String udid, @RequestParam(required = false) String idfa) {
+        if (StringUtils.isEmpty(udid) && StringUtils.isEmpty(idfa)) {
+            tip(model, CodeConstants.LOGIN_USER_ERROR_WD_TOURIST);
+            return;
+        }
+        Object[] objects = userService.touristDoLogin(checkSDKType(request), idfa, udid, HttpUtil.getParameter(request, "_ch"), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"));
+        switch ((int) objects[0]) {
+            case 0:
+                model.addAttribute("user", objects[1]);
+                break;
+        }
+    }
+
+    private void getUserInfo(Model model, User user) {
+        model.addAttribute("bodys", null);
+        // 用户等级信息
+        model.addAttribute("userRunStatistics", userRunStatisticsService.getUserRunStatisticsByUid(user.getId()));
+        // 用户收藏歌曲信息
+        List<UserCollect> userCollectList = userCollectService.userCollect(user.getId());
+        if (CollectionUtils.isEmpty(userCollectList)) {
+            userCollectList = new ArrayList<>(0);
+        }
+        model.addAttribute("collectIds", CollectionUtil.buildList(userCollectList, Integer.class, "mid"));
+
+        Object[] info = userRunService.runDayInfo(user);
+        model.addAttribute("dayNum", info[0]);
+        model.addAttribute("lastTime", info[1]);
+    }
+
+    //*********************************************************新的注册与修改密码****************************************************************//
+
+    /**
+     * 邮箱注册
+     *
+     * @param email    邮箱
+     * @param password 密码
+     * @param verifyCode 邮箱验证码
+     */
+    @RequestMapping("/user/email/register")
+    public void registerNew(Model model, HttpServletRequest request, String email, String password, String verifyCode) {
+        String name = email;
+        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email) || StringUtils.isEmpty(password) || StringUtils.isEmpty(verifyCode)) {
+            tip(model, CodeConstants.USER_EMAIL_REGISTER_IS_EMPTY);
+            return;
+        }
+
+        if (!email.matches("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$")) {
+            tip(model, CodeConstants.USER_EMAIL_ERROR);
+            return;
+        }
+
+        if (password.length() < 6) {
+            tip(model, CodeConstants.USER_PASSWORD_ERROR);
+            return;
+        }
+
+        /*if (emailRegisterChecked(email)) {
+            tip(model, CodeConstants.USER_REGISTER_FREQUENT_OPERATE);
+            return;
+        }*/
+        Object[] objects = userService.emailRegisterNew(name, email, password, getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"), verifyCode);
+
+//        emailRegisterRemoveCurrent(email);
+
+        switch ((int) objects[0]) {
+            case 0:
+                User user = (User) objects[1];
+                model.addAttribute("user", user);
+
+                clearUserInfo(user);
+
+                // 用户等级信息
+                model.addAttribute("userRunStatistics", userRunStatisticsService.getUserRunStatisticsByUid(user.getId()));
+                model.addAttribute("bodys", null);
+                break;
+            case 1:
+                tip(model, CodeConstants.REGISTER_APP_USER_EMAIL_REPEAT);
+                break;
+            case 2:
+                tip(model, CodeConstants.USER_VERIFY_CODE_ERROR);
+                break;
+        }
+    }
+
+    /**
+     * 忘记密码 >> 邮箱修改密码
+     *
+     * @param email 邮箱
+     * @param verifyCode 验证码
+     * @param newPwd 新的密码
+     */
+    @RequestMapping("/user/email/reset/password")
+    public void emailResetPassword(Model model, String email, String verifyCode, String newPwd) {
+        if (StringUtils.isEmpty(email) || StringUtils.isEmpty(verifyCode) || StringUtils.isEmpty(newPwd)) {
+            tip(model, CodeConstants.USER_EMAIL_MODIFY_INFO_IS_EMPTY);
+            return;
+        }
+        if (newPwd.length() < 6 || newPwd.length() > 20) {
+            tip(model, CodeConstants.USER_PASSWORD_ERROR);
+            return;
+        }
+        if (!email.matches("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$")) {
+            tip(model, CodeConstants.USER_EMAIL_ERROR);
+            return;
+        }
+        int code = userService.emailResetPassword(email,verifyCode, newPwd);
+        if (code > 0) {
+            tip(model, CodeConstants.USER_VERIFY_CODE_ERROR);
+        }
+    }
+
+    /**
+     * 用户手机注册
+     *
+     * @param mobile   手机号
+     * @param password 密码
+     * @param verifyCode 验证码
+     */
+    @RequestMapping("/user/mobile/new-register-ssl")
+    public void mobileRegisterNew(Model model, HttpServletRequest request, String mobile, String password, String verifyCode) {
+        if (StringUtils.isEmpty(mobile)) {
+            return;
+        }
+        //lvjj 2018-07-30
+        if(mobile.startsWith("+86")){
+            String []strs=mobile.split("\\+86");
+            mobile=strs[1];
+        }
+        //用户名
+        String name = mobile;
+        if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(password) || StringUtils.isEmpty(verifyCode)) {
+            tip(model, CodeConstants.USER_MOBILE_REGISTER_IS_EMPTY);
+            return;
+        }
+
+        if (password.length() < 6 || password.length() > 20) {
+            tip(model, CodeConstants.USER_PASSWORD_ERROR);
+            return;
+        }
+
+        /*if (mobileRegisterChecked(mobile)) {
+            tip(model, CodeConstants.USER_REGISTER_FREQUENT_OPERATE);
+            return;
+        }*/
+
+        Object[] result = userService.mobileRegisterNew(name, mobile, password, verifyCode, getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"));
+
+//        mobileRegisterRemoveCurrent(mobile);
+
+        switch ((int) result[0]) {
+            case 0:
+                User user = (User) result[1];
+                clearUserInfo(user);
+
+                model.addAttribute("user", user);
+                break;
+            case 1:
+                tip(model, CodeConstants.USER_REGISTER_MOBILE_EXIST);
+                break;
+            case 2:
+                tip(model, CodeConstants.USER_VERIFY_CODE_ERROR);
+                break;
+        }
+    }
+
+    /**
+     * 忘记密码 >> 验证码修改用户密码
+     *
+     * @param mobile      手机号
+     * @param verifyCode  验证码
+     * @param newPwd 密码
+     */
+    @RequestMapping("/user/mobile/reset/new-password-ssl")
+    public void mobileResetPasswordNew(Model model, String mobile, String verifyCode, String newPwd) {
+        if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(verifyCode) || StringUtils.isEmpty(newPwd)) {
+            tip(model, CodeConstants.USER_MOBILE_MODIFY_INFO_IS_EMPTY);
+        }
+        //lvjj 2018-07-30
+        if(mobile.startsWith("+86")){
+            String []strs=mobile.split("\\+86");
+            mobile=strs[1];
+        }
+        if (newPwd.length() < 6 || newPwd.length() > 20) {
+            tip(model, CodeConstants.USER_PASSWORD_ERROR);
+            return;
+        }
+        int code = userService.mobileResetPasswordNew(mobile, verifyCode, newPwd);
+        if (code > 0) {
+            tip(model, CodeConstants.USER_VERIFY_CODE_ERROR);
+        }
+    }
+
+    //**************************************废弃接口**********************************************************//
+
+//    /**
+//     * 用户手机注册 (验证码)
+//     *
+//     * @param mobile 手机号
+//     */
+//    @RequestMapping("/user/user-verify-code")
+//    public void userVerifyCode(HttpServletRequest request, Model model, @RequestParam("mobile") String mobile) {
+//        appService.getMobileVerificationCode(mobile);
+//
+//        if (checkVersion(request, 15, 58)) {//该接口iOS大于15版本、安卓大于55版本之后废弃
+//            return;
+//        }
+//
+//        Object[] result = userService.mobileRegisterCode(request, mobile);
+//
+//        switch ((int) result[0]) {
+//            case 0:
+//                // TODO 版本控制
+//                if (getTerminalType() == com.business.core.constants.Constants.TERMINAL_ANDROID
+//                        && getVersion() >= VersionConstants.Android.VERSION_39.getVersion()) {
+//                    model.addAttribute("data", result[1]);
+//                } else if (getTerminalType() == com.business.core.constants.Constants.TERMINAL_WEB) {
+//                    request.getSession().setAttribute("code", result[1]);
+//                    model.addAttribute("vcode", result[1]);
+//                } else {
+//                    model.addAttribute("code", result[1]);
+//                }
+//                break;
+//        }
+//    }
+
+    /**
+     * 用户手机注册
+     *
+     * @param mobile   手机号
+     * @param password 密码
+     */
+    @RequestMapping("/user/mobile-register")
+    public void mobileRegister(Model model, HttpServletRequest request, @RequestParam("mobile") String mobile, @RequestParam("password") String password) {
+        if (checkVersion(request, 15, 58)) {//该接口iOS大于15版本、安卓大于55版本之后废弃
+            return;
+        }
+//        if (mobileRegisterChecked(mobile)) {
+//            tip(model, CodeConstants.USER_REGISTER_FREQUENT_OPERATE);
+//            return;
+//        }
+
+        Object[] result = userService.mobileRegister(mobile, password,
+                getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"));
+
+//        mobileRegisterRemoveCurrent(mobile);
+
+        switch ((int) result[0]) {
+            case 0:
+                model.addAttribute("user", result[1]);
+                break;
+            case 1:
+                tip(model, CodeConstants.USER_REGISTER_MOBILE_EXIST);
+                break;
+            case 2:
+                tip(model, CodeConstants.REGISTER_APP_USER_PASSWORD_LENGTH);
+                break;
+        }
+    }
+
+    /**
+     * 邮件找回密码 (旧) 之后废弃掉 TODO edward
+     *
+     * @param email 邮件
+     */
+    @RequestMapping("/user/email-recovery-password")
+    public void emailRecoveryPassword(HttpServletRequest request, Model model, @RequestParam("email") String email) {
+        if (checkVersion(request, 15, 58)) {//该接口iOS大于15版本、安卓大于55版本之后废弃
+            return;
+        }
+        int result = userService.mailRecoveryPassword(email);
+        switch (result) {
+            case 0:
+                break;
+            case 1:
+                tip(model, CodeConstants.USER_MIX_COLLECTION_USER_EXIST);
+                break;
+        }
+    }
+
+    /**
+     * 修改密码
+     * <p/>
+     * <result>
+     * 0、成功 1、用户不存在 2、非 app 注册用户不能修改密码 3、密码错误 4、新密码长度不能小于 5
+     * </result>
+     *
+     * @param oldPwd 旧密码
+     * @param nowPwd 现在密码
+     */
+    @RequestMapping("/user/modify-password")
+    public void modifyPassword(Model model, HttpServletRequest request, @RequestParam(required= true, value = "uid")Integer uid,
+                               @RequestParam("oldPwd") String oldPwd, @RequestParam("nowPwd") String nowPwd) {
+        if (StringUtils.isEmpty(uid)) {
+            tip(model, CodeConstants.LOGIN_USER_NOT_EXIST);
+        }
+        int result = userService.modifyPassword(uid, oldPwd, nowPwd);
+        switch (result) {
+            case 0:
+                break;
+            case 1:
+                tip(model, CodeConstants.LOGIN_USER_NOT_EXIST);
+                break;
+//            case 2:
+//                tip(model, CodeConstants.USER_NON_APP_REGISTER_NOT_MODIFY_PASSWORD);
+//                break;
+            case 3:
+                tip(model, CodeConstants.LOGIN_USER_PASSWORD_ERROR);
+                break;
+            case 4:
+                tip(model, CodeConstants.REGISTER_APP_USER_PASSWORD_LENGTH);
+                break;
+        }
+    }
+
+    /**
+     * 注册
+     *
+     * @param name     名称
+     * @param email    邮箱
+     * @param password 密码
+     */
+    @RequestMapping("/user/register")
+    public void register(Model model, HttpServletRequest request,
+                         @RequestParam(value = "name", required = false) String name,
+                         @RequestParam(value = "email", required = true) String email,
+                         @RequestParam(value = "password", required = true) String password) {
+        if (checkVersion(request, 15, 58)) {//该接口iOS大于15版本、安卓大于55版本之后废弃
+            return;
+        }
+
+        Object[] objects = userService.register(name, email, password, getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"));
+        switch ((int) objects[0]) {
+            case 0:
+                User user = (User) objects[1];
+
+                clearUserInfo(user);
+
+                model.addAttribute("user", user);
+                // 用户等级信息
+                model.addAttribute("userRunStatistics", userRunStatisticsService.getUserRunStatisticsByUid(user.getId()));
+                model.addAttribute("bodys", null);
+                break;
+            case 1:
+                tip(model, CodeConstants.REGISTER_APP_USER_EMAIL_REPEAT);
+                break;
+            case 2:
+                tip(model, CodeConstants.REGISTER_APP_USER_EMAIL_NO_CORRECT);
+                break;
+            case 3:
+                tip(model, CodeConstants.REGISTER_APP_USER_PASSWORD_LENGTH);
+                break;
+        }
+    }
+
+    /**
+     * 手机号 修改用户密码
+     *
+     * @param mobile      手机号
+     * @param verifyCode  验证码
+     * @param newPassword 密码
+     */
+    @RequestMapping("/user/mobile-reset-password")
+    public void mobileResetPassword(HttpServletRequest request, Model model, @RequestParam("mobile") String mobile,
+                                    @RequestParam("verifyCode") String verifyCode, @RequestParam("newPassword") String newPassword) {
+        if (checkVersion(request, 15, 58)) {//该接口iOS大于15版本、安卓大于55版本之后废弃
+            return;
+        }
+        int result = userService.mobileResetPassword(mobile, newPassword);
+        switch (result) {
+            case 0:
+                break;
+            case 1:
+                tip(model, CodeConstants.USER_MIX_COLLECTION_USER_EXIST);
+                break;
+        }
+    }
+
+    /**
+     * 激活/取消 用户app活跃状态
+     *
+     * @param active 0取消、1激活
+     * @param uid 用户编号
+     * @param deviceToken
+     * _sdk
+     * _v
+     */
+    @RequestMapping("/user/upload/device/status")
+    public void uploadDeviceStatus(Model model, HttpServletRequest request, Integer uid, String deviceToken, Integer active) {
+        if (StringUtils.isEmpty(uid) || StringUtils.isEmpty(deviceToken) || StringUtils.isEmpty(active)) {
+            return;
+        }
+
+        UserDevice device = new UserDevice();
+        device.setUid(uid);
+        device.setActive(active);
+        device.setCurrentVersion(HttpUtil.getIntParameter(request, "_v"));
+        device.setSdk(HttpUtil.getParameter(request, "_sdk"));
+        device.setProduct(HttpUtil.getParameter(request, "_product"));
+
+        device.setTerminal(checkSDKType(request) ? Constants.TERMINAL_IOS : Constants.TERMINAL_ANDROID);
+        device.setDeviceToken(deviceToken);
+
+        TaoBaoIp taoBaoIp = HttpUtil.ipArea(HttpUtil.getIP(request));
+        if (taoBaoIp != null) {
+            userService.modifyUserIp(taoBaoIp, uid);
+        }
+        Long num = userService.uploadDeviceStatus(device);
+        if (UserDevice.ACTIVE_TRUE.equals(active)) {
+            model.addAttribute("noticeNum", num);
+        }
+    }
+
+    /**
+     * 浏览其他用户的个人主页
+     *
+     * @param uid 用户编号
+     * @param targetUid 目标用户编号
+     */
+    @RequestMapping("/user/browse/homepage")
+    public void browseHomepage(Model model, Integer uid, Integer targetUid) {
+        Object[] objects = userService.browseHomepage(uid, targetUid);
+        model.addAttribute("month", objects[0]);
+        model.addAttribute("all", objects[1]);
+        model.addAttribute("targetUser", objects[2]);
+        model.addAttribute("group", objects[3]);
+    }
+
+    /**
+     * 上传智能设备信息
+     *
+     * @param uid 用户编号
+     * @param type 类型1、手表
+     * @param info 设备信息{name:1,title:1}
+     */
+    @RequestMapping("/user/upload/smart/device/info")
+    public void uploadSmartDevice(Model model, Integer uid, Integer type, String key, String info) {
+        logger.error("upload: uid=" + uid + ",type=" + type + ",key=" + key);
+        if (StringUtils.isEmpty(info) || StringUtils.isEmpty(key)) {
+            tip(model, CodeConstants.UPLOAD_SMART_DEVICE_ERROR);
+            return;
+        }
+        String[] keys = key.split("_");
+        if (keys.length != 3) {
+            return;
+        }
+        //lvjj 2018/5/2
+        if(!info.contains(keys[2])){
+            tip(model, CodeConstants.UPLOAD_SMART_DEVICE_ERROR);
+            //提示重新赋值
+            model.addAttribute("msg","用户设备信息上传失败,KEY与CHIPID不一致");
+            model.addAttribute("code",CodeConstants.UPLOAD_SMART_DEVICE_KEY_ERROR);
+            return;
+        }
+        int code = userService.uploadSmartDevice(uid, type, keys, key, JSON.parseObject(info));
+        if (code == 2) {
+            tip(model, CodeConstants.UPLOAD_SMART_DEVICE_REPEAT);
+        } else if (code == 3) {
+            tip(model, CodeConstants.UPLOAD_SMART_DEVICE_EXIST);
+        }
+    }
+
+    /**
+     * 拉取用户设备信息列表
+     *
+     * @param uid 用户编号
+     */
+    @RequestMapping("/user/get/smart/device")
+    public void getSmartDevice(Model model, Integer uid) {
+        model.addAttribute("smartDevices", userService.getSmartDevice(uid));
+    }
+
+    /**
+     * 删除用户设备记录
+     *
+     * @param uid 用户编号
+     * @param type 设备类型
+     * @param key 设备唯一标识
+     */
+    @RequestMapping("/user/remove/smart/device")
+    public void removeSmartDevice(Model model, Integer uid, Integer type, String key) {
+        logger.error("remove: uid=" + uid + ",type=" + type + ",key=" + key);
+        if (StringUtils.isEmpty(type) || StringUtils.isEmpty(key)) {
+            tip(model, CodeConstants.UPLOAD_SMART_DEVICE_UNKNOWN_DEVICE);
+            return;
+        }
+        int code = userService.removeSmartDevice(uid, type, key);
+        switch (code) {
+            case 1:
+                tip(model, CodeConstants.UPLOAD_SMART_DEVICE_UNKNOWN_DEVICE);
+                break;
+            case 2:
+                tip(model, CodeConstants.UPLOAD_SMART_DEVICE_UNBINDING);
+                break;
+        }
+    }
+
+
+/*****************************************************************2018最新版APP（第三版）*********************************************************************************************************/
+
+
+    /**
+     * 用户手机注册校验手机号是否存在
+     *
+     * @param mobile   手机号
+     */
+    @RequestMapping("/user/mobile/register-isExist")
+    public void mobileRegisterIsExistl(Model model, HttpServletRequest request, String mobile) {
+        if (StringUtils.isEmpty(mobile)) {
+            return ;
+        }
+        Map<String, Object> resultMap=userService.mobileRegisterIsExistl(mobile);
+        if((Boolean)resultMap.get("success")){
+            tip(model, CodeConstants.USER_REGISTER_MOBILE_EXIST);
+            return;
+        }
+    }
+
+    /**
+     * 用户手机注册校验验证码
+     *
+     * @param mobile   手机号
+     * @param verifyCode  验证码
+     */
+    @RequestMapping("/user/mobile/register-checkVerifyCode")
+    public void mobileRegisterVerifyCode(Model model, HttpServletRequest request, String mobile, String verifyCode) {
+        if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(verifyCode)) {
+            tip(model, CodeConstants.USER_MOBILE_REGISTER_IS_EMPTY);
+            return;
+        }
+        Map<String, Object> resultMap=userService.mobileRegisterVerifyCodes(mobile,verifyCode);
+        if((Boolean)resultMap.get("success")){
+            tip(model, CodeConstants.USER_VERIFY_CODE_ERROR);
+            return;
+        }
+    }
+
+    /**
+     * 用户手机注册
+     *
+     * @param mobile   手机号
+     * @param password 密码
+     */
+    @RequestMapping("/user/mobile/new/register")
+    public void mobileRegisterNewssl(Model model, HttpServletRequest request, String mobile, String password) {
+        String name = mobile;
+        if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(password)) {
+           tip(model, CodeConstants.USER_MOBILE_REGISTER_IS_EMPTY);
+            return;
+        }
+        if (password.length() < 6 || password.length() > 20) {
+            tip(model, CodeConstants.USER_PASSWORD_ERROR);
+            return;
+        }
+        Object[] result = userService.mobileRegisterNews(name, mobile, password, getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"));
+        switch ((int) result[0]) {
+            case 0:
+                User user = (User) result[1];
+                clearUserInfo(user);
+                model.addAttribute("user", user);
+                break;
+        }
+    }
+
+
+    /**
+     * 邮箱注册
+     *
+     * @param email    邮箱
+     * @param password 密码
+     */
+    @RequestMapping("/user/email/new/register")
+    public void registerNewssl(Model model, HttpServletRequest request, String email, String password) {
+        String name = email;
+//        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email) || StringUtils.isEmpty(password) || StringUtils.isEmpty(verifyCode)) {
+//            tip(model, CodeConstants.USER_EMAIL_REGISTER_IS_EMPTY);
+//            return;
+//        }
+
+        if (!email.matches("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$")) {
+            tip(model, CodeConstants.USER_EMAIL_ERROR);
+            return;
+        }
+
+        if (password.length() < 6) {
+            tip(model, CodeConstants.USER_PASSWORD_ERROR);
+            return;
+        }
+
+        /*if (emailRegisterChecked(email)) {
+            tip(model, CodeConstants.USER_REGISTER_FREQUENT_OPERATE);
+            return;
+        }*/
+        Object[] objects = userService.emailRegisterNews(name, email, password, getContext().getChannel(), HttpUtil.getIP(request), HttpUtil.getIntParameter(request, "_v"));
+
+//        emailRegisterRemoveCurrent(email);
+
+        switch ((int) objects[0]) {
+            case 0:
+                User user = (User) objects[1];
+                model.addAttribute("user", user);
+
+                clearUserInfo(user);
+
+                // 用户等级信息
+                model.addAttribute("userRunStatistics", userRunStatisticsService.getUserRunStatisticsByUid(user.getId()));
+                model.addAttribute("bodys", null);
+                break;
+            case 1:
+                tip(model, CodeConstants.REGISTER_APP_USER_EMAIL_REPEAT);
+                break;
+            case 2:
+                tip(model, CodeConstants.USER_VERIFY_CODE_ERROR);
+                break;
+        }
+    }
+
+
+
+    /**
+     * 用户信息修改
+     *
+     * @param uid       用户编号
+     * @param name      用户名 :1.0.8版本开始
+     * @param gender    性别
+     * @param age       年龄
+     * @param height    身高
+     * @param weight    体重 （斤）
+     * @param type      类型（kg/cm, ib/in）
+     * @param signature 个性签名
+     * @param areaCode 国家代码
+     *                  TODO 迭代 2.0.2 版本 新增 signature city 几个版本后改为 必填
+     */
+    @RequestMapping("/user/new/modify-info")
+    public void modifyInfoNew(Model model, HttpServletRequest request, @RequestParam(required = true) Integer uid,
+                           @RequestParam(required = false) String name, // 用户名 1.2 版本开始
+                           Integer gender, Integer age, Double height, Double weight, Integer type,
+                           @RequestParam(required = false) String signature,String areaCode) throws IOException {
+        Map<String, MultipartFile> fileMap = FileCenterClient.buildMultipartFile(request);
+        String avatarUrl = null;
+        if (!CollectionUtils.isEmpty(fileMap)) {
+            for (Map.Entry<String, MultipartFile> multipartFile : fileMap.entrySet()) {
+                MultipartFile file = multipartFile.getValue();
+//                BufferedImage bufferedImage = ImageUtil.resize(file.getBytes(),
+//                        FileConstants.FILE_TYPE_AUDIO_USER_AVATAR_RESOLUTION[0], FileConstants.FILE_TYPE_AUDIO_USER_AVATAR_R665
+                avatarUrl = FileCenterClient.upload(file, FileConstants.FILE_TYPE_USER_AVATAR_IMAGE);  // 转发文件服务器
+            }
+        }
+        if (age < 1) {
+            tip(model, CodeConstants.USER_INFO_MODIFY_AGE_ERROR);
+            return;
+        }
+        if (DicUtil.getDictionary(DicConstants.DIC_TYPE_GENDER, gender) == null) {
+            tip(model, CodeConstants.USER_INFO_MODIFY_GENDER_ERROR);
+            return;
+        }
+        if (DicUtil.getDictionary(DicConstants.DIC_TYPE_USER_TYPE, type) == null) {
+            tip(model, CodeConstants.USER_INFO_MODIFY_TYPE_ERROR);
+            return;
+        }
+
+        int result = userService.userInfoModifyNew(uid, name, gender, age, height, weight, type, avatarUrl, signature,areaCode);
+        switch (result) {
+            case 0:
+                break;
+            case 4:
+                tip(model, CodeConstants.LOGIN_USER_NOT_EXIST);
+                break;
+        }
+    }
+
+}

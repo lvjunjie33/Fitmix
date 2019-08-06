@@ -1,0 +1,552 @@
+package com.business.core.entity.mix;
+
+import com.business.core.annotation.MongoDocumentDB;
+import com.business.core.entity.IncIdEntity;
+import com.business.core.mongo.MongoType;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
+import java.util.Map;
+
+
+/**
+ * Created by sin on 15/4/13.
+ * mix 歌曲
+ */
+@Document(collection = "Mix")
+@MongoDocumentDB(MongoType.BUSINESS_SECONDARY)
+public class Mix extends IncIdEntity<Integer> {
+
+    /**
+     * 未上架
+     */
+    public static final Integer STATE_1 = 1;
+    /**
+     * 上架
+     */
+    public static final Integer STATE_2 = 2;
+    /**
+     * bmp 类型 固定的
+     */
+    public static final Integer BMP_TYPE_FIXED = 1;
+    /**
+     * bpm 类型 可变的
+     */
+    public static final Integer BMP_TYPE_VARIABLE = 2;
+    /**
+     * 类型 运动歌单
+     */
+    public static final Integer TYPE_SPORT = 1;
+    /**
+     * 类型 电台
+     */
+    public static final Integer TYPE_RADIO = 2;
+    /**
+     * 类型 主播创建
+     */
+    public static final Integer TYPE_USER_CREATE = 3;
+
+    ///
+    /// 业务内容
+
+    /**
+     * 类型 null或者1: 运动歌单 2：电台
+     */
+    private Integer type;
+    /**
+     * bpm 值
+     */
+    private String bpm;
+    /**
+     * bpm 类型， 1、固定的 2、可变的
+     */
+    private Integer bpmType;
+    /**
+     * bpm 可变的 bpm开始值
+     */
+    private Integer bpmVariableBegin;
+    /**
+     * bpm 可变的 bpm开始值
+     */
+    private Integer bpmVariableEnd;
+    /**
+     * 介绍
+     */
+    private String introduce;
+    /**
+     * mix 歌曲路径
+     */
+    private String url;
+    /**
+     * 添加时间
+     */
+    private Long addTime;
+    /**
+     * 状态 1、下架 2、上架
+     */
+    private Integer state;
+    /**
+     * 类型（场景） （scene 改成跑速： 快速跑 中速跑 慢速跑 健走)
+     * <strong>mix专有</strong>
+     */
+    private Integer[] scene;
+    /**
+     * 曲风 (流派)
+     * <strong>mix专有</strong>
+     */
+    private Integer[] genre;
+    /**
+     * 曲风 (流派) 上级标签
+     * <strong>mix专有</strong>
+     */
+    private Integer[] genreParent;
+    /**
+     * 下载次数
+     */
+    private Integer downloadCount;
+    /**
+     * 分享次数
+     */
+    private Integer shareCount;
+    /**
+     * 试听数
+     */
+    private Integer auditionCount;
+    /**
+     * 基础试听数
+     */
+    private Integer baseAuditionCount;
+    /**
+     * 收藏数量
+     */
+    private Integer collectNumber;
+
+    //基础 -- 偏移量，下载、分享、试听、基础试听、收藏(后台控制)
+    private Integer dOffsetNum;
+    private Integer sOffsetNum;
+    private Integer aOffsetNum;
+    private Integer bOffsetNum;
+    private Integer cOffsetNum;
+
+
+    /**
+     * 创建用户 编号 {@link com.business.core.entity.user.User#id}
+     */
+    private Integer uid;
+    /**
+     * 所属专辑 编号 {@link com.business.core.entity.mix.MixAlbum#id}
+     */
+    private Integer mixAlbumsId;
+    /**
+     * 审核状态
+     */
+    private Integer checkStatus;
+
+    ///paceSpeed
+    /// 获得歌曲内容
+
+    /**
+     * <strong>歌曲 or 电台 名称</strong>
+     */
+    private String albumName;
+    /**
+     * <strong>歌曲的封面图 小的</strong>
+     */
+    private String albumUrl;
+    /**
+     * <strong>歌曲的封面图 大的</strong>
+     */
+    private String albumUrl_2;
+    /**
+     * 作者
+     */
+    @Deprecated
+    private String author;
+    /**
+     * mix author 编号 {@link com.business.core.entity.mix.MixAuthor#id}
+     */
+    private Integer maid;
+    /**
+     * 名称
+     */
+    private String name;
+    /**
+     * 歌曲长
+     */
+    private Integer trackLength;
+    /**
+     * 上架时间,下架时间， （上架的时候是上架时间，下架的时候是下架时间）
+     */
+    private Long shelvesTime;
+    /**
+     * 歌曲排序
+     */
+    private Integer sort;
+    /**
+     * mix 歌曲，内置合成歌曲信息
+     * key 歌曲名， value 下一段歌曲时间
+     */
+    @Deprecated
+    private List<Map<String, Object>> mixMusics;
+    /**
+     * 自定义标识
+     * <p>
+     *     便于 北京工作人员 后台管理，不做任何其他作用
+     * </p>
+     */
+    private String customIdentification;
+    /**
+     * 歌曲--推荐开始日期
+     * A、多个歌曲在同一天推荐，随机从中选择一首
+     * B或者从收藏排名前50中随机选择一首歌曲进行推荐)
+     */
+    private Long recommendBeginDate;
+    /**
+     * 歌曲--推荐结束日期
+     */
+    private Long recommendEndDate;
+
+    private List<MixDetail> mixDetails;
+
+    public List<MixDetail> getMixDetails() {
+        return mixDetails;
+    }
+
+    public void setMixDetails(List<MixDetail> mixDetails) {
+        this.mixDetails = mixDetails;
+    }
+///
+    /// 非存储字段
+
+    /**
+     * img
+     */
+    @Transient
+    private byte[] bytes;
+    /**
+     * 作者
+     */
+    @Transient
+    private MixAuthor mixAuthor;
+
+    public String getBpm() {
+        return bpm;
+    }
+
+    public void setBpm(String bpm) {
+        this.bpm = bpm;
+    }
+
+    public Integer getBpmType() {
+        return bpmType;
+    }
+
+    public void setBpmType(Integer bpmType) {
+        this.bpmType = bpmType;
+    }
+
+    public Integer getBpmVariableBegin() {
+        return bpmVariableBegin;
+    }
+
+    public void setBpmVariableBegin(Integer bpmVariableBegin) {
+        this.bpmVariableBegin = bpmVariableBegin;
+    }
+
+    public Integer getBpmVariableEnd() {
+        return bpmVariableEnd;
+    }
+
+    public void setBpmVariableEnd(Integer bpmVariableEnd) {
+        this.bpmVariableEnd = bpmVariableEnd;
+    }
+
+    public String getIntroduce() {
+        return introduce;
+    }
+
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Long getAddTime() {
+        return addTime;
+    }
+
+    public void setAddTime(Long addTime) {
+        this.addTime = addTime;
+    }
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
+    public Integer[] getScene() {
+        return scene;
+    }
+
+    public void setScene(Integer[] scene) {
+        this.scene = scene;
+    }
+
+    public Integer[] getGenre() {
+        return genre;
+    }
+
+    public void setGenre(Integer[] genre) {
+        this.genre = genre;
+    }
+
+    public Integer[] getGenreParent() {
+        return genreParent;
+    }
+
+    public void setGenreParent(Integer[] genreParent) {
+        this.genreParent = genreParent;
+    }
+
+    public Integer getDownloadCount() {
+        return downloadCount;
+    }
+
+    public void setDownloadCount(Integer downloadCount) {
+        this.downloadCount = downloadCount;
+    }
+
+    public Integer getShareCount() {
+        return shareCount;
+    }
+
+    public void setShareCount(Integer shareCount) {
+        this.shareCount = shareCount;
+    }
+
+    public String getAlbumName() {
+        return albumName;
+    }
+
+    public void setAlbumName(String albumName) {
+        this.albumName = albumName;
+    }
+
+    public String getAlbumUrl() {
+        return albumUrl;
+    }
+
+    public void setAlbumUrl(String albumUrl) {
+        this.albumUrl = albumUrl;
+    }
+
+    public String getAlbumUrl_2() {
+        return albumUrl_2;
+    }
+
+    public void setAlbumUrl_2(String albumUrl_2) {
+        this.albumUrl_2 = albumUrl_2;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public Integer getMaid() {
+        return maid;
+    }
+
+    public void setMaid(Integer maid) {
+        this.maid = maid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getTrackLength() {
+        return trackLength;
+    }
+
+    public void setTrackLength(Integer trackLength) {
+        this.trackLength = trackLength;
+    }
+
+    public Integer getCollectNumber() {
+        return collectNumber;
+    }
+
+    public void setCollectNumber(Integer collectNumber) {
+        this.collectNumber = collectNumber;
+    }
+
+    public Long getShelvesTime() {
+        return shelvesTime;
+    }
+
+    public void setShelvesTime(Long shelvesTime) {
+        this.shelvesTime = shelvesTime;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
+    }
+
+    public List<Map<String, Object>> getMixMusics() {
+        return mixMusics;
+    }
+
+    public void setMixMusics(List<Map<String, Object>> mixMusics) {
+        this.mixMusics = mixMusics;
+    }
+
+    public String getCustomIdentification() {
+        return customIdentification;
+    }
+
+    public void setCustomIdentification(String customIdentification) {
+        this.customIdentification = customIdentification;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
+
+    public MixAuthor getMixAuthor() {
+        return mixAuthor;
+    }
+
+    public void setMixAuthor(MixAuthor mixAuthor) {
+        this.mixAuthor = mixAuthor;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Integer getAuditionCount() {
+        return auditionCount;
+    }
+
+    public void setAuditionCount(Integer auditionCount) {
+        this.auditionCount = auditionCount;
+    }
+
+    public Integer getBaseAuditionCount() {
+        return baseAuditionCount;
+    }
+
+    public void setBaseAuditionCount(Integer baseAuditionCount) {
+        this.baseAuditionCount = baseAuditionCount;
+    }
+
+    public Integer getUid() {
+        return uid;
+    }
+
+    public void setUid(Integer uid) {
+        this.uid = uid;
+    }
+
+    public Integer getMixAlbumsId() {
+        return mixAlbumsId;
+    }
+
+    public void setMixAlbumsId(Integer mixAlbumsId) {
+        this.mixAlbumsId = mixAlbumsId;
+    }
+
+    public Integer getCheckStatus() {
+        return checkStatus;
+    }
+
+    public void setCheckStatus(Integer checkStatus) {
+        this.checkStatus = checkStatus;
+    }
+
+    public Long getRecommendBeginDate() {
+        return recommendBeginDate;
+    }
+
+    public void setRecommendBeginDate(Long recommendBeginDate) {
+        this.recommendBeginDate = recommendBeginDate;
+    }
+
+    public Long getRecommendEndDate() {
+        return recommendEndDate;
+    }
+
+    public void setRecommendEndDate(Long recommendEndDate) {
+        this.recommendEndDate = recommendEndDate;
+    }
+
+    public Integer getdOffsetNum() {
+        return dOffsetNum;
+    }
+
+    public void setdOffsetNum(Integer dOffsetNum) {
+        this.dOffsetNum = dOffsetNum;
+    }
+
+    public Integer getsOffsetNum() {
+        return sOffsetNum;
+    }
+
+    public void setsOffsetNum(Integer sOffsetNum) {
+        this.sOffsetNum = sOffsetNum;
+    }
+
+    public Integer getaOffsetNum() {
+        return aOffsetNum;
+    }
+
+    public void setaOffsetNum(Integer aOffsetNum) {
+        this.aOffsetNum = aOffsetNum;
+    }
+
+    public Integer getbOffsetNum() {
+        return bOffsetNum;
+    }
+
+    public void setbOffsetNum(Integer bOffsetNum) {
+        this.bOffsetNum = bOffsetNum;
+    }
+
+    public Integer getcOffsetNum() {
+        return cOffsetNum;
+    }
+
+    public void setcOffsetNum(Integer cOffsetNum) {
+        this.cOffsetNum = cOffsetNum;
+    }
+}

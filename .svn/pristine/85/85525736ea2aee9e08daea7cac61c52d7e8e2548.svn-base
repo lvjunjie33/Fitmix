@@ -1,0 +1,118 @@
+package com.business.app.channelApp;
+
+import com.business.core.client.FileCenterClient;
+import com.business.core.entity.channel.BurnFatFighting;
+import com.business.core.entity.channel.ChannelApp;
+import com.business.core.entity.channel.ChannelAppDownload;
+import com.business.core.entity.channel.ChannelAppStatistics;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created by fenxio on 2016/5/10.
+ */
+@Service
+public class ChannelAppService {
+
+    @Autowired
+    private ChannelAppDao channelAppDao;
+
+
+    public Long getCountGroupByType(Integer type) {
+        return channelAppDao.getCountGroupByType(type);
+    }
+
+    /**
+     * 添加 燃脂统计信息
+     * @param burnFatFighting
+     */
+    public void addBurnFatFighting(BurnFatFighting burnFatFighting) {
+        BurnFatFighting oldBurnFatFighting = channelAppDao.findBurnFatFightingByIpAndRandom(burnFatFighting.getIp(), burnFatFighting.getRandom());
+        if (null == oldBurnFatFighting) {
+            burnFatFighting.setAddTime(new Date().getTime());
+            channelAppDao.insertBurnFatFighting(burnFatFighting);
+        } else {
+            channelAppDao.updateBurnFatFightingByIpAndRandom(burnFatFighting);
+        }
+
+    }
+
+    /**
+     * 根据Id 查找 ChannelApp
+     * @param id 渠道编号
+     */
+    public ChannelApp findChannelAppById(Integer id) {
+        return channelAppDao.findChannelAppById(id);
+    }
+
+    /**
+     * 根据渠道ID  查找ChannelApp
+     * @param channelId 渠道ID
+     */
+    public ChannelApp findChannelAppByChannelId(Integer channelId) {
+        ChannelApp channelApp = channelAppDao.findChannelAppByChannelId(channelId);
+        buildFileUrl(channelApp);
+        return channelApp;
+    }
+
+    /**
+     * 新增下载统计记录
+     * @param channelAppDownload 渠道下载
+     */
+    public void channelAppDownloadAdd(ChannelAppDownload channelAppDownload) {
+        channelAppDao.channelAppDownloadAdd(channelAppDownload);
+    }
+
+    /**
+     * 添加统计记录
+     */
+    public void channelAppStatisticsAdd(ChannelAppStatistics channelAppStatistics) {
+        channelAppDao.channelAppStatisticsAdd(channelAppStatistics);
+    }
+
+    /**
+     * 修改打开统计状态
+     * @param id 打开统计编号
+     */
+    public void modifyOpenStatus(Integer id, Integer openStatus) {
+        Update update = new Update();
+        update.set("openStatus",openStatus);
+        channelAppDao.modifyOpenStatusById(id,update);
+    }
+
+
+
+    /**
+     * 构建多个 APK文件路径
+     * @param ChannelAppList ChannelApp集合
+     */
+    public void buildFileUrls(List<ChannelApp> ChannelAppList) {
+        if (!CollectionUtils.isEmpty(ChannelAppList)) {
+            for (ChannelApp channelApp : ChannelAppList) {
+                buildFileUrl(channelApp);
+            }
+        }
+    }
+
+    /**
+     * 构建一个 APK文件路径
+     * @param channelApp channelApp
+     */
+    public void buildFileUrl(ChannelApp channelApp) {
+        if (channelApp != null) {
+            if (null != channelApp.getAndroidApkUrl()) {
+                channelApp.setAndroidApkUrl(FileCenterClient.buildUrl(channelApp.getAndroidApkUrl()));
+            }
+        }
+    }
+
+
+    public static  void main(String args[]){
+        System.out.println(6<<2);
+    }
+}

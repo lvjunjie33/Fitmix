@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+       default-lazy-init="true">
+
+    <description>Shiro安全配置</description>
+
+    <!-- 继承自AuthorizingRealm的自定义Realm,即指定Shiro验证用户登录的类为自定义的ShiroDbRealm.java -->
+    <bean id="myRealm" class="com.business.work.base.shiro.MyDbRealm"/>
+
+    <bean id="myRoles" class="com.business.work.base.shiro.MyRolesAuthorizationFilter"></bean>
+    <bean id = "visitLogFilter" class="com.business.work.base.shiro.VisitLogFilter"></bean>
+
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="myRealm"/>
+    </bean>
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/login.htm"/>
+        <property name="successUrl" value="/home.htm"/>
+        <property name="unauthorizedUrl" value="/unauthorized.htm"/>
+        <property name="filters">
+            <util:map>
+                <entry key="myRoles" value-ref="myRoles"/>
+                <entry key = "visitLogFilter" value-ref="visitLogFilter"></entry>
+            </util:map>
+        </property>
+        <property name="filterChainDefinitions">
+            <value>
+              <!--  /logout = logout
+                /unauthed = anon
+                /console/** = anon
+                /css/** = anon
+                /js/** = anon
+                /lib/** = anon
+                /admin/** = authc, roles[admin]
+                /docs/** = authc, perms[document:read]
+                /** = authc
+                # more URL-to-FilterChain definitions here-->
+                /get/song/list.htm = anon
+                /unauthorized.htm = anon
+                /unauthed = anon
+                /imgs/** = anon
+                /static/** = anon
+                /login.json = anon
+                /login.htm = authc
+                /logout.htm = logout
+                /** = visitLogFilter,myRoles
+            </value>
+        </property>
+    </bean>
+
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <!-- Enable Shiro Annotations for Spring-configured beans. Only run after the lifecycleBeanProcessor has run -->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+</beans>
+

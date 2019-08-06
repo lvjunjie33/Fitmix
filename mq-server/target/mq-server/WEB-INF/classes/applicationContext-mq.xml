@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--suppress SpringPlaceholdersInspection -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd"
+       default-lazy-init="true">
+
+    <description>Spring-mq配置</description>
+
+    <!--<bean id="mqPushConsumer" class="com.business.mq.core.BaseMQPushConsumer">
+        <property name="consumerGroup" value="${RocketMQ.consumer.group}${RocketMQ.topic.prefix}" />
+        <property name="instanceName" value="[MQ-SERVER][CONSUMER]${RocketMQ.topic.prefix}" />
+        <property name="namesrvAddr" value="${RocketMQ.namesrvAddr}" />
+        &lt;!&ndash;<property name="mqCoreService" ref="mqCoreService" />&ndash;&gt; &lt;!&ndash; [TODO：优先级：芋艿] 无法引入，不知道为哈 &ndash;&gt;
+        &lt;!&ndash;<property name="appPushAdminsCommand" ref="appPushAdminsCommand" />&ndash;&gt;
+        <property name="consumeThreadMin" value="100" />
+        <property name="consumeThreadMax" value="100" />
+    </bean>-->
+
+</beans>

@@ -1,0 +1,745 @@
+
+.bg{
+    text-align: center !important;
+    background: url(/static/run-plan/imgs/background.jpg) no-repeat;
+    background-size:100%;
+    width:100%;
+    padding-bottom:200px;
+}
+
+.filter{
+    width: 100%;
+    height:100%;
+    position: absolute;
+    background: rgba(0,0,0,0.4);
+}
+
+.run-plan-contain{
+    height:818px;
+    width:1008px;
+    text-align: center !important;
+    border-radius: 8px;
+    background-color:rgba(32,31,38,0.8);
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    top: 36px;
+    z-index: 1;
+}
+
+.title-bar{
+    margin:0px 15px 0 15px;
+}
+
+.title-bar .title-control-bar{
+    width: 100%;
+}
+
+.title-bar .title-control-bar .plan-button{
+    float:right;
+    width:98px;
+    height: 24px;
+    border-radius: 15px;
+    border:transparent;
+    font-size: 12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: rgba(25,24,28,1);
+    background-color: rgba(59,59,64,1);
+    margin: 17px 0 0 10px;
+    cursor:pointer;
+    outline: none;
+}
+
+.title-bar .title-control-bar .plan-button:hover{
+    color:#FFFFFF;
+}
+
+.img-help{
+    float:left;
+    margin-top:15px;
+}
+
+.run-plan-title{
+    position: absolute;
+    width: 884px;
+    height:70px;
+    bottom: 693px;
+}
+
+.run-plan-title-item-1{
+    position: relative;
+    text-align: left;
+    float: left;
+}
+
+.run-plan-title-item-2{
+    position: relative;
+    text-align: center;
+    margin-left:110px;
+    float: left;
+}
+
+.run-plan-title-item-3{
+    position: relative;
+    text-align: right;
+    float: right;
+    margin-right:-95px;
+}
+
+.title{
+    margin: auto;
+    font-size: 18px;
+    font-family:"Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    position: inherit;
+}
+
+.vector_1{
+    background-color:#6d87f8;
+    width: 240px;
+    height:150px;
+    margin:260px 0 0 730px;
+    position: absolute;
+    opacity: 0.95;
+    z-index: 2000;
+    border-radius: 8px;
+}
+
+.vector_date{
+    margin:10px 0 0 10px;
+    background-color: #0c3869;
+    width: 65px;
+    height:65px;
+    position: absolute;
+}
+
+.vector_arrow{
+    border-top:10px solid #6d87f8;
+    border-left:10px solid transparent;
+    border-right:10px solid transparent;
+    top: 150px;
+    left: 171px;
+    position: absolute;
+}
+
+.content{
+    margin-top: 20px;
+    font-size: 26px;
+    font-family:"Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    position: inherit;
+}
+
+.run-plan-stage{
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    bottom: 617px;
+    background-color: rgba(32,31,38,1);
+}
+
+.stage-border{
+    width: 162px;
+    height: 60px;
+    border:1px solid #8c8c8c;
+    text-align: left;
+    position: relative;
+    z-index: 3;
+    cursor:pointer;
+}
+
+.stage-border-1{
+    width: 196px;
+    height: 60px;
+    border:1px solid #8c8c8c;
+    /*border-right: transparent;*/
+    text-align: left;
+    position: relative;
+    z-index: 3;
+    cursor:pointer;
+    background-color: rgba(32,31,38,1);
+}
+
+.stage-border-2{
+    width:246px;
+    height: 60px;
+    border:1px solid #8c8c8c;
+    text-align: left;
+    position: relative;
+    z-index: 3;
+    cursor:pointer;
+    background-color: rgba(32,31,38,1);
+}
+
+.hover_1{
+    border-color: rgba(12,180,232,0.8);
+}
+
+.hover_2{
+    border-color: rgba(12,126,232,0.8);
+}
+
+.hover_3{
+    border-color: rgba(232,183,12,0.8);
+}
+
+.hover_4{
+    border-color: rgba(232,79,12,0.8);
+}
+
+.hover_5{
+    border-color: rgba(172,12,232,0.8);
+}
+
+.hover_6{
+    border-color: rgba(12,232,147,0.8);
+}
+
+.stage-border span{
+    font-size: 18px;
+    margin:21px 0 0 10px;
+    color: #FFFFFF;
+    display: inline-block;
+}
+
+.stage-border-1 span{
+    font-size: 18px;
+    margin:21px 0 0 10px;
+    color: #FFFFFF;
+    display: inline-block;
+}
+
+.stage-border-2 span{
+    font-size: 18px;
+    margin:21px 0 0 10px;
+    color: #FFFFFF;
+    display: inline-block;
+}
+
+.stage{
+    /*margin-left:4px;*/
+    display: inline-block;
+    /*  margin-right:-4px;*/
+}
+
+.stage_checked_1{
+    background-color: rgba(12,180,232,1);
+}
+
+.stage_checked_2{
+    background-color: rgba(12,126,232,1);
+}
+
+.stage_checked_3{
+    background-color: rgba(232,183,12,1);
+}
+
+.stage_checked_4{
+    background-color: rgba(232,79,12,1);
+}
+
+.stage_checked_5{
+    background-color: rgba(172,12,232,1);
+}
+
+.stage_checked_6{
+    background-color: rgba(12,232,147,1);
+}
+
+.arrow{
+    position: absolute;
+    /* padding-left: 21px;*/
+    z-index: 2;
+    /*    margin-right:-10px;*/
+}
+
+.stage_name{
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    text-align: center;
+    margin: 21px 0 0 40px;
+    display: inline-block;
+    word-break: normal;
+}
+
+.run-plan-week{
+    position: absolute;
+    width:100%;
+    height:60px;
+    bottom:550px;
+    margin:0;
+    font-size: 18px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align:center;
+}
+
+.week_1{
+    float: left;
+    margin:21px 0 0 55px;
+}
+
+.week_2{
+    margin: 21px 0 0 83px;
+    float: left;
+}
+
+.run-plan-content{
+    position: absolute;
+    height:532px;
+    width:100%;
+    /*  left:25px;*/
+    opacity:0.9;
+    bottom: 2px;
+    overflow: auto;
+}
+
+.mCSB_scrollTools .mCSB_draggerContainer{
+    left: -28px !important;
+}
+
+.run-plan-content-hide{
+    display: none;
+}
+
+.run-plan-row{
+    display: inline-block;
+    margin-top: 18px;
+    width: 100%;
+}
+
+.run-plan-row-first{
+    display: inline-block;
+    width: 100%;
+}
+/**
+  状态——已过去
+**/
+.state_past{
+    background-color: rgba(140,140,140,1);
+}
+
+/**
+  状态——不存在
+**/
+.state_inexistence{
+    background-color: rgba(140,140,140,1);
+
+}
+
+.strickout{
+    text-decoration:line-through;
+}
+
+/**
+   状态——当前
+**/
+/*.stage_now{
+    background-color: rgba(12,180,232,1);
+}*/
+
+.run_plan_column_1{
+    width: 118px;
+    height:118px;
+    border:1px solid #8c8c8c;
+    border-radius: 8px;
+    margin:0 0 0 18px;
+    float: left;
+    text-align: left;
+    cursor:pointer;
+}
+
+.tooltip{
+    background: rgba(12,180,232,1);
+    width: 200px;
+    height: 100px;
+    position: absolute;
+    top: -114px;
+}
+
+.tooltip:after{
+    content: '';
+    display: block;
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    left:55px;
+    bottom:-10px;
+    border-width:10px 10px 0;
+    border-style:solid;
+    border-color: rgba(12,180,232,1) transparent transparent;
+}
+
+
+
+.run_plan_column_2{
+    width: 118px;
+    height:118px;
+    border:1px solid #8c8c8c;
+    border-radius: 8px;
+    display: inline;
+    margin-left: 18px;
+    float: left;
+    text-align: left;
+    cursor:pointer;
+}
+
+/*.run_plan_column_3{
+    width: 118px;
+    height:118px;
+    border:1px solid #8c8c8c;
+    border-radius: 8px;
+    position: relative;
+    float: right;
+    text-align: left;
+    cursor:pointer;
+}
+
+.run_plan_column_4{
+    width: 118px;
+    height:118px;
+    border:1px solid #8c8c8c;
+    border-radius: 8px;
+    display: inline;
+    margin-left: 18px;
+    float: left;
+    text-align: left;
+    cursor:pointer;
+}*/
+/** 不同阶段的hover样式 start **/
+.run_plan_column_1_1:hover{
+    border-color:rgba(12,180,232,1);
+}
+
+.run_plan_column_2_1:hover{
+    border-color:rgba(12,180,232,1);
+}
+
+/*.run_plan_column_3_1:hover{
+    border-color:rgba(12,180,232,1);
+}
+
+.run_plan_column_4_1:hover{
+    border-color:rgba(12,180,232,1);
+}*/
+
+.run_plan_column_1_2:hover{
+    border-color: rgba(12,126,232,1);
+}
+
+.run_plan_column_2_2:hover{
+    border-color: rgba(12,126,232,1);
+}
+
+/*.run_plan_column_3_2:hover{
+    border-color: rgba(12,126,232,1);
+}
+
+.run_plan_column_4_2:hover{
+    border-color: rgba(12,126,232,1);
+}*/
+
+.run_plan_column_1_3:hover{
+    border-color: rgba(232,183,12,1);
+}
+
+.run_plan_column_2_3:hover{
+    border-color: rgba(232,183,12,1);
+}
+
+/*.run_plan_column_3_3:hover{
+    border-color: rgba(232,183,12,1);
+}
+
+.run_plan_column_4_3:hover{
+    border-color: rgba(232,183,12,1);
+}*/
+
+.run_plan_column_1_4:hover{
+    border-color: rgba(232,79,12,1);
+}
+
+.run_plan_column_2_4:hover{
+    border-color: rgba(232,79,12,1);
+}
+
+/*.run_plan_column_3_4:hover{
+    border-color: rgba(232,79,12,1);
+}
+
+.run_plan_column_4_4:hover{
+    border-color: rgba(232,79,12,1);
+}*/
+
+.run_plan_column_1_5:hover{
+    border-color: rgba(172,12,232,1);
+}
+
+.run_plan_column_2_5:hover{
+    border-color: rgba(172,12,232,1);
+}
+
+/*.run_plan_column_3_5:hover{
+    border-color: rgba(172,12,232,1);
+}
+
+.run_plan_column_4_5:hover{
+    border-color: rgba(172,12,232,1);
+}*/
+
+.run_plan_column_1_6:hover{
+    border-color: rgba(12,232,147,1);
+}
+
+.run_plan_column_2_6:hover{
+    border-color: rgba(12,232,147,1);
+}
+
+/*.run_plan_column_3_6:hover{
+    border-color: rgba(12,232,147,1);
+}
+
+.run_plan_column_4_6:hover{
+    border-color: rgba(12,232,147,1);
+}*/
+/** 不同阶段的hover样式 end **/
+
+.date{
+    font-size:16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    padding:6px 0 0 6px;
+}
+
+.run_plan_content{
+    font-size:16px;
+    font-family:"Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    padding:14px 0 0 6px;
+}
+
+.run_plan_speed{
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    padding:6px 0 0 6px;
+}
+
+.run-plan-t{
+    width:100%;
+    height: 40px;
+    position: absolute;
+    bottom: 14px;
+    padding:0;
+    margin:0;
+}
+
+.run-plan-submit{
+    height:100%;
+    width: 430px;
+    border-radius:25px;
+    outline:none;
+    border:none;
+}
+
+/*.uk-button-primary{
+    background-color: rgb(12,232,147);
+}*/
+
+
+/** training-program **/
+.plan-modify{
+    float: right;
+    position: absolute;
+    display: inline-block;
+}
+
+.plan-modify-button{
+    border-radius: 8px;
+    box-shadow: #8c8c8c;
+    margin: 17px 0 0 10px;
+}
+
+.test{
+    background: rgba(12,180,232,1);
+    text-shadow: 0 1px 0 rgba(12,180,232,1) !important;
+    border-top-color:rgba(12,180,232,1) !important;
+    border:rgba(12,180,232,1) !important;
+    border-radius: 8px;
+    width:325px;
+    height:170px;
+    max-width: 400px !important;
+
+}
+
+.test:after{
+    border-top-color:rgba(12,180,232,1) !important;
+}
+/*
+.test:after{
+    background: rgba(12,232,147,0.1);
+    text-shadow: 0 1px 0 rgba(12,232,147,0.1) !important;
+    border-top-color:rgba(12,232,147,0.1) !important;
+    border:rgba(12,232,147,0.1) !important;
+}*/
+.tips-contain{
+    width:400px;
+    height:100px;
+}
+
+.tips-contain .tdate{
+    background-color:rgba(32,31,38,0.5);
+    width:70px;
+    height:70px;
+    font-size: 22px;
+    border-radius: 8px;
+    margin:4px 0 0 4px;
+    float: left;
+}
+
+.tips-contain .tdate .tip-month{
+    font-size: 12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    text-align: left;
+    margin: 5px 0 0 12px;
+}
+
+.tips-contain .tdate .tip-date{
+    font-size:46px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    text-align: center;
+    margin:11px 0 0 5px;
+    letter-spacing: 3px;
+}
+
+.tips-contain .tip-detail{
+    float: left;
+    margin-top:13px;
+}
+
+.tips-contain .tip-detail .tip-detail-content{
+    font-size:16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    margin-left: -35px;
+    position: relative;
+}
+
+.tips-contain .tip-detail .tip-detail-content-1{
+    font-size:16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    margin-left:10px;
+}
+
+/*.tips-contain .tip-detail .tip-detail-range{
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:12px;
+    color: #FFFFFF;
+}*/
+
+.tips-contain .tip-detail .tip-range-time{
+    margin: 6px 0 0 -13px;
+    width:100%;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:12px;
+    color: #FFFFFF;
+}
+
+.tips-contain .tip-detail .tip-range-pace{
+    margin-left: 9px;
+    width:100%;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:12px;
+    color: #FFFFFF;
+}
+
+/*.tdate{
+    width:20px;
+    height:20px;
+    background-color: #000000;
+}*/
+
+
+.date-bar{
+    background-color: #000000;
+}
+
+.delay-plan{
+    background-color: rgba(32,31,38,1);
+    width:580px;
+    height:380px;
+    position: absolute;
+    left:35%;
+    top:29%;
+    border-radius: 15px;
+    z-index: 999999;
+    display: none;
+}
+
+.delay-plan .plan-cancel{
+    margin:10px 9px 0 0;
+    float: right;
+}
+
+.delay-plan .delay-title{
+    text-align: left;
+    float: left;
+    margin-left:35px;
+    width:100%;
+}
+
+.delay-plan .delay-title .delay-title-head{
+    color: #FFFFFF;
+    font-size:24px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.delay-plan .delay-title .delay-title-label{
+    color:#FFFFFF;
+    font-size:12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    word-wrap:break-word;
+    margin:18px 58px 0 0;
+}
+
+.delay-plan .delay-control{
+    float: left;
+    width:100%;
+}
+
+.delay-plan .delay-control .delay-minus{
+    float: left;
+    margin:70px 0 0 182px;
+}
+
+.delay-plan .delay-control .delay-minus:hover{
+
+}
+
+.delay-plan .delay-control .delay-day{
+    float: left;
+    font-size:60px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    margin:70px 0 0 51px;
+}
+
+.delay-plan .delay-control .delay-plus{
+    float: left;
+    margin:70px 0 0 51px;
+}
+
+.delay-plan .check-delay .check-delay-button{
+    width:430px;
+    height:40px;
+    font-size:18px;
+    color: #FFFFFF;
+    background-color: #00a8e6;
+    border-radius: 15px;
+    border: transparent;
+    outline: none;
+    margin:72px auto 0;
+}

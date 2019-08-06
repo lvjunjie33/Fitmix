@@ -1,0 +1,210 @@
+.background .forget-bar {
+    background-color: rgba(32, 31, 38, 0.9);
+    width: 856px;
+    margin: 0 auto 20px;
+    position: relative;
+    min-height: 680px;
+    top: 115px;
+    border-radius: 8px;
+}
+
+.background .forget-bar .forget-content {
+    text-align: center;
+    margin: 0 auto;
+    position: relative;
+    top: 52px;
+}
+
+.background .forget-bar .forget-content .forget-head .logo {
+    background-size: cover;
+    background: url(/static/user/img/logo.png) no-repeat scroll center;
+    width: 100px;
+    height: 37px;
+    margin: 0 auto 34px;
+}
+
+.background .forget-bar .forget-content .forget-head h4 {
+    font-size: 34px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    letter-spacing: 5px;
+}
+
+.background .forget-bar .forget-content .forget-main {
+    margin: 40px auto 0;
+}
+
+.background .forget-bar .forget-content .forget-main #email-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .forget-bar .forget-content .forget-main #psw-difference {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .forget-bar .forget-content .forget-main #psw-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -28px;
+}
+
+.background .forget-bar .forget-content .forget-main #code-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .forget-bar .forget-content .forget-main #phone-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .forget-bar .forget-content .forget-main #phone-pattern-error {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .forget-bar .forget-content .forget-main  #email-error {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-type {
+    cursor: pointer;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-type .forget-type-phone {
+    display: inline-block;
+    border-left: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    width: 180px;
+    height: 40px;
+    margin-right: -2px;
+    padding-top: 7px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #FFF;
+    text-align: center;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-type .forget-type-email {
+    display: inline-block;
+    border-right: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    width: 180px;
+    height: 40px;
+    margin-left: -2px;
+    padding-top: 7px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #FFF;
+    text-align: center;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-type .checked {
+    background-color: #0cb4e8;
+}
+
+.background .forget-bar .forget-content .forget-main label {
+    display: block;
+}
+
+.background .forget-bar .forget-content .forget-main label input {
+    color: #FFF;
+    background-color: transparent;
+    border-radius: 8px;
+    border: 1px solid #8e8e8e;
+    width: 360px;
+    height: 40px;
+    padding: 0 16px;
+    outline: none;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-phone , .background .forget-bar .forget-content .forget-main .forget-email {
+    margin: 33px auto 0;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-phone .wap-resend-label {
+    margin: 20px auto 0;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-phone .wap-resend-label .code-item {
+    width: 180px;
+    height: 40px;
+    border-left: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-right: 0;
+    margin-right: -2px;
+    border-radius: 8px 0px 0px 8px;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-phone .wap-resend-label button {
+    width: 180px;
+    height: 40px;
+    border-right: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-left: 0;
+    margin-left: -2px;
+    border-radius: 0px 8px 8px 0px;
+    background-color: #0cb4e8;
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    padding-top: 0;
+    outline: none;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-phone .psw-label ,.background .forget-bar .forget-content .forget-main .forget-email .input-psw-label {
+    margin: 20px auto 0;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-phone .reinput-psw-label , .background .forget-bar .forget-content .forget-main .forget-email .reinput-psw-label {
+    margin: 20px auto 0;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-phone .forget-btn , .background .forget-bar .forget-content .forget-main .forget-email .forget-btn {
+    margin: 40px auto 0;
+}
+
+.background .forget-bar .forget-content .forget-main .forget-phone .forget-btn button , .background .forget-bar .forget-content .forget-main .forget-email .forget-btn button {
+    border-radius: 18px;
+    background-color: #0cb4e8;
+    color: #FFF;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    width: 360px;
+    height: 40px;
+    outline: none;
+    border: 0;
+}
+
+

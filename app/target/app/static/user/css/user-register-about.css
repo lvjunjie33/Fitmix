@@ -1,0 +1,256 @@
+.background .register-bar {
+    background-color: rgba(32, 31, 38, 0.9);
+    width: 856px;
+    margin: 0 auto 20px;
+    position: relative;
+    min-height: 1px;
+    top: 115px;
+    border-radius: 8px;
+    padding-bottom:115px;
+}
+
+.background .register-bar .register-content {
+    text-align: center;
+    margin: 0 auto;
+    position: relative;
+    top: 52px;
+}
+
+.background .register-bar .register-content .reg-head .logo {
+    background-size: cover;
+    background: url(/static/user/img/logo.png) no-repeat scroll center;
+    width: 100px;
+    height: 37px;
+    margin: 0 auto 34px;
+}
+
+.background .register-bar .register-content .reg-head h4 {
+    font-size: 34px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    letter-spacing: 5px;
+}
+
+.background .register-bar .register-content .reg-main {
+    margin: 40px auto 0;
+}
+
+.background .register-bar .register-content .reg-main .reg-type {
+    cursor: pointer;
+}
+
+.background .register-bar .register-content .reg-main .checked {
+    background-color: #0cb4e8;
+}
+
+.background .register-bar .register-content .reg-main .reg-type .reg-type-phone {
+    display: inline-block;
+    border-left: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    width: 180px;
+    height: 40px;
+    margin-right: -2px;
+    padding-top: 7px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #FFF;
+    text-align: center;
+}
+
+.background .register-bar .register-content .reg-main .reg-type .reg-type-email {
+    display: inline-block;
+    border-right: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    width: 180px;
+    height: 40px;
+    margin-left: -2px;
+    padding-top: 7px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #FFF;
+    text-align: center;
+}
+
+.background .register-bar .register-content .reg-main label {
+    display: block;
+}
+
+.background .register-bar .register-content .reg-main label input {
+    color: #FFF;
+    background-color: transparent;
+    border-radius: 8px;
+    border: 1px solid #8e8e8e;
+    width: 360px;
+    height: 40px;
+    padding: 0 16px;
+    outline: none;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone , .background .register-bar .register-content .reg-main .reg-email {
+    margin: 33px auto 0;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone #phone-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone #phone-pattern-error {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone .wap-resend-label {
+    margin: 20px auto 0;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone .wap-resend-label .code-item {
+    width: 180px;
+    height: 40px;
+    border-left: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-right: 0;
+    margin-right: -2px;
+    border-radius: 8px 0px 0px 8px;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone #code-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone .wap-resend-label button {
+    width: 180px;
+    height: 40px;
+    border-right: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-left: 0;
+    margin-left: -2px;
+    border-radius: 0px 8px 8px 0px;
+    background-color: #0cb4e8;
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    padding-top: 0;
+    outline: none;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone .psw-label ,.background .register-bar .register-content .reg-main .reg-email .input-psw-label {
+    margin: 20px auto 0;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone #psw-difference {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone #psw-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone .reinput-psw-label , .background .register-bar .register-content .reg-main .reg-email .reinput-psw-label {
+    margin: 20px auto 0;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone .reg-btn , .background .register-bar .register-content .reg-main .reg-email .reg-btn {
+    margin: 40px auto 0;
+}
+
+.background .register-bar .register-content .reg-main .reg-phone .reg-btn button , .background .register-bar .register-content .reg-main .reg-email .reg-btn button {
+    border-radius: 18px;
+    background-color: #0cb4e8;
+    color: #FFF;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    width: 360px;
+    height: 40px;
+    outline: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.background .register-bar .register-content .reg-main .reg-email .reg-btn .check-drag {
+    background-color: #7B8088;
+    cursor: no-drop;
+}
+
+.background .register-bar .register-content .reg-main .reg-email {
+
+}
+
+.background .register-bar .register-content .reg-main .reg-email #em-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-email #em-psw-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-email #em-psw-difference {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-email #email-error {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    margin: 10px auto -1px;
+}
+
+.background .register-bar .register-content .reg-main .reg-msg {
+    margin:20px auto 0;
+    padding:0 275px;
+    font-size:12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    letter-spacing: 2px;
+    color: #FFF;
+}
+
+.background .register-bar .register-content .reg-main .reg-msg a {
+    color: #0cb4e8;
+    font-size:12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    cursor: pointer;
+}
+
+.background .register-bar .register-content .reg-main .reg-msg a:hover {
+    color: #0cb4e8;
+    text-decoration: none;
+}

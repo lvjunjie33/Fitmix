@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.business.work.mapper.AccountFlowMapper" >
+  <resultMap id="BaseResultMap" type="com.business.core.entity.user.AccountFlow" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="coin" property="coin" jdbcType="INTEGER" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="aid" property="aid" jdbcType="INTEGER" />
+    <result column="flow_type" property="flowType" jdbcType="INTEGER" />
+    <result column="add_time" property="addTime" jdbcType="BIGINT" />
+    <result column="modify_time" property="modifyTime" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, coin, description, aid, flow_type, add_time, modify_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from account_flow
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from account_flow
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.business.core.entity.user.AccountFlow" useGeneratedKeys="true" keyProperty="id" >
+    insert into account_flow (id, coin, description, 
+      aid, flow_type, add_time, 
+      modify_time)
+    values (#{id,jdbcType=INTEGER}, #{coin,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, 
+      #{aid,jdbcType=INTEGER}, #{flowType,jdbcType=INTEGER}, #{addTime,jdbcType=BIGINT}, 
+      #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.business.core.entity.user.AccountFlow" useGeneratedKeys="true" keyProperty="id" >
+    insert into account_flow
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="coin != null" >
+        coin,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="aid != null" >
+        aid,
+      </if>
+      <if test="flowType != null" >
+        flow_type,
+      </if>
+      <if test="addTime != null" >
+        add_time,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="coin != null" >
+        #{coin,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="aid != null" >
+        #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="flowType != null" >
+        #{flowType,jdbcType=INTEGER},
+      </if>
+      <if test="addTime != null" >
+        #{addTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.business.core.entity.user.AccountFlow" >
+    update account_flow
+    <set >
+      <if test="coin != null" >
+        coin = #{coin,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="aid != null" >
+        aid = #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="flowType != null" >
+        flow_type = #{flowType,jdbcType=INTEGER},
+      </if>
+      <if test="addTime != null" >
+        add_time = #{addTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.business.core.entity.user.AccountFlow" >
+    update account_flow
+    set coin = #{coin,jdbcType=INTEGER},
+      description = #{description,jdbcType=VARCHAR},
+      aid = #{aid,jdbcType=INTEGER},
+      flow_type = #{flowType,jdbcType=INTEGER},
+      add_time = #{addTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByParams" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    af.*, a.uid
+    from account_flow af LEFT JOIN account a ON af.aid = a.id
+    <where>
+      <if test="aid != null">
+        aid = #{aid}
+      </if>
+      <if test="uid != null">
+        AND a.uid = #{uid}
+      </if>
+    </where>
+  </select>
+
+</mapper>

@@ -1,0 +1,588 @@
+@import "../static/bootstrap/less/bootstrap";
+@import "common/header";
+@import "common/footer";
+@import "common/sub-nav";
+@import "common/iconfont";
+
+@base-color: #ff802f;
+@btn-color: #ff802f;
+@title-font-size: 20px;
+@desc-font-size: 16px;
+
+.clear {
+  margin: 0;
+  padding: 0;
+}
+
+.box-shadow(@h-shadow: 0px, @v-shadow: 0px, @blur: 1px, @color: #dadada) {
+  box-shadow: @h-shadow @v-shadow @blur @color;
+  -webkit-box-shadow: @h-shadow @v-shadow @blur @color;
+  -moz-box-shadow: @h-shadow @v-shadow @blur @color;
+}
+
+.box {
+  padding: 10px 10px;
+  border: 1px solid #dadada;
+  background-color: #ffffff;
+  .box-shadow;
+}
+
+body {
+  margin-bottom: 20px;
+  background-color: #f1f2f6;
+  font-family: "微软雅黑";
+}
+
+a, a:hover, a:active, a:focus {
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.bbs-container {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+.bbs-row {
+  width: 100%;
+  .clear;
+}
+
+.bbs-btn, .bbs-btn:hover {
+  background-color: @btn-color;
+  color: #ffffff;
+  padding: 6px 24px;
+  border-radius: 30px;
+}
+.bbs-input-btn, .bbs-input-btn:hover, .bbs-input-btn:active, .bbs-input-btn:focus {
+  background-color: @btn-color;
+  color: #ffffff;
+  outline: none !important;
+  padding: 6px 30px;
+}
+
+.bbs-right, .bbs-left {
+  display: inline-block;
+  margin-top: 50px;
+}
+
+.bbs-left {
+  width: 700px;
+  vertical-align: top;
+}
+
+.bbs-right {
+  width: 280px;
+  margin-left: 15px;
+  vertical-align: top;
+}
+
+.vl {
+  margin: 0 5px;
+}
+
+.bbs-more {
+  .box;
+  height: 40px;
+  font-size: 16px;
+  text-align: center;
+  line-height: 20px;
+  color: #888888;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+// banner
+#banner {
+  height: 350px;
+
+  .carousel-inner > .item {
+    cursor: pointer;
+    & > img {
+      width: 700px;
+      height: 350px;
+    }
+    .carousel-caption {
+      bottom: 10px !important;
+      padding-bottom: 12px;
+      a {
+        color: #FFFFFF !important;
+        z-index: 999;
+      }
+    }
+  }
+  .carousel-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    z-index: 15;
+    width: auto !important;
+    margin-left: 30px;
+    padding-left: 0;
+    list-style: none;
+    text-align: left;
+    cursor: pointer;
+  }
+  .carousel-indicators .active {
+    margin: 0;
+    width: 14px;
+    height: 14px;
+    border: 1px solid @base-color;
+    background-color: @base-color;
+  }
+  .carousel-indicators li {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin: 1px;
+    text-indent: -999px;
+    border: 1px solid #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #fff;
+  }
+}
+
+//日期
+.bbs-today {
+  .box-shadow;
+  .box;
+  border: 1px solid #dadada;
+  border-radius: 2px;
+  height: 100px;
+  background-color: #ffffff;
+  .bbs-box {
+    .clear;
+    background-color: #ff802f;
+  }
+  .bbs-date, .bbs-week {
+    .clear;
+    display: inline-block;
+    height: 78px;
+    vertical-align: middle;
+  }
+  .bbs-week {
+    background-color: #ff802f;
+    width: 170px;
+    p {
+      margin-bottom: 0;
+    }
+    p:first-child {
+      margin-top: 5px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+      letter-spacing: 2px;
+    }
+    p:nth-child(2) {
+      text-align: center;
+      font-size: 36px;
+      color: #FFFFFF;
+    }
+  }
+  .bbs-date {
+    width: 83px;
+    .bbs-month {
+      .clear;
+      background-color: #ff8e40;
+      height: 30px;
+      text-align: center;
+      line-height: 30px;
+      color: #fff;
+      font-size: 16px;
+      letter-spacing: 2px;
+      font-weight: bold;
+    }
+    .bbs-day {
+      .clear;
+      background-color: #fc6c0c;
+      height: 48px;
+      font-size: 40px;
+      text-align: center;
+      line-height: 48px;
+      color: #fff;
+    }
+  }
+}
+
+//广告
+.bbs-ad-box {
+  .box;
+  margin-top: 20px;
+  height: 230px;
+  .bbs-ad-content {
+    background-color: @base-color;
+    text-align: center;
+    line-height: 178px;
+    height: 208px;
+    color: #ffffff;
+    font-size: 36px;
+    & img {
+      width: 260px;
+      height: 208px;
+    }
+  }
+}
+
+//运动早知道
+.bbs-sport-new {
+  .box;
+  margin-top: 20px;
+  h2 {
+    font-size: 22px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  p {
+    font-size: 16px;
+    padding-bottom: 3px;
+    border-bottom: 1px dashed #dfdfdf;
+    margin-bottom: 10px;
+    cursor: pointer;
+    & a {
+      color: #333;
+    }
+  }
+  p:last-child {
+    margin-bottom: 10px;
+    border-bottom: none;
+  }
+}
+
+//二维码
+.bbs-wx {
+  .box;
+  margin-top: 20px;
+  height: 40px;
+  line-height: 20px;
+  font-size: 16px;
+}
+
+.bbs-wx-erweima {
+  .box;
+  margin-top: 10px;
+  height: 280px;
+  & img {
+    height: 258px;
+    width: 258px;
+  }
+}
+
+// 标签
+.bbs-span {
+  height: 40px;
+  width: 110px;
+  background-color: @base-color;
+  text-align: center;
+  line-height: 40px;
+  font-size: 18px;
+  display: block;
+  color: #ffffff;
+}
+
+//榜单
+.bbs-rank {
+  .box;
+  margin-top: 20px;
+  .bbs-rank-title {
+    height: 40px;
+    & ul {
+      .clear;
+      height: 40px;
+      li {
+        font-size: 16px;
+        margin: 0 10px;
+        float: left;
+        height: 40px;
+        line-height: 40px;
+        list-style: none;
+        &:first-child {
+          margin-left: 0;
+        }
+        &:last-child {
+          float: right;
+        }
+        a {
+          color: #000000;
+        }
+      }
+    }
+  }
+  .bbs-rank-box {
+    .clear;
+    .bbs-rank-item {
+      width: 160px;
+      height: 250px;
+      border: none;
+      background-color: #f1f2f6;
+      display: inline-block;
+      margin-top: 10px;
+      margin-right: 8px;
+      vertical-align: top;
+      &:last-child {
+        margin-right: 0px;
+      }
+      .bbs-rank-icon {
+        text-align: center;
+        i {
+          font-size: 32px;
+          color: #ffc529;
+        }
+      }
+      .bbs-rank-champion {
+        text-align: center;
+        font-size: 24px;
+      }
+      .bbs-rank-avatar {
+        margin: 0 auto;
+        img {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          margin: 20px auto;
+          display: block;
+        }
+      }
+      .bbs-rank-name, .bbs-rank-mile {
+        text-align: center;
+      }
+      .bbs-rank-mile {
+        & span {
+          color: @base-color;
+        }
+      }
+    }
+  }
+}
+
+//新闻
+.bbs-new {
+  .box;
+  margin-top: 20px;
+  .bbs-new-banner, .bbs-new-content {
+    vertical-align: middle;
+    display: inline-block;
+  }
+  .bbs-new-banner {
+    width: 320px;
+    height: 220px;
+    position: relative;
+    img {
+      width: 320px;
+      height: 220px;
+    }
+    .bbs-span {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+  .bbs-new-content {
+    margin-left: 10px;
+    width: 340px;
+    .bbs-new-title {
+      a {
+        color: #333333;
+        font-size: @title-font-size;
+      }
+    }
+    .bbs-new-tag {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #00b3ee;
+    }
+    .bbs-new-desc {
+      font-size: @desc-font-size;
+    }
+  }
+
+}
+
+//文章
+.bbs-article {
+  .box;
+  margin-top: 20px;
+  .bbs-article-head {
+    height: 50px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #dfdfdf;
+    .bbs-span {
+      display: inline-block;
+    }
+    a {
+      height: 40px;
+      line-height: 40px;
+      display: inline-block;
+      float: right;
+      color: #000000;
+    }
+  }
+  .bbs-article-box {
+    margin-top: 20px;
+    .bbs-article-item {
+      margin-top: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #dfdfdf;
+      cursor: pointer;
+      display: block;
+      .bbs-article-banner, .bbs-article-content {
+        vertical-align: middle;
+        display: inline-block;
+      }
+      .bbs-article-banner {
+        width: 150px;
+        height: 105px;
+        img {
+          width: 150px;
+          height: 105px;
+        }
+      }
+      .bbs-article-content {
+        margin-left: 10px;
+        width: 510px;
+        .bbs-article-title {
+          color: #666666;
+          font-size: @title-font-size;
+        }
+        .bbs-article-desc {
+          font-size: @desc-font-size;
+        }
+        .bbs-article-tag {
+          margin-top: 10px;
+          margin-bottom: 10px;
+          font-size: 12px;
+          color: #00b3ee;
+        }
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+}
+
+//文章详情
+.bbs-article-info {
+  .box;
+  .bbs-article-title {
+    text-align: center;
+    font-size: @title-font-size;
+    margin-top: 10px;
+    .bbs-article-tag {
+      text-align: center;
+      color: #00b3ee;
+      font-size: 14px;
+      margin-top: 10px;
+      padding-bottom: 20px;
+      border-bottom: 1px dashed #dfdfdf;
+    }
+  }
+  .bbs-article-content {
+    padding: 0 10px;
+    margin-top: 10px;
+    img {
+      max-width: 660px;
+    }
+  }
+}
+
+//动态
+.bbs-friend-dynamic {
+  .box;
+  height: 60px;
+  margin-top: 20px;
+  & ul {
+    .clear;
+    height: 40px;
+    li {
+      font-size: 16px;
+      margin: 0 10px;
+      float: left;
+      height: 40px;
+      line-height: 40px;
+      list-style: none;
+      &:first-child {
+        margin-left: 0;
+      }
+      &:last-child {
+        float: right;
+      }
+      a {
+        color: #000000;
+      }
+    }
+  }
+}
+
+.bbs-dynamic-box {
+  .box;
+  margin-top: 10px;
+  .bbs-dynamic-item {
+    .bbs-dynamic-user {
+      height: 60px;
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      p {
+        .clear;
+        height: 50px;
+        line-height: 50px;
+        display: inline-block;
+        font-size: 18px;
+      }
+    }
+    .bbs-dynamic-time {
+      font-size: 14px;
+      color: #00b3ee;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+    .bbs-dynamic-content {
+      img {
+        max-width: 680px;
+      }
+    }
+    .bbs-dynamic-menu {
+      .bbs-dynamic-flower, .bbs-dynamic-comment {
+        display: inline-block;
+        height: 50px;
+        line-height: 50px;
+      }
+    }
+    .bbs-dynamic-comment-list {
+      .bbs-dynamic-comment-item {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-top: 1px solid #e1e1e1;
+        .user, .content, .date {
+          display: inline-block;
+          vertical-align: top;
+        }
+        .user {
+          img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+          }
+        }
+        .content {
+          width: 540px;
+          vertical-align: middle;
+          padding-top: 5px;
+        }
+        .date {
+          height: 30px;
+          line-height: 30px;
+          width: 100px;
+          float: right;
+          text-align: center;
+        }
+      }
+    }
+  }
+}

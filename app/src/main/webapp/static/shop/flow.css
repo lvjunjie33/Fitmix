@@ -1,0 +1,152 @@
+@font-face {
+  font-family: "PingFangSc";
+  src: url("PingFangSc.eot");
+  /* IE9 */
+  src: url("PingFangSc.eot?#iefix") format("embedded-opentype"), url("PingFangSc.woff") format("woff"), url("PingFangSc.ttf") format("truetype"), url("PingFangSc.svg#PingFangSc") format("svg");
+  /* iOS 4.1- */
+  font-style: normal;
+  font-weight: normal; }
+body {
+  padding: 0;
+  margin: 0;
+  background-color: #f5f5f5;
+  font-family: "PingFangSc"; }
+
+.container {
+  position: relative;
+  margin: 0 auto 1.92rem auto;
+  max-width: 16rem;
+  background-color: #f5f5f5; }
+
+.content {
+  background-color: #ffffff;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+  width: 14.29333rem;
+  height: 14.50667rem;
+  position: relative;
+  margin: 3.2rem auto 0 auto; }
+  .content .avatar {
+    width: 4.26667rem;
+    height: 4.26667rem;
+    position: absolute;
+    left: 50%;
+    margin-top: -2.13333rem;
+    margin-left: -2.13333rem;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    background-color: #ffffff; }
+    .content .avatar img {
+      width: 3.84rem;
+      height: 3.84rem;
+      border-radius: 50%;
+      margin-top: 0.21333rem; }
+  .content .text {
+    padding-top: 3.2rem; }
+    .content .text p {
+      text-align: center;
+      font-size: 0.768rem;
+      font-family: "PingFangSc";
+      margin: 0; }
+      .content .text p:first-child {
+        margin-bottom: 0.10667rem; }
+        .content .text p:first-child span {
+          font-weight: bold; }
+      .content .text p:last-child span {
+        color: #d81e06;
+        font-weight: bold; }
+  .content .text-1 {
+    position: absolute;
+    bottom: 2.13333rem;
+    width: 100%; }
+    .content .text-1 p {
+      text-align: center;
+      margin: 0;
+      font-size: 0.59733rem;
+      color: #333333;
+      font-family: "PingFangSc"; }
+      .content .text-1 p:first-child {
+        font-weight: bold;
+        padding-bottom: 0.85333rem; }
+      .content .text-1 p:last-child {
+        margin-top: 0.21333rem; }
+  .content .line {
+    background-color: #ff8b22;
+    width: 40px;
+    height: 2px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-top: -1px;
+    margin-left: -20px; }
+
+.qr {
+  bottom: 2.13333rem;
+  position: absolute;
+  z-index: 9999;
+  width: 16rem;
+  height: 16rem;
+  margin-bottom: 1.06667rem;
+  opacity: 0; }
+
+.QRcode {
+  text-align: center;
+  margin-top: 1.06667rem;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+  .QRcode img {
+    width: 4.26667rem;
+    height: 4.26667rem; }
+  .QRcode .qrimg {
+    width: 4.26667rem;
+    height: 4.26667rem;
+    background-image: url("/imgs/shop/share/qrcode.png");
+    background-size: cover;
+    margin: 0 auto; }
+  .QRcode p {
+    margin: 0.21333rem 0 0 0;
+    padding: 0;
+    font-family: "PingFangSc";
+    font-size: 0.512rem;
+    color: #999999;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; }
+
+.download {
+  background-color: #ff8b22;
+  height: 1.87733rem;
+  max-width: 16rem;
+  width: 16rem;
+  margin: 0 auto;
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center; }
+  .download img {
+    width: 1.28rem;
+    height: 1.28rem;
+    display: flex;
+    margin-left: 0.42667rem;
+    margin-right: 0.64rem; }
+  .download p {
+    font-family: "PingFangSc";
+    font-size: 0.59733rem;
+    color: #ffffff;
+    flex-grow: 1; }
+  .download a {
+    font-family: "PingFangSc";
+    font-size: 0.512rem;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 0.21333rem;
+    display: block;
+    padding: 0.27733rem 0.53333rem;
+    text-decoration: none;
+    margin-right: 0.42667rem; }
+
+/*# sourceMappingURL=flow.css.map */

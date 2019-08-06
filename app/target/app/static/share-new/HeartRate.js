@@ -1,0 +1,303 @@
+/**
+ * 初始化图表
+ */
+function heartRateInit(ctx, width, heartRate) {
+
+    //最大心率
+    ctx.fillStyle = "rgba(162,62,65,1)";
+    ctx.fillRect(0, 10, width, 30);
+    ctx.save();
+    drawText(ctx, "最大", 10, 18, 50);
+    drawText(ctx, heartRate.anaerobics+ "-"+ heartRate.max, width - 60, 18, 50);
+
+    //橙色无氧,心率
+    ctx.fillStyle = "#AE8608";
+    ctx.fillRect(0, 41, width, 30);
+    ctx.save();
+    drawText(ctx, "无氧", 10, 49, 50);
+    drawText(ctx, heartRate.aerobics+ "-"+ heartRate.anaerobics, width - 60, 49, 50);
+
+    //橙色有氧,心率
+    ctx.fillStyle = "#B3B50B";
+    ctx.fillRect(0, 72, width, 30);
+    ctx.save();
+    drawText(ctx, "有氧", 10, 80, 50);
+    drawText(ctx, heartRate.burnFat+ "-"+ heartRate.aerobics, width - 60, 80, 50);
+
+    //绿色燃脂,心率
+    ctx.fillStyle = "#689743";
+    ctx.fillRect(0, 103, width, 30);
+    ctx.save();
+    drawText(ctx, "燃脂", 10, 111, 50);
+    drawText(ctx, heartRate.warmUpHigh+ "-"+ heartRate.burnFat, width - 60, 111, 50);
+
+    //蓝色热身,心率
+    ctx.fillStyle = "#0883B3";
+    ctx.fillRect(0, 134, width, 30);
+    ctx.save();
+    drawText(ctx, "热身", 10, 142, 50);
+    drawText(ctx, heartRate.warmUpLow+ "-"+ heartRate.warmUpHigh, width - 60, 142, 50);
+
+    //缓冲区,心率
+    ctx.fillStyle = "#7A7A7A";
+    ctx.fillRect(0, 165, width, 30);
+    ctx.save();
+    drawText(ctx, "未热身", 10, 173, 50);
+    drawText(ctx, heartRate.min+ "-"+ heartRate.warmUpLow, width - 60, 173, 50);
+
+    ctx.fillStyle = "rgba(0,0,0,0)";
+    ctx.fillRect(0, 196, width, 30);
+    ctx.save();
+}
+
+/**
+ * 绘制文字
+ */
+function drawText(ctx, text, x, y, width) {
+    ctx.lineWidth = 1;
+    ctx.fillStyle = "#ffffff";
+    var font = 16;
+    if(window.devicePixelRatio) {
+        font = font * window.devicePixelRatio;
+    }
+    ctx.font = font + "px 微软雅黑";
+    ctx.textBaseline = "hanging";
+    ctx.fillText(text, x, y, width);
+}
+
+/**
+ * 计算心率区间
+ * @param restHeartRate 静心心率
+ * @param age 年龄
+ */
+function heartRateInterval(restHeartRate, age) {
+    var maxHR = 0;
+    if( (typeof window.share.attributes.hrMax) != 'undefined' && window.share.attributes.hrMax != 0 && window.share.attributes.hrMax != "") {
+        maxHR = window.share.attributes.hrMax;
+    } else if( (typeof age) != 'undefined' && age != "" && age != "0" ) {
+        age = parseInt(age);
+        maxHR = 220.0 - age;
+    } else {
+        maxHR = 220.0 - 24;
+    }
+
+    if((typeof restHeartRate) == 'undefined' || restHeartRate == "") {
+        restHeartRate = 70;
+    } else {
+        restHeartRate = parseInt(restHeartRate);
+    }
+
+    var min = restHeartRate - 15;
+    //    热身区间下限
+    var warmUpLow = parseInt( restHeartRate + 0.5 * (maxHR - restHeartRate) );
+    //    热身区间上限
+    var warmUpHigh = parseInt( restHeartRate + 0.6 * (maxHR - restHeartRate) );
+    //    燃脂区间上限
+    var burnFat = parseInt( restHeartRate + 0.7 * (maxHR - restHeartRate) );
+    //    有氧区间上限
+    var aerobics = parseInt( restHeartRate + 0.8 * (maxHR - restHeartRate) );
+    //    无氧区间上限
+    var anaerobics = parseInt( restHeartRate + 0.9 * (maxHR - restHeartRate) );
+    //    最大区间上限
+    var max = parseInt( restHeartRate + 1.0 * (maxHR - restHeartRate) );
+
+
+    return {
+        min: min,
+        warmUpLow: warmUpLow,
+        warmUpHigh: warmUpHigh,
+        burnFat: burnFat,
+        aerobics: aerobics,
+        anaerobics: anaerobics,
+        max: max
+    };
+}
+
+
+function getHeartRateInterval(heartRate, avgHeart) {
+    if(avgHeart < heartRate.warmUpHigh) {
+        return "处于热身区间";
+    }
+    if(avgHeart < heartRate.burnFat) {
+        return "处于燃脂区间";
+    }
+    if(avgHeart < heartRate.aerobics) {
+        return "处于有氧区间";
+    }
+    if(avgHeart < heartRate.anaerobics) {
+        return "处于无氧区间";
+    }
+    if(avgHeart < heartRate.max) {
+        return "处于最大区间";
+    }
+}
+
+/**
+ * 绘制 纵坐标
+ * @param ctx
+ * @param width
+ * @param array
+ */
+function drawHeartRateLineY(ctx, width, heartRateArray, heartRate) {
+
+    var maxTime = heartRateArray[heartRateArray.length - 1].time;
+    var xInterval = width / maxTime;
+    var height = 195;
+    var yInterval = 0;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#ffffff";
+    ctx.beginPath();
+    //ctx.moveTo(0, height);
+    for(var i = 0; i < heartRateArray.length; i++) {
+
+        var heart = heartRateArray[i].heartrate;
+        var time = heartRateArray[i].time;
+
+        if(heart == 0) {
+            continue;
+        }
+
+        //缓冲
+        if( heart <= heartRate.warmUpLow) {
+            if(heart < heartRate.min) {
+                heart = heartRate.min;
+            }
+            yInterval = 31 / ( heartRate.warmUpLow - heartRate.min );
+            var x = xInterval * time;
+            var y = height - ( heart - heartRate.min ) * yInterval;
+            ctx.lineTo(x, y);
+        }
+        //热身
+        if(heartRate.warmUpLow < heart  && heart <= heartRate.warmUpHigh) {
+            yInterval = 31 / ( heartRate.warmUpHigh - heartRate.warmUpLow );
+            var x = xInterval * time;
+            var y = height - ( heart - heartRate.warmUpLow ) * yInterval - 31;
+            ctx.lineTo(x, y);
+        }
+        //燃脂
+        if(heartRate.warmUpHigh < heart  && heart <= heartRate.burnFat) {
+            yInterval = 31 / ( heartRate.burnFat - heartRate.warmUpHigh );
+            var x = xInterval * time;
+            var y = height - ( heart - heartRate.warmUpHigh ) * yInterval - 31 * 2;
+            ctx.lineTo(x, y);
+        }
+        //有氧
+        if(heartRate.burnFat < heart  && heart <= heartRate.aerobics) {
+            yInterval = 31 / ( heartRate.aerobics - heartRate.burnFat );
+            var x = xInterval * time;
+            var y = height - ( heart - heartRate.burnFat ) * yInterval - 31 * 3;
+            ctx.lineTo(x, y);
+        }
+        //无氧
+        if(heartRate.aerobics < heart  && heart <= heartRate.anaerobics) {
+            yInterval = 31 / ( heartRate.anaerobics - heartRate.aerobics );
+            var x = xInterval * time;
+            var y = height - ( heart - heartRate.aerobics ) * yInterval - 31 * 4;
+            ctx.lineTo(x, y);
+        }
+        //最大
+        if(heartRate.anaerobics < heart  && heart <= heartRate.max) {
+            yInterval = 31 / ( heartRate.max - heartRate.aerobics );
+            var x = xInterval * time;
+            var y = height - ( heart - heartRate.anaerobics ) * yInterval - 31 * 5;
+            ctx.lineTo(x, y);
+        }
+        //超过最大心率按 最大来画
+        if(heart > heartRate.max) {
+            console.log(heart);
+            heart = heartRate.max;
+            yInterval = 31 / ( heartRate.max - heartRate.aerobics );
+            var x = xInterval * time;
+            var y = height - 31 * 6 + 1;
+            ctx.lineTo(x, y);
+        }
+    }
+    ctx.stroke();
+}
+
+/**
+ * 绘制 横坐标
+ * @param ctx
+ * @param width
+ * @param array
+ */
+function drawHeartRateLineX(ctx, width, heartRateArray) {
+    var maxTime = heartRateArray[heartRateArray.length - 1].time;
+    var minutes = maxTime / 60;
+    var xInterval = width / maxTime;
+    var y = 205;
+    if(minutes < 8) {
+        for(var i = 0; i < 8; i++) {
+            drawText(ctx, i, (i * 60) * xInterval, y, 20);
+        }
+    } else {
+        var interval = parseInt(minutes / 4);
+        for(var i = 0; i <= 4; i++) {
+            drawText(ctx, i * interval, (i * interval * 60) * xInterval, y, 20);
+        }
+    }
+}
+
+/**
+ * 计算安卓横坐标
+ * @param heartRateArray
+ */
+function resetX(heartRateArray, stepDetail) {
+    var copy = JSON.parse(JSON.stringify(heartRateArray));
+    console.log('未改变的值：');
+    console.log(copy);
+    var label = [];
+    var timestamp = stepDetail[0].time;// 这个时间基本和心率开始的时间一样
+    for(var i = 0; i < heartRateArray.length; i++) {
+        heartRateArray[i].time = (heartRateArray[i].time - timestamp) / 1000 / 60;
+        label.push(heartRateArray[i].time);
+    }
+    //if(heartRateArray[heartRateArray.length - 1].time < stepDetail[stepDetail.length - 1].time) {
+    //    label.push((stepDetail[stepDetail.length - 1].time - timestamp) / 1000 / 60 );
+    //}
+    return label;
+}
+/**
+ * 返回设备比
+ * @returns {number}
+ */
+function getPixelRatio(context) {
+    var backingStore = context.backingStorePixelRatio ||
+        context.webkitBackingStorePixelRatio ||
+        context.mozBackingStorePixelRatio ||
+        context.msBackingStorePixelRatio ||
+        context.oBackingStorePixelRatio ||
+        context.backingStorePixelRatio || 1;
+    return (window.devicePixelRatio || 1) / backingStore;
+}
+
+
+function retinaScale(ctx) {
+
+    //Variables global to the chart
+    var computeDimension = function(element,dimension)
+    {
+        if (element['offset'+dimension])
+        {
+            return element['offset'+dimension];
+        }
+        else
+        {
+            return document.defaultView.getComputedStyle(element).getPropertyValue(dimension);
+        }
+    };
+
+    var width = this.width = computeDimension(ctx.canvas,'Width') || ctx.canvas.width;
+    var height = this.height = computeDimension(ctx.canvas,'Height') || ctx.canvas.height;
+
+    width = this.width = ctx.canvas.width;
+    height = this.height = ctx.canvas.height;
+
+    if (window.devicePixelRatio) {
+        ctx.canvas.style.width = width + "px";
+        ctx.canvas.style.height = height + "px";
+        ctx.canvas.height = height * window.devicePixelRatio;
+        ctx.canvas.width = width * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+}

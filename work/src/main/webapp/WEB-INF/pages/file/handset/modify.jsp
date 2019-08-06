@@ -1,0 +1,72 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: edward
+  Date: 2017/9/11
+  Time: 12:16
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="/WEB-INF/pages/common/nav.jsp" %>
+<div>
+    <div>
+        <%--<button type="button" class="uk-modal-close uk-close"></button>--%>
+        <h1>耳机升级包修改</h1>
+        <%--<h2>Some text above the scrollable box</h2>--%>
+        <div class="uk-form-row">
+            <form action="/handset/modify.json" method="post" class="uk-form" id="activity-add-form" isform>
+                <div class="uk-form-row">
+                    <input class="uk-width-1-1 uk-form-large" type="file" name="uploadFile" title = "upload file">
+                </div>
+                <div class="uk-form-row">
+                    <input class="uk-width-1-1 uk-form-large" type="text" name="title" placeholder="文件标题" notnull value="${file.title}">
+                </div>
+                <c:choose>
+                    <c:when test="${!empty file.other}">
+                        <div class="uk-form-row">
+                            <input class="uk-width-1-1 uk-form-large" type="text" name="other[version]" placeholder="版本号" notnull value="${file.other.version}">
+                        </div>
+                        <div class="uk-form-row">
+                            <input class="uk-width-1-1 uk-form-large" type="text" name="other[serial]" placeholder="序列号" notnull value="${file.other.serial}">
+                        </div>
+                        <div class="uk-form-row">
+                            <input class="uk-width-1-1 uk-form-large" type="text" name="other[number]" placeholder="序列" notnull value="${file.other.number}">
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="uk-form-row">
+                            <input class="uk-width-1-1 uk-form-large" type="text" name="other[version]" placeholder="版本号" notnull value="">
+                        </div>
+                        <div class="uk-form-row">
+                            <input class="uk-width-1-1 uk-form-large" type="text" name="other[serial]" placeholder="序列号" notnull value="">
+                        </div>
+                        <div class="uk-form-row">
+                            <input class="uk-width-1-1 uk-form-large" type="text" name="other[number]" placeholder="序列" notnull value="">
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+                <div class="uk-form-row">
+                    <textarea class="uk-width-1-1 uk-form-large" name="des" placeholder="文件描述" notnull>${file.des}</textarea>
+                </div>
+                <div class="uk-form-row">
+                    <select class="uk-width-1-1 uk-form-large" name="status" placeholder="状态" data-value="${file.status}">
+                        <option value="1">正常</option>
+                        <option value="0">无效</option>
+                    </select>
+                </div>
+
+                <div class="uk-form-row uk-text-right">
+                    <input class="uk-width-1-1 uk-form-large" type="hidden" name="id" value="${file.id}">
+                    <button class="uk-button uk-button-primary" id="role-add-submit" target="role-add-form">modify</button>
+                    <button class="uk-button uk-modal-close">cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // 设置  type status releaseStatus 选项
+    $(function(){
+        $("[name=fileType]").val($("[name=fileType]").attr("data-value"));
+        $("[name=status]").val($("[name=status]").attr("data-value"));
+    });
+</script>

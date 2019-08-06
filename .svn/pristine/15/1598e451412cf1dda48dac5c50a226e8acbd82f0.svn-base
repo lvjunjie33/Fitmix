@@ -1,0 +1,466 @@
+package com.business.core.mongo;
+
+import com.business.core.entity.IncIdEntity;
+import com.business.core.entity.Page;
+import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
+/**
+ * 描述: Mongo数据库操作基类
+ */
+public class BaseMongoDaoSupport {
+
+    /**
+     * @see org.bson.BSON.RegexFlag#CASE_INSENSITIVE
+     */
+    protected static final String REGEX_FLAG_CASE_INSENSITIVE = "i";
+
+    /**
+     * Mongo操作路由
+     */
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    @Autowired
+    private RoutingMongoOperations routingMongoOps;
+    /**
+     * 集合 - 自增序列集合
+     */
+    private static final String COLLECTION_ID_SEQENCE = "IdSeqence";
+    /**
+     * 类与序列键的缓存
+     */
+    public static Map<String, String> classIdSequenceCache = new HashMap<String, String>();
+    /**
+     * 集合 - 自增序列集合默认更新Update
+     */
+    private static final Update COLLECTION_ID_SEQENCE_DEFAULT_UPDATE = new Update().inc("value", 1);
+    /**
+     * 查找并修改参数 - 返回新值
+     */
+    protected static final FindAndModifyOptions FIND_AND_MODIFY_OPTIONS_RETURN_NEW = new FindAndModifyOptions().returnNew(true);
+    /**
+     * 查找并修改参数 - 返回旧值
+     */
+    protected static final FindAndModifyOptions FIND_AND_MODIFY_OPTIONS_RETURN_OLD = new FindAndModifyOptions().returnNew(false);
+
+    /**
+     * @param mongoType mongo数据库 {@link com.business.core.mongo.MongoType}
+     * @return 数据库操作
+     */
+    protected MongoOperations getMongoOps(String mongoType) {
+        return routingMongoOps.getMongoOps(mongoType);
+    }
+
+    /**
+     * 根据类获得其对应的数据库操作
+     *
+     * @param clazz 类
+     * @return 数据库操作
+     */
+    private MongoOperations getMongoOps(Class<?> clazz) {
+        return routingMongoOps.getMongoOps(clazz);
+    }
+
+    /**
+     * @return mongo操作路由
+     */
+    protected RoutingMongoOperations    getRoutingMongoOps() {
+        return routingMongoOps;
+    }
+
+    /**
+     * 获得要保存实体id自增.
+     *
+     * @param obj 实体
+     * @return 自增后的id
+     */
+    @SuppressWarnings("unchecked")
+    protected Number incrId(IncIdEntity obj) {
+        MongoOperations mongoOps = getMongoOps(obj.getClass());
+        String idV = obj.getClass().getName();
+        Query query = new Query((where("_id").is(idV)));
+        Map<String, Object> result = mongoOps.findAndModify(
+                query,
+                COLLECTION_ID_SEQENCE_DEFAULT_UPDATE,
+                FIND_AND_MODIFY_OPTIONS_RETURN_NEW,
+                HashMap.class, COLLECTION_ID_SEQENCE);
+        if (result == null) {
+            result = new HashMap();
+            result.put("_id", idV);
+            if (obj.getId() instanceof Long) {
+                result.put("value", 1L);
+            } else {
+                result.put("value", 1);
+            }
+            mongoOps.insert(result, COLLECTION_ID_SEQENCE);
+        }
+        Number v = (Number) result.get("value");
+        if ("java.lang.Long".equals(getRealIdTypeString(obj))) {
+            v = v.longValue();
+        }
+        if ("java.lang.Integer".equals(getRealIdTypeString(obj))) {
+            v = v.intValue();
+        }
+        return v;
+    }
+
+    protected Number obtainId(IncIdEntity obj) {
+        MongoOperations mongoOps = getMongoOps(obj.getClass());
+        String idV = obj.getClass().getName();
+        Query query = new Query((where("_id").is(idV)));
+        HashMap<String, Object> result = mongoOps.findOne(query, HashMap.class, COLLECTION_ID_SEQENCE);
+        return result != null ? (Number) result.get("value") : null;
+    }
+
+    /**
+     * 实现得不是很好，以后优化泛型类型（第一次反射并缓存是比较好的解决方案）
+     * @param obj
+     * @return
+     */
+    private String getRealIdTypeString(IncIdEntity obj) {
+        return RoutingMongoOperations.classRawTypeCache.get(obj.getClass().getName());
+    }
+
+    /**
+     * 插入实体数据
+     *
+     * @param objectToSave 实体数据
+     */
+    @SuppressWarnings("unchecked")
+    protected void insertToMongo(Object objectToSave) {
+        if (IncIdEntity.class.isAssignableFrom(objectToSave.getClass())) {
+            IncIdEntity obj = (IncIdEntity) objectToSave;
+            if (obj.getId() == null) {
+                obj.setId(incrId(obj));
+            }
+        }
+        routingMongoOps.insert(objectToSave);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void insertToMongo(String collName, Object objectToSave) {
+        if (IncIdEntity.class.isAssignableFrom(objectToSave.getClass())) {
+            IncIdEntity obj = (IncIdEntity) objectToSave;
+            if (obj.getId() == null) {
+                obj.setId(incrId(obj));
+            }
+        }
+        routingMongoOps.insert(collName, objectToSave);
+    }
+
+    /**
+     * 添加更新实体信息
+     *
+     * @param query  查询条件
+     * @param entity 实体更新信息
+     */
+    protected void upsertEntity(Query query, final Object entity) {
+        final Update update = new Update();
+        ReflectionUtils.doWithFields(entity.getClass(), new ReflectionUtils.FieldCallback() {
+            @Override
+            public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                if ("id".equals(field.getName())
+                        || field.getAnnotation(Transient.class) != null
+                        || Modifier.isStatic(field.getModifiers())) {
+                    return;
+                }
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                update.set(field.getName(), field.get(entity));
+            }
+        });
+        routingMongoOps.upsert(query, update, entity.getClass());
+    }
+
+    /**
+     * 根据实体id更新实体
+     *
+     * @param entity 实体
+     */
+    protected void updateEntityFieldsById(final IncIdEntity entity) {
+        if (entity.getId() == null) {
+            throw new IllegalArgumentException(entity.getClass() + ".id is null!");
+        }
+        final Update update = new Update();
+        ReflectionUtils.doWithFields(entity.getClass(), new ReflectionUtils.FieldCallback() {
+            @Override
+            public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                if ("id".equals(field.getName())
+                        || field.getAnnotation(Transient.class) != null
+                        || Modifier.isStatic(field.getModifiers())) {
+                    return;
+                }
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                if (field.get(entity) == null) {
+                    return;
+                }
+                update.set(field.getName(), field.get(entity));
+            }
+        });
+        updateEntityFieldsById(entity.getClass(), entity.getId(), update);
+    }
+
+    /**
+     * 根据实体id来更新指定属性值
+     *
+     * @param entity 实体
+     * @param fields 指定属性数组
+     */
+    protected void updateEntityFieldsById(final IncIdEntity entity, String... fields) {
+        if (entity.getId() == null) {
+            throw new IllegalArgumentException(entity.getClass() + ".id is null!");
+        }
+        final Update update = new Update();
+        final List<String> fieldList = Lists.newArrayList(fields);
+        ReflectionUtils.doWithFields(entity.getClass(), new ReflectionUtils.FieldCallback() {
+            @Override
+            public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                if (!fieldList.contains(field.getName())) {
+                    return;
+                }
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                update.set(field.getName(), field.get(entity));
+            }
+        });
+        updateEntityFieldsById(entity.getClass(), entity.getId(), update);
+    }
+
+    /**
+     * 根据实体id更新实体
+     *
+     * @param clazz  实体
+     * @param id     实体id
+     * @param update 更新
+     * @param <T>    实体类
+     */
+    protected <T> void updateEntityFieldsById(Class<T> clazz, Object id, Update update) {
+        Query query = new Query(where("_id").is(id));
+        routingMongoOps.updateFirst(query, update, clazz);
+    }
+
+    /**
+     * 根据实体id数组更新实体们
+     *
+     * @param clazz 实体
+     * @param ids 实体id
+     * @param update 更新
+     * @param <T> 实体类
+     */
+    protected <T> void updateEntitiesFieldsByIds(Class<T> clazz, Collection<?> ids, Update update) {
+        Query query = new Query(where("_id").in(ids));
+        routingMongoOps.updateMulti(query, update, clazz);
+    }
+
+    /**
+     * 根据实体id查询并更新实体
+     *
+     * @param clazz  实体
+     * @param id     实体id
+     * @param update 更新
+     * @param fields 返回字段
+     * @param <T>    实体类
+     * @return 更新前的实体信息
+     */
+    protected <T> T findAndModifyEntityFieldsById(Class<T> clazz, Object id, Update update, String... fields) {
+        Query query = new Query(where("_id").is(id));
+        includeFields(query, fields);
+        return routingMongoOps.findAndModify(query, update, FIND_AND_MODIFY_OPTIONS_RETURN_OLD, clazz);
+    }
+
+    /**
+     * 根据实体id查询并更新实体
+     *
+     * @param clazz  实体
+     * @param id     实体id
+     * @param update 更新
+     * @param fields 返回字段
+     * @param <T>    实体类
+     * @return 更新后的实体信息
+     */
+    protected <T> T findAndModifyEntityFieldsByIdReturnNew(Class<T> clazz, Object id, Update update, String... fields) {
+        Query query = new Query(where("_id").is(id));
+        includeFields(query, fields);
+        return routingMongoOps.findAndModify(query, update, FIND_AND_MODIFY_OPTIONS_RETURN_NEW, clazz);
+    }
+
+    /**
+     * 根据实体id获得实体信息
+     *
+     * @param clazz  实体类
+     * @param id     实体编号
+     * @param fields 返回字段
+     * @param <T>    实体类
+     * @return 实体信息
+     */
+    protected <T> T findEntityById(Class<T> clazz, Object id, String... fields) {
+        if (id == null) {
+            throw new IllegalArgumentException(clazz.getClass() + ".id is null!");
+        }
+        Query query = new Query(where("_id").is(id));
+        includeFields(query, fields);
+        return routingMongoOps.findOne(query, clazz);
+    }
+
+    protected <T> List<T> findEntityByIds(Class<T> clazz, Collection<?> ids, String... fields) {
+        Query query = new Query(where("_id").in(ids));
+        includeFields(query, fields);
+        return routingMongoOps.find(query, clazz);
+    }
+
+    /**
+     * @see #findEntityPage(Class, com.business.core.entity.Page, org.springframework.data.mongodb.core.query.Query, boolean, String...)
+     */
+    protected <T> void findEntityPage(Class<T> clazz, Page<T> page, Query query, String... fields) {
+        findEntityPage(clazz, page, query, true, fields);
+    }
+
+    /**
+     * @see #findEntityPage(Class, com.business.core.entity.Page, org.springframework.data.mongodb.core.query.Query, boolean, String...)
+     */
+    protected <T> void findEntityPage(Class<T> clazz, String collName, Page<T> page, Query query, String... fields) {
+        findEntityPage(clazz, collName, page, query, true, fields);
+    }
+
+    protected <T> void findEntityPageSimple(Class<T> clazz, Page<T> page, Query query, String... fields) {
+        findEntityPageSimple(clazz, page, query, true, fields);
+    }
+
+
+
+    /**
+     * 获得实体信息分页。调用该方法前需要做的：
+     * <pre>
+     *     1. 查询条件设置到query里
+     *     2. 排序条件设置到query里
+     * </pre>
+     *
+     * @param clazz   实体类
+     * @param page    分页返回结果
+     * @param query   查询
+     * @param include fields是返回字段还是不返回字段
+     * @param fields  返回字段
+     * @param <T>     实体类
+     */
+    protected <T> void findEntityPage(Class<T> clazz, Page<T> page, Query query, boolean include, String... fields) {
+        page.setTotal(routingMongoOps.count(query, clazz));
+        if (include) {
+            includeFields(query, fields);
+        } else {
+            excludeFields(query, fields);
+        }
+        query.skip(page.getIndex()).limit(page.getSize());
+        page.setResult(routingMongoOps.find(query, clazz));
+    }
+
+    /**
+     * 获得实体信息分页。调用该方法前需要做的： (简单的查询)
+     * <pre>
+     *     1. 查询条件设置到query里
+     *     2. 排序条件设置到query里
+     * </pre>
+     *
+     * @param clazz 实体类
+     * @param page 分页对象
+     * @param query 查询
+     * include fields是返回字段还是不返回字段
+     * @param fields  返回字段
+     * @param <T>     实体类
+     */
+    protected <T> void findEntityPageSimple(Class<T> clazz, Page<T> page, Query query, boolean include, String... fields) {
+        page.setTotal(routingMongoOps.count(query, clazz));
+//        page.setTotal(0);
+        if (include) {
+            includeFields(query, fields);
+        } else {
+            excludeFields(query, fields);
+        }
+//        query.limit(page.getSize());
+        query.skip(page.getIndex()).limit(page.getSize());
+        page.setResult(routingMongoOps.find(query, clazz));
+    }
+
+    /**
+     * 获得实体信息分页。调用该方法前需要做的：
+     * <pre>
+     *     1. 查询条件设置到query里
+     *     2. 排序条件设置到query里
+     * </pre>
+     *
+     * @param clazz   实体类
+     * @param collName   集合名
+     * @param page    分页返回结果
+     * @param query   查询
+     * @param include fields是返回字段还是不返回字段
+     * @param fields  返回字段
+     * @param <T>     实体类
+     */
+    protected <T> void findEntityPage(Class<T> clazz, String collName, Page<T> page, Query query, boolean include, String... fields) {
+        page.setTotal(routingMongoOps.count(query, clazz, collName));
+        if (include) {
+            includeFields(query, fields);
+        } else {
+            excludeFields(query, fields);
+        }
+        query.skip(page.getIndex()).limit(page.getSize());
+        page.setResult(routingMongoOps.find(query, clazz, collName));
+    }
+
+    /**
+     * 根据实体编号，删除该对象
+     *
+     * @param clazz 实体类
+     * @param id    编号
+     * @param <T>   实体类
+     */
+    protected <T> void removeEntityById(Class<T> clazz, Object id) {
+        getRoutingMongoOps().remove(new Query(where("_id").is(id)), clazz);
+    }
+
+    protected <T> void removeEntityByIds(Class<T> clazz, Collection<?> ids) {
+        getRoutingMongoOps().remove(new Query(where("_id").in(ids)), clazz);
+    }
+
+    /**
+     * 设置查询需要返回的字段
+     *
+     * @param query      查询
+     * @param fieldNames 需要返回字段数组
+     */
+    protected void includeFields(Query query, String... fieldNames) {
+        for (String fieldName : fieldNames) {
+            query.fields().include(fieldName);
+        }
+    }
+
+    /**
+     * 设置查询不需要返回的字段
+     *
+     * @param query      查询
+     * @param fieldNames 不需要返回字段数组
+     */
+    protected void excludeFields(Query query, String... fieldNames) {
+        for (String fieldName : fieldNames) {
+            query.fields().exclude(fieldName);
+        }
+    }
+
+}

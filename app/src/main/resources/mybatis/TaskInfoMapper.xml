@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.business.app.mapper.TaskInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.business.core.entity.task.TaskInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="task_type" property="taskType" jdbcType="INTEGER" />
+    <result column="task_key" property="taskKey" jdbcType="VARCHAR" />
+    <result column="coin" property="coin" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="add_time" property="addTime" jdbcType="BIGINT" />
+    <result column="modify_time" property="modifyTime" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, task_type, task_key, coin, status, description, add_time, modify_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from task_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from task_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.business.core.entity.task.TaskInfo" useGeneratedKeys="true" keyProperty="id" >
+    insert into task_info (id, task_type, task_key, 
+      coin, status, description, 
+      add_time, modify_time)
+    values (#{id,jdbcType=INTEGER}, #{taskType,jdbcType=INTEGER}, #{taskKey,jdbcType=VARCHAR}, 
+      #{coin,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, 
+      #{addTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.business.core.entity.task.TaskInfo" useGeneratedKeys="true" keyProperty="id" >
+    insert into task_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="taskType != null" >
+        task_type,
+      </if>
+      <if test="taskKey != null" >
+        task_key,
+      </if>
+      <if test="coin != null" >
+        coin,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="addTime != null" >
+        add_time,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="taskType != null" >
+        #{taskType,jdbcType=INTEGER},
+      </if>
+      <if test="taskKey != null" >
+        #{taskKey,jdbcType=VARCHAR},
+      </if>
+      <if test="coin != null" >
+        #{coin,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="addTime != null" >
+        #{addTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.business.core.entity.task.TaskInfo" >
+    update task_info
+    <set >
+      <if test="taskType != null" >
+        task_type = #{taskType,jdbcType=INTEGER},
+      </if>
+      <if test="taskKey != null" >
+        task_key = #{taskKey,jdbcType=VARCHAR},
+      </if>
+      <if test="coin != null" >
+        coin = #{coin,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="addTime != null" >
+        add_time = #{addTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.business.core.entity.task.TaskInfo" >
+    update task_info
+    set task_type = #{taskType,jdbcType=INTEGER},
+      task_key = #{taskKey,jdbcType=VARCHAR},
+      coin = #{coin,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      description = #{description,jdbcType=VARCHAR},
+      add_time = #{addTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <select id="selectTaskInfoByTaskKey" parameterType="java.lang.String" resultMap="BaseResultMap" >
+    select
+    <include refid="Base_Column_List" />
+    from task_info
+    where task_key = #{taskKey}
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from task_info
+  </select>
+
+  <select id="selectByParams" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from task_info
+    <where>
+      <if test="status != null">
+        status = #{status}
+      </if>
+      <if test="taskType != null">
+        and task_type = #{taskType}
+      </if>
+    </where>
+  </select>
+
+</mapper>

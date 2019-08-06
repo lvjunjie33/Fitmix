@@ -1,0 +1,242 @@
+@charset "UTF-8";
+.container {
+  position: relative;
+  margin: 0 auto;
+  max-width: 16rem; }
+
+#videobox {
+  margin: 0 auto;
+  position: relative;
+  height: 10.02667rem; }
+
+#video-poster {
+  background-size: 100% 100%;
+  height: 100%;
+  top: 0;
+  position: absolute;
+  width: 100%; }
+
+#video-play-btn {
+  background-color: rgba(0, 0, 0, 0.15);
+  background-image: url("../../imgs/video/icon_bofan.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 2.13333rem 2.13333rem;
+  cursor: pointer;
+  height: 100%;
+  transition: background-color .5s;
+  top: 0;
+  position: absolute;
+  width: 100%; }
+
+#video-play-btn:hover {
+  background-color: rgba(0, 0, 0, 0.5); }
+
+/* 视频简介 */
+.titleBox {
+  padding: 0.85333rem 0.42667rem 0.42667rem 0.42667rem; }
+
+.titleBox > .title {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  text-align: left;
+  font-family: "HiraginoSansGB W3";
+  font-size: 0.68267rem;
+  color: #FFFFFF; }
+
+.titleBox > .time {
+  margin: 0;
+  display: inline-block;
+  float: right;
+  text-align: right;
+  font-family: "HiraginoSansGB W3";
+  font-size: 0.59733rem;
+  color: #FFFFFF; }
+
+.contentBox {
+  margin-top: 0.85333rem;
+  color: #DBDAE2;
+  font-size: 0.46933rem;
+  padding: 0 0.42667rem 0.85333rem 0.42667rem;
+  line-height: 0.74667rem; }
+
+/* 视频推荐 */
+.video-recommend-container {
+  width: 100%; }
+
+.video-box {
+  max-width: 16rem;
+  margin: 0 auto;
+  margin-bottom: 2.56rem; }
+
+.video-tap {
+  padding-top: 0.34133rem;
+  color: #f2f2f2;
+  font-size: 0.59733rem;
+  text-align: center;
+  height: 60px;
+  background-color: #2e2d37;
+  vertical-align: middle; }
+
+.video-list {
+  margin-top: 0.576rem; }
+
+.video-cover, .video-info {
+  display: inline-block; }
+
+.video-cover img {
+  margin-left: 0.42667rem;
+  width: 5.97333rem;
+  height: 3.75467rem; }
+
+.video-info {
+  vertical-align: top;
+  height: 3.75467rem;
+  width: 8.96rem; }
+
+.video-title {
+  color: #f2f2f2;
+  font-size: 0.68267rem;
+  padding: 0.85333rem 0 0 0.85333rem; }
+
+.video-time {
+  color: #f2f2f2;
+  font-size: 0.512rem;
+  padding: 0.21333rem 0 0 0.85333rem; }
+
+/* 下载悬浮banner */
+.app-container {
+  bottom: 0;
+  height: 2.56rem;
+  position: fixed;
+  width: 100%;
+  z-index: 300; }
+
+.app-box {
+  max-width: 16rem;
+  bottom: 0;
+  background-color: rgba(36, 36, 36, 0.57);
+  margin: 0 auto;
+  height: inherit; }
+
+.app-icon, .app-content, .app-download {
+  margin-top: 0.42667rem;
+  display: inline-block; }
+
+.app-icon {
+  margin-left: 0.42667rem; }
+
+.app-icon img {
+  width: 1.70667rem;
+  height: 1.70667rem; }
+
+.app-content {
+  vertical-align: top; }
+
+.app-title {
+  font-family: "Microsoft Yahei";
+  font-size: 0.768rem;
+  color: #FFFFFF; }
+
+.app-desc {
+  font-family: "Microsoft Yahei";
+  font-size: 0.46933rem;
+  color: #FFFFFF; }
+
+.app-download {
+  margin-top: 0.53333rem;
+  float: right;
+  margin-right: 0.42667rem; }
+
+.app-download button {
+  height: 1.49333rem;
+  width: 4.39467rem;
+  background-color: transparent;
+  border-color: #FF9B07;
+  border-radius: 0.21333rem;
+  color: #FFFFFF;
+  font-size: 0.46933rem;
+  outline: none;
+  cursor: pointer;
+  z-index: 301; }
+
+/* 360全景视频 */
+#main-canvas {
+  background-position: center;
+  background-size: cover;
+  height: 100%;
+  left: 0;
+  top: 0;
+  width: 100%;
+  position: absolute; }
+
+#content {
+  height: 100%;
+  left: 0;
+  top: 0;
+  width: 100%;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.6); }
+
+.logo {
+  background-image: url("../../imgs/video/LOGO.png");
+  background-size: cover;
+  position: absolute;
+  width: 7.63733rem;
+  height: 2.83733rem;
+  left: 50%;
+  top: 50%;
+  -moz-transform: translate3d(-50%, -3.56267rem, 0);
+  -ms-transform: translate3d(-50%, -3.56267rem, 0);
+  -webkit-transform: translate3d(-50%, -3.56267rem, 0);
+  transform: translate3d(-50%, -3.56267rem, 0); }
+
+.title {
+  bottom: 4.864rem;
+  color: #fff;
+  font-size: 0.68267rem;
+  height: 0.64rem;
+  line-height: 1em;
+  text-align: center;
+  -moz-transform: translate3d(0, -50%, 0);
+  -ms-transform: translate3d(0, -50%, 0);
+  -webkit-transform: translate3d(0, -50%, 0);
+  transform: translate3d(0, -50%, 0);
+  -webkit-transition: opacity .3s;
+  transition: opacity .3s;
+  width: 100%;
+  position: absolute; }
+
+#content .download {
+  bottom: 3.2rem;
+  height: 1.23733rem !important;
+  -moz-transform: translate3d(-50%, 0, 0);
+  -ms-transform: translate3d(-50%, 0, 0);
+  -webkit-transform: translate3d(-50%, 0, 0);
+  transform: translate3d(-50%, 0, 0);
+  transition: opacity .3s;
+  width: 7.63733rem !important;
+  max-width: 358px;
+  z-index: 2;
+  left: 50%;
+  position: absolute; }
+
+#content .download button {
+  height: 2.13333rem;
+  width: 7.63733rem;
+  background-color: #ef9117;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-size: 0.68267rem;
+  -moz-transform: translate3d(-50%, 0, 0);
+  -ms-transform: translate3d(-50%, 0, 0);
+  -webkit-transform: translate3d(-50%, 0, 0);
+  transform: translate3d(-50%, 0, 0);
+  position: absolute;
+  left: 50%; }
+
+/*# sourceMappingURL=video.css.map */

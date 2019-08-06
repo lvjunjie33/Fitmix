@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.business.work.mapper.AccountMapper" >
+  <resultMap id="BaseResultMap" type="com.business.core.entity.user.Account" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="coin" property="coin" jdbcType="DOUBLE" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="add_time" property="addTime" jdbcType="BIGINT" />
+    <result column="modify_time" property="modifyTime" jdbcType="BIGINT" />
+    <result column="spendCoin" property="spendCoin" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, coin, uid, add_time, modify_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from account
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from account
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.business.core.entity.user.Account" useGeneratedKeys="true" keyProperty="id" >
+    insert into account (id, coin, uid, 
+      add_time, modify_time)
+    values (#{id,jdbcType=INTEGER}, #{coin,jdbcType=DOUBLE}, #{uid,jdbcType=INTEGER}, 
+      #{addTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.business.core.entity.user.Account" useGeneratedKeys="true" keyProperty="id" >
+    insert into account
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="coin != null" >
+        coin,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="addTime != null" >
+        add_time,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="coin != null" >
+        #{coin,jdbcType=DOUBLE},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="addTime != null" >
+        #{addTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.business.core.entity.user.Account" >
+    update account
+    <set >
+      <if test="coin != null" >
+        coin = #{coin,jdbcType=DOUBLE},
+      </if>
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="addTime != null" >
+        add_time = #{addTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.business.core.entity.user.Account" >
+    update account
+    set coin = #{coin,jdbcType=DOUBLE},
+      uid = #{uid,jdbcType=INTEGER},
+      add_time = #{addTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByUid" parameterType="int" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    FROM account
+    where uid = #{uid}
+  </select>
+
+  <update id="reduceBalance" parameterType="java.lang.Integer">
+    UPDATE account
+    set coin = coin - #{coin}
+    WHERE uid = #{uid} and coin >= #{coin}
+  </update>
+
+  <update id="augmentBalance" parameterType="java.lang.Integer">
+    UPDATE account
+    set coin = coin + #{coin}
+    WHERE uid = #{uid}
+  </update>
+
+  <select id="selectByStartAndEnd" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT  * from account where uid >= #{start} and uid &lt;= #{end}
+  </select>
+
+
+  <select id="selectBy" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select a.*, IF(spendDetail.spendCoin IS NULL, 0, spendDetail.spendCoin) as spendCoin from account a LEFT JOIN (SELECT SUM(af.coin) as spendCoin, af.aid as aid from account_flow af where af.flow_type = 1 group by af.aid) as spendDetail on spendDetail.aid = a.id
+    <where>
+      <if test="residualCoinMin != -1">
+        And a.coin &gt;= #{residualCoinMin}
+      </if>
+      <if test="residualCoinMax != -1">
+        And a.coin &lt;= #{residualCoinMax}
+      </if>
+      <if test="uid != -1">
+        AND a.uid = #{uid}
+      </if>
+      <if test="spendCoinMin != -1">
+        AND IF(spendDetail.spendCoin IS NULL, 0, spendDetail.spendCoin) &gt;= #{spendCoinMin}
+      </if>
+      <if test="spendCoinMax != -1">
+        AND IF(spendDetail.spendCoin IS NULL, 0, spendDetail.spendCoin) &lt;= #{spendCoinMax}
+      </if>
+    </where>
+
+  </select>
+
+</mapper>

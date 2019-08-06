@@ -1,0 +1,79 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: edward
+  Date: 2018/2/9
+  Time: 15:00
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="/WEB-INF/pages/common/nav.jsp" %>
+
+<style type="text/css">
+
+    .short {
+        width: 75px;
+    }
+
+    .time{
+        width: 100px;
+    }
+
+</style>
+
+<div class="uk-container-center uk-body">
+    <div class="uk-form-row">
+        <form action="/user/smart/device/find.htm" method="get" class="uk-form">
+            <div class="uk-form-row uk-grid">
+                <div class="uk-width-1-5">
+                    <label>编号：</label>
+                    <label><input type="number" name="filter[uid]" value="${page.filter.uid}" placeholder="用户编号..."/></label>
+
+                </div>
+                <div class="uk-width-1-5">
+                <label>chipID：</label>
+                <label><input type="text" name="filter[chipID]" value="${page.filter.chipID}" placeholder="chipID..."/></label>
+                </div>
+                <button type="submit" class="uk-button uk-button-primary">查询</button>
+            </div>
+        </form>
+
+        <div class="uk-overflow-container">
+            <table class="uk-table uk-table-striped uk-text-nowrap uk-table-striped uk-table uk-table-hover uk-overflow-container">
+                <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>用户编号</th>
+                    <th>key</th>
+                    <th>MAC</th>
+                    <th>类型</th>
+                    <th style="width: 120px">绑定时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <c:forEach var="device" items="${page.result}">
+                    <tr>
+                        <td>${device.id}</td>
+                        <td>${device.uid}</td>
+                        <td>${device.key}</td>
+                        <td>${device.deviceInfo.IRONCLOUD_MAC}</td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${device.type eq 1}">
+                                    手表
+                                </c:when>
+                                <c:otherwise>未定义</c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td><lch:parse-date time="${device.addTime}" pattern="yyyy-MM-dd HH:mm"/></td>
+                        <td> <a href="/user/smart/device/remove.htm?id=${device.id}">删除</a></td>
+                    </tr>
+                </c:forEach>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    <%--分页条--%>
+<lch:page page="${page}" href="/user/smart/device/find.htm"></lch:page>
+<%@ include file="/WEB-INF/pages/common/bottom.jsp" %>

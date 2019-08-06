@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="ugc:war">
+    <output-path>$PROJECT_DIR$/ugc/target</output-path>
+    <root id="archive" name="ugc.war">
+      <element id="artifact" artifact-name="ugc:war exploded" />
+    </root>
+  </artifact>
+</component>

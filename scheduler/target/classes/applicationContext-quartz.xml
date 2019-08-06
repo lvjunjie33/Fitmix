@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-lazy-init="true">
+
+    <description>quartz 配置文件</description>
+    <!-- Quartz集群Schduler -->
+    <!--<bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+        <!--&lt;!&ndash; Triggers集成 &ndash;&gt;-->
+        <!--<property name="triggers">-->
+            <!--<list>-->
+                <!--&lt;!&ndash;<ref bean="timerTrigger" />&ndash;&gt;-->
+            <!--</list>-->
+        <!--</property>-->
+        <!--&lt;!&ndash;  quartz配置文件路径, 指向cluster配置 &ndash;&gt;-->
+        <!--<property name="configLocation" value="classpath:quartz-cluster.properties"/>-->
+        <!--&lt;!&ndash; 启动时延期2秒开始任务 &ndash;&gt;-->
+        <!--<property name="startupDelay" value="-1"/>-->
+        <!--&lt;!&ndash; 保存Job数据到数据库所需的数据源 &ndash;&gt;-->
+        <!--<property name="dataSource" ref="dataSource_scheduler"/>-->
+        <!--&lt;!&ndash; Job接受applicationContext的成员变量名 &ndash;&gt;-->
+        <!--<property name="applicationContextSchedulerContextKey" value="applicationContext"/>-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash; Timer式 Trigger定义&ndash;&gt;-->
+    <!--<bean id="timerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">-->
+        <!--<property name="jobDetail" ref="timerJobDetail"/>-->
+        <!--&lt;!&ndash; 每次执行间隔5分钟 &ndash;&gt;-->
+        <!--<property name="repeatInterval" value="3000"/>-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash; JobDetail, 基于JobDetailBean实例化Job Class,可持久化到数据库实现集群 &ndash;&gt;-->
+    <!--<bean id="timerJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">-->
+        <!--<property name="durability" value="true"/>-->
+        <!--&lt;!&ndash;<property name="jobClass" value="com.eku.prediagnosis.scheduler.test.Job01"/>&ndash;&gt;-->
+    <!--</bean>-->
+
+
+    <!--&lt;!&ndash; 声明工厂 &ndash;&gt;-->
+    <!--<bean id="schedulerFactoryBean" autowire="no" class="com.business.scheduler.base.LchSchedulerFactoryBean">-->
+        <!--<property name="triggers">-->
+            <!--<list>-->
+                <!--&lt;!&ndash;<ref bean="simpleTriggerBean" />&ndash;&gt;-->
+            <!--</list>-->
+        <!--</property>-->
+        <!--<property name="configLocation" value="classpath:quartz-cluster.properties" />-->
+        <!--<property name="schedulerName" value="ClusteredScheduler"/>-->
+        <!--<property name="dataSource" ref="dataSource_scheduler" />-->
+        <!--&lt;!&ndash; 手动启动 &ndash;&gt;-->
+        <!--<property name="startupDelay" value="-1"/>-->
+        <!--&lt;!&ndash;applicationContextSchedulerContextKey：-->
+        <!--是org.springframework.scheduling.quartz.SchedulerFactoryBean这个类中-->
+        <!--把spring上下 文以key/value的方式存放在了quartz的上下文中了，-->
+        <!--可以用applicationContextSchedulerContextKey所定义的key得到对应的spring上下文&ndash;&gt;-->
+        <!--<property name="applicationContextSchedulerContextKey" value="applicationContextKey"/>-->
+    <!--</bean>-->
+
+</beans>

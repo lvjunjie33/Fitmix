@@ -1,0 +1,42 @@
+body,body *,* {
+	padding: 0px;
+	margin: 0px;
+}
+body {
+	background-color: #484848;
+	/*background-image: url("../img/sss -1.png");
+	background-size: 100% 100%;
+	background-repeat:no-repeat;*/
+}
+.userInfo {
+	color: #ffffff;
+	/*background-color: red;*/
+}
+.map {
+	position: relative;
+	/*border-radius: 8px;*/
+}
+.bottomAudio {
+	width: inherit;
+	background-color: indigo;
+}
+.bottomAudio div {
+	width: inherit;
+}
+.bottomAudioExcitation {/*生效激励外框*/
+	background-color: royalblue;
+}
+.bottomAudioBarrage {/*弹幕发送外框*/
+	background-color: darkorchid;
+}
+.bottomAudioMediaPlayer {/*播放器外框*/
+	background-color: deepskyblue;
+}
+.guanGao {
+	width: inherit;
+	background-color: greenyellow;
+}
+.amap-copyright {/*高德地图底部文字*/
+	color: red;
+	font-size: 14px;
+}

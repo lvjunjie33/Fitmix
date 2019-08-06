@@ -1,0 +1,90 @@
+/*
+ * 侧边栏
+*/
+
+@sidebar-color-bg: #333333;
+
+.sidebar {
+  width: 180px;
+  z-index: 1000;
+  top: 50px;
+  left: 0;
+  display: block;
+  bottom: 0px;
+  padding: 5px 0;
+  background-color: @sidebar-color-bg;
+  position: absolute;
+  .sidebar-title {
+    margin-top: 30px;
+    .albums-cover {
+      margin: 5px auto;
+      text-align: center;
+      color: #FFF;
+      & img {
+        width: 150px;
+        height: 150px;
+      }
+    }
+    .albums-select {
+      width: 180px;
+      margin: 0 auto;
+      text-align: center;
+      .btn-group {
+        width: 150px;
+        text-align: center;
+        .content {
+          width: 124px;
+          border-radius: 0 0 0 0;
+        }
+        .drop-btn {
+          height: 34px;
+          border-radius: 0 0 0 0;
+        }
+      }
+      .btn-default {
+        color: #333333;
+      }
+    }
+  }
+
+  .sidebar-menu {
+    margin-top: 30px;
+    color: #FFFFFF;
+    & ul {
+      padding: 0 0;
+      margin-bottom: 20px;
+      & li:first-child {
+        font-size: 16px;
+        margin-left: 5px;
+        text-align: left;
+        & span {
+          margin-right: 10px;
+        }
+      }
+      & li {
+        height: 30px;
+        line-height: 30px;
+        list-style: none;
+        text-align: center;
+        font-size: 14px;
+        & a {
+          height: 30px;
+          line-height: 30px;
+          display: block;
+          width: 100%;
+          text-decoration: none;
+        }
+        & a:hover, a:focus {
+          background-color: #555555;
+          color: #ffffff;
+        }
+        & a.active {
+          background-color: @ugc-color;
+        }
+      }
+
+    }
+  }
+
+}
+

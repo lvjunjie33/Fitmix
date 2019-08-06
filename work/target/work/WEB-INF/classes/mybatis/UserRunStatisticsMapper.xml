@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.business.work.mapper.UserRunStatisticsMapper" >
+  <resultMap id="BaseResultMap" type="com.business.core.entity.user.UserRunStatistics" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="distance" property="distance" jdbcType="BIGINT" />
+    <result column="run_level" property="runLevel" jdbcType="VARCHAR" />
+    <result column="ten_mile_ability" property="tenMileAbility" jdbcType="INTEGER" />
+    <result column="half_marathon_ability" property="halfMarathonAbility" jdbcType="INTEGER" />
+    <result column="add_time" property="addTime" jdbcType="BIGINT" />
+    <result column="modify_time" property="modifyTime" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, uid, distance, ten_mile_ability, half_marathon_ability, add_time, modify_time, run_level
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_run_statistics
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_run_statistics
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.business.core.entity.user.UserRunStatistics" useGeneratedKeys="true" keyProperty="id" >
+    insert into user_run_statistics (id, uid, distance, 
+      ten_mile_ability, half_marathon_ability, add_time, 
+      modify_time, run_level)
+    values (#{id,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, #{distance,jdbcType=BIGINT}, 
+      #{tenMileAbility,jdbcType=INTEGER}, #{halfMarathonAbility,jdbcType=INTEGER}, #{addTime,jdbcType=BIGINT}, 
+      #{modifyTime,jdbcType=BIGINT}, #{runLevel})
+  </insert>
+  <insert id="insertSelective" parameterType="com.business.core.entity.user.UserRunStatistics"  useGeneratedKeys="true" keyProperty="id" >
+    insert into user_run_statistics
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="distance != null" >
+        distance,
+      </if>
+      <if test="tenMileAbility != null" >
+        ten_mile_ability,
+      </if>
+      <if test="halfMarathonAbility != null" >
+        half_marathon_ability,
+      </if>
+      <if test="addTime != null" >
+        add_time,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="runLevel != null" >
+        run_level,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="distance != null" >
+        #{distance,jdbcType=BIGINT},
+      </if>
+      <if test="tenMileAbility != null" >
+        #{tenMileAbility,jdbcType=INTEGER},
+      </if>
+      <if test="halfMarathonAbility != null" >
+        #{halfMarathonAbility,jdbcType=INTEGER},
+      </if>
+      <if test="addTime != null" >
+        #{addTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="runLevel != null" >
+        #{runLevel},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.business.core.entity.user.UserRunStatistics" >
+    update user_run_statistics
+    <set >
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="distance != null" >
+        distance = #{distance,jdbcType=BIGINT},
+      </if>
+      <if test="tenMileAbility != null" >
+        ten_mile_ability = #{tenMileAbility,jdbcType=INTEGER},
+      </if>
+      <if test="halfMarathonAbility != null" >
+        half_marathon_ability = #{halfMarathonAbility,jdbcType=INTEGER},
+      </if>
+      <if test="addTime != null" >
+        add_time = #{addTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="runLevel != null" >
+        run_level = #{runLevel},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.business.core.entity.user.UserRunStatistics" >
+    update user_run_statistics
+    set uid = #{uid,jdbcType=INTEGER},
+      distance = #{distance,jdbcType=BIGINT},
+      ten_mile_ability = #{tenMileAbility,jdbcType=INTEGER},
+      half_marathon_ability = #{halfMarathonAbility,jdbcType=INTEGER},
+      add_time = #{addTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      run_level = #{runLevel}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <insert id="insertBatch" parameterType="java.util.List">
+    insert into user_run_statistics (id, uid, distance,
+      ten_mile_ability, half_marathon_ability, add_time,
+      modify_time, run_level)
+    values
+    <foreach collection="list" item="item" index="index" separator="," >
+      (#{item.id,jdbcType=INTEGER}, #{item.uid,jdbcType=INTEGER}, #{item.distance,jdbcType=BIGINT},
+      #{item.tenMileAbility,jdbcType=INTEGER}, #{item.halfMarathonAbility,jdbcType=INTEGER}, #{item.addTime,jdbcType=BIGINT},
+      #{item.modifyTime,jdbcType=BIGINT}, #{item.runLevel})
+    </foreach>
+  </insert>
+
+  <select id="selectByUid" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user_run_statistics
+    where uid = #{uid}
+  </select>
+
+  <update id="updateDistanceAndRunLevelById" parameterType="com.business.core.entity.user.UserRunStatistics">
+    update user_run_statistics
+    set
+    distance = distance + #{distance},
+    ten_mile_ability = #{tenMileAbility,jdbcType=INTEGER},
+    half_marathon_ability = #{halfMarathonAbility,jdbcType=INTEGER},
+    modify_time = #{modifyTime,jdbcType=BIGINT},
+    run_level = #{runLevel}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByStartAndEnd" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT * from user_run_statistics where  uid >= #{start} and uid &gt;= #{end}
+  </select>
+
+</mapper>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--suppress DuplicatedBeanNamesInspection, UnparsedCustomBeanInspection -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd"
+       default-lazy-init="true">
+
+    <description>Spring-mongo配置</description>
+
+    <!-- ========== predia_db01 配置 ========== -->
+    <bean id="mappingContext01" class="org.springframework.data.mongodb.core.mapping.MongoMappingContext"/>
+
+    <bean id="defaultMongoTypeMapper01" class="org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper">
+        <constructor-arg name="typeKey">
+            <null/>
+        </constructor-arg>
+    </bean>
+
+
+
+    <!-- =========================================== begin core======================================================= -->
+    <!--业务 主库 模版-->
+    <bean id="mongoTemplate01" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg name="mongoDbFactory" ref="mongoDbFactory01"/>
+        <constructor-arg name="mongoConverter" ref="mappingMongoConverter01"/>
+        <property name="writeResultChecking">
+            <value type="org.springframework.data.mongodb.core.WriteResultChecking">EXCEPTION</value>
+        </property>
+        <property name="readPreference" ref="secondaryPreferredReadPreference"></property>
+    </bean>
+
+    <bean id="mappingMongoConverter01" class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
+        <constructor-arg name="mongoDbFactory" ref="mongoDbFactory01"/>
+        <constructor-arg name="mappingContext" ref="mappingContext01"/>
+        <property name="typeMapper" ref="defaultMongoTypeMapper01"/>
+    </bean>
+
+    <mongo:db-factory id="mongoDbFactory01" mongo-ref="mongo01"
+                      dbname="${mongo.dbname}"
+                      username="${mongo.username}"
+                      password="${mongo.password}"
+                      write-concern="SAFE"/>
+    <!--  dataSource business  -->
+    <mongo:mongo id="mongo01" replica-set="${mongo.hosts}">
+        <mongo:options connections-per-host="${mongo.connectionsPerHost}"
+                       threads-allowed-to-block-for-connection-multiplier="${mongo.threadsAllowedToBlockForConnectionMultiplier}"
+                       auto-connect-retry="${mongo.autoConnectRetry}" socket-keep-alive="${mongo.socketKeepAlive}" slave-ok="true"/>
+    </mongo:mongo>
+    <!-- =========================================== end core======================================================= -->
+
+
+    <!-- =========================================== begin secondary======================================================= -->
+    <!-- 业务 辅库 模版-->
+    <bean id="mongoTemplateSecondary01" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg name="mongoDbFactory" ref="mongoDbFactorySecondary01"/>
+        <constructor-arg name="mongoConverter" ref="mappingMongoConverterSecondary01"/>
+        <property name="writeResultChecking">
+            <value type="org.springframework.data.mongodb.core.WriteResultChecking">EXCEPTION</value>
+        </property>
+        <property name="readPreference" ref="secondaryPreferredReadPreference"></property>
+    </bean>
+
+    <bean id="mappingMongoConverterSecondary01" class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
+        <constructor-arg name="mongoDbFactory" ref="mongoDbFactorySecondary01"/>
+        <constructor-arg name="mappingContext" ref="mappingContext01"/>
+        <property name="typeMapper" ref="defaultMongoTypeMapper01"/>
+    </bean>
+
+    <mongo:db-factory id="mongoDbFactorySecondary01" mongo-ref="mongoSecondary01"
+                      dbname="${mongo.dbname2}"
+                      username="${mongo.username}"
+                      password="${mongo.password}"
+                      write-concern="SAFE"/>
+
+    <!--  dataSource business  -->
+    <mongo:mongo id="mongoSecondary01" replica-set="${mongo.hostsSecondary}">
+        <mongo:options connections-per-host="${mongo.connectionsPerHost}"
+                       threads-allowed-to-block-for-connection-multiplier="${mongo.threadsAllowedToBlockForConnectionMultiplier}"
+                       auto-connect-retry="${mongo.autoConnectRetry}" socket-keep-alive="${mongo.socketKeepAlive}" slave-ok="true"/>
+    </mongo:mongo>
+    <!-- =========================================== end secondary======================================================= -->
+
+
+    <!-- =========================================== begin log======================================================= -->
+    <!--业务 日志库 模版-->
+    <bean id="mongoTemplateLog01" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg name="mongoDbFactory" ref="mongoDbFactoryLog01"/>
+        <constructor-arg name="mongoConverter" ref="mappingMongoConverterLog01"/>
+        <property name="writeResultChecking">
+            <value type="org.springframework.data.mongodb.core.WriteResultChecking">EXCEPTION</value>
+        </property>
+        <property name="readPreference" ref="secondaryPreferredReadPreference"></property>
+    </bean>
+
+    <bean id="mappingMongoConverterLog01" class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
+        <constructor-arg name="mongoDbFactory" ref="mongoDbFactoryLog01"/>
+        <constructor-arg name="mappingContext" ref="mappingContext01"/>
+        <property name="typeMapper" ref="defaultMongoTypeMapper01"/>
+    </bean>
+
+    <mongo:db-factory id="mongoDbFactoryLog01" mongo-ref="mongoLog01"
+                      dbname="${mongo.dbname3}"
+                      username="${mongo.username}"
+                      password="${mongo.password}"
+                      write-concern="SAFE"/>
+
+    <mongo:mongo id="mongoLog01" replica-set="${mongo.hostsLog}">
+        <mongo:options connections-per-host="${mongo.connectionsPerHost}"
+                       threads-allowed-to-block-for-connection-multiplier="${mongo.threadsAllowedToBlockForConnectionMultiplier}"
+                       auto-connect-retry="${mongo.autoConnectRetry}" socket-keep-alive="${mongo.socketKeepAlive}" slave-ok="true"/>
+    </mongo:mongo>
+    <!-- =========================================== end log ======================================================= -->
+
+    <!--mongodb 读写分离-->
+    <bean id="secondaryPreferredReadPreference" class="com.mongodb.TaggableReadPreference.SecondaryPreferredReadPreference"></bean>
+
+    <bean id="mongoOperations" class="com.business.core.mongo.RoutingMongoOperations">
+        <property name="targetMongoOperations">
+            <map key-type="java.lang.String">
+                <entry key="$lvjunjie
+                {mongo.dbname}" value-ref="mongoTemplate01"/>
+                <entry key="${mongo.dbname2}" value-ref="mongoTemplateSecondary01" />
+                <entry key="${mongo.dbname3}" value-ref="mongoTemplateLog01" />
+            </map>
+        </property>
+        <property name="defaultTargetMongoOperations" ref="mongoTemplate01"/>
+        <property name="entityPath" value="com.business.core.entity"/>
+    </bean>
+
+</beans>

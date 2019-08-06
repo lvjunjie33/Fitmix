@@ -1,0 +1,232 @@
+package com.business.app.userRunShare;
+
+import com.business.app.mix.MixDao;
+import com.business.app.mix.MixService;
+import com.business.app.userRun.UserRunDao;
+import com.business.app.userRun.UserRunService;
+import com.business.core.client.FileCenterClient;
+import com.business.core.constants.DicConstants;
+import com.business.core.entity.Dictionary;
+import com.business.core.entity.Page;
+import com.business.core.entity.mix.Mix;
+import com.business.core.entity.user.User;
+import com.business.core.entity.user.UserRun;
+import com.business.core.entity.user.UserRunShare;
+import com.business.core.entity.user.UserRunShareResource;
+import com.business.core.operations.user.UserCoreDao;
+import com.business.core.operations.user.UserCoreService;
+import com.business.core.operations.userRunShareResource.UserRunShareResourceCoreDao;
+import com.business.core.utils.CollectionUtil;
+import com.business.core.utils.DicUtil;
+import com.business.core.utils.HttpUtil;
+import com.business.core.utils.MathUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Created by sin on 2015-05-22.
+ */
+@Service
+public class UserRunShareService {
+
+    @Autowired
+    private UserCoreDao userCoreDao;
+    @Autowired
+    private UserCoreService userCoreService;
+    @Autowired
+    private MixDao mixDao;
+    @Autowired
+    private MixService mixService;
+    @Autowired
+    private UserRunShareDao userRunShearDao;
+    @Autowired
+    private UserRunShareResourceCoreDao userRunShareResourceCoreDao;
+    @Autowired
+    private UserRunDao userRunDao;
+    @Autowired
+    private UserRunService userRunService;
+
+    /**
+     * 用户分享数据查看
+     *
+     * @param id 分享数据编号
+     * @return 分享数据页面
+     */
+    public UserRunShare share(String id, Integer uid) {
+        UserRunShare userRunShare = userRunShearDao.findUserRunShareByIdAndUid(id, uid);
+        buildUserRunShareFile(userRunShare);
+
+        User user = userCoreDao.findUserById(uid, "taoBaoIp");
+        if (user != null && null != user.getTaoBaoIp()) {
+            userRunShare.setUser(user);
+        }
+
+        // 随机音乐
+        List<Dictionary> dictionaryList = DicUtil.getDictionary(DicConstants.DIC_TYPE_MIX_SCENE);
+
+        Page<Mix> page = new Page<>();
+        mixDao.findMixByScenePage(Mix.TYPE_SPORT, dictionaryList.get(MathUtil.random(dictionaryList.size())).getValue(), page);
+        Mix mix = page.getResult().get(MathUtil.random(page.getResult().size()));
+        userRunShare.setMix(mix);
+        mixService.buildMixFileUrl(mix);
+
+        return userRunShare;
+    }
+
+    /**
+     * 构建 UserRunShare 文件地址
+     *
+     * @param userRunShare 用户运动分享信息
+     */
+    public void buildUserRunShareFile(UserRunShare userRunShare) {
+        if (userRunShare != null && null != userRunShare.getImageUrl()) {
+            userRunShare.setImageUrl(FileCenterClient.buildUrl(userRunShare.getImageUrl()));
+        }
+    }
+
+
+    /**
+     * 添加 用户运动分享
+     *
+     * @param uid           用户编号
+     * @param distance      距离
+     * @param runTime       运动时间
+     * @param step          部署
+     * @param matchingSpeed 匹配度
+     * @param calorie       卡路里
+     * @return 用户分享
+     */
+    public UserRunShare add(Integer uid, String distance, String runTime,
+                            String step, String matchingSpeed, String calorie) {
+
+        // TODO 改为 缓存
+        List<UserRunShareResource> userRunShareResourceList = userRunShareResourceCoreDao.findAllUserRunShareResource("id", "type", "imageUrl", "content");
+        Map<Integer, List<UserRunShareResource>> typeMultimap = CollectionUtil.buildMultimap(userRunShareResourceList, Integer.class, UserRunShareResource.class, "type");
+
+        // 区分类型
+        List<UserRunShareResource> contentList = typeMultimap.get(UserRunShareResource.TYPE_CONTENT);
+        List<UserRunShareResource> imageList = typeMultimap.get(UserRunShareResource.TYPE_IMAGE);
+
+        // 获取 随机内容
+        UserRunShareResource contentResource = contentList.get(MathUtil.random(contentList.size()));
+        UserRunShareResource imageResource = imageList.get(MathUtil.random(imageList.size()));
+
+        String content = contentResource == null ? "" : contentResource.getContent();
+        String image = imageResource == null ? "" : imageResource.getImageUrl();
+
+        UserRunShare userRunShear = new UserRunShare();
+        userRunShear.setUid(uid);
+
+        userRunShear.setBrowseCount(0);
+        userRunShear.setAddTime(System.currentTimeMillis());
+
+        /// 2.0 后
+        userRunShear.setContent(content);
+        userRunShear.setImageUrl(image);
+
+        // 分享地址
+        userRunShear.setAddress(userCoreDao.findUserById(uid, "taoBaoIp").getTaoBaoIp());
+
+        userRunShear.setDistance(distance);
+        userRunShear.setRunTime(runTime);
+        userRunShear.setStep(step);
+        userRunShear.setMatchingSpeed(matchingSpeed);
+        userRunShear.setCalorie(calorie);
+
+        userRunShearDao.insertUserRunShear(userRunShear);
+        return userRunShear;
+    }
+
+
+    ///
+    ///   新 运动分享 (用户分享 确保运动记录已上传，不再保存 UserRunShare)
+
+
+    /**
+     * 用户运动 记录分享添加
+     *
+     * @param uid       用户编号
+     * @param startTime 运动编号
+     * @return 0、成功 1、数据不存在
+     */
+    public Object[] addNew(Integer uid, Long startTime) {
+        UserRun userRun = userRunDao.findUserRunByStartTime(uid, startTime, "startTime");
+        if (userRun == null) {
+            return new Object[]{1};
+        }
+
+        return new Object[]{0, userRun};
+    }
+
+    /**
+     * 用户运动数据分享
+     *
+     * @param uid       用户编号
+     * @param startTime 运动编号
+     * @return 用户运动记录
+     */
+    public UserRun shareNew(Integer uid, Long startTime) {
+        UserRun userRun = userRunDao.findUserRunByStartTime(uid, startTime);
+        userRunService.buildUserRunFileUrl(userRun);
+        User user = userCoreDao.findUserById(uid, User.BASIC_INFO_FIELDS);
+        userCoreService.buildUserFileUrl(user);
+        userRun.setUser(user);
+        //轨迹文件或者记步文件空内容
+        String nullTextStr = "{\"array\":[]}";
+        //处理地图文件
+        if (null != userRun.getDetail()) {
+            String result = "";
+            try {
+                result = HttpUtil.get(userRun.getDetail());
+                result = originalStr(result);
+                if (!result.substring(result.length() - 2).equals("]}")) {
+                    result += "]}";
+                }
+                userRun.setDetail(result);
+            } catch (Exception e) {
+                System.out.println("轨迹文件文件不存在");
+                userRun.setDetail(nullTextStr);
+            }
+
+        } else if (null == userRun.getDetail()) {
+            userRun.setDetail(nullTextStr);
+        }
+        //处理记步文件
+        if (null != userRun.getStepDetail()) {
+            String stepDetail = "";
+            try {
+                stepDetail = HttpUtil.get(userRun.getStepDetail());
+                stepDetail = originalStr(stepDetail);
+                if (!stepDetail.substring(stepDetail.length() - 2).equals("]}")) {
+                    stepDetail += "]}";
+                }
+                userRun.setStepDetail(stepDetail);
+            } catch (Exception e) {
+                System.out.println("记步文件步存在...");
+                userRun.setStepDetail(nullTextStr);
+            }
+
+        } else if (null == userRun.getStepDetail()) {
+            userRun.setStepDetail(nullTextStr);
+        }
+        return userRun;
+    }
+
+    /***
+     * 清除字符串中的空格、制表符、换行符、回车
+     *
+     * @param str
+     * @return
+     */
+    private String originalStr(String str) {
+        Pattern p = Pattern.compile("//s*|\t|\r|\n");
+        Matcher m = p.matcher(str);
+        return m.replaceAll("");
+    }
+}

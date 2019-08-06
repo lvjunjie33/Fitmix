@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bbs/bbs.iml" filepath="$PROJECT_DIR$/bbs/bbs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/file/file.iml" filepath="$PROJECT_DIR$/file/file.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lch.iml" filepath="$PROJECT_DIR$/lch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/live/live.iml" filepath="$PROJECT_DIR$/live/live.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mq-server/mq-server.iml" filepath="$PROJECT_DIR$/mq-server/mq-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/scheduler/scheduler.iml" filepath="$PROJECT_DIR$/scheduler/scheduler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ugc/ugc.iml" filepath="$PROJECT_DIR$/ugc/ugc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/work/work.iml" filepath="$PROJECT_DIR$/work/work.iml" />
+    </modules>
+  </component>
+</project>

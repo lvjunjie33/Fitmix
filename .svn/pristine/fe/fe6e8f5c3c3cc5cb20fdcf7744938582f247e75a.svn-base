@@ -1,0 +1,245 @@
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: #8c8c8c;
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: #8c8c8c;
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+    color: #8c8c8c;
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    color: #8c8c8c;
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.background {
+    position: relative;
+    background-size: cover;
+    background: url(/imgs/background.png) no-repeat scroll center 0em;
+    width: 100%;
+    height: 903px;
+}
+
+.background .filter {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.background .login-bar {
+    background-color: rgba(32, 31, 38, 0.9);
+    width: 856px;
+    margin: 0 auto 20px;
+    position: relative;
+    min-height: 600px;
+    top: 145px;
+    border-radius: 8px;
+    padding-bottom: 65px;
+}
+
+.background .login-bar .login-content {
+    text-align: center;
+    margin: 0 auto;
+    position: relative;
+    top: 52px;
+}
+
+.background .login-bar .login-content .lghead .logo {
+    background-size: cover;
+    background: url(/static/user/img/logo.png) no-repeat scroll center;
+    width: 100px;
+    height: 37px;
+    margin: 0 auto 34px;
+}
+
+.background .login-bar .login-content .lghead h4 {
+    font-size: 34px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    letter-spacing: 5px;
+}
+
+.background .login-bar .login-content .login-area {
+    margin: 43px auto 0;
+}
+
+.background .login-bar .login-content .login-area label {
+    display: block;
+}
+
+.background .login-bar .login-content .login-area label input {
+    color: #FFF;
+    background-color: transparent;
+    border-radius: 8px;
+    border: 1px solid #8e8e8e;
+    width: 360px;
+    height: 40px;
+    padding: 0 16px;
+    outline: none;
+}
+
+
+
+.background .login-bar .login-content .login-area label .account-item {
+}
+
+.background .login-bar .login-content .login-area label .psw-item {
+    margin-top: 20px;
+}
+
+.background .login-bar .login-content .login-area .error-msg {
+    background: url(/static/run-plan/imgs/tip.png) no-repeat scroll left center transparent;
+    width: 360px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    text-align: center;
+    color: rgba(245,68,53,1);
+    margin: 20px 0 0 192px;
+    display: none;
+    letter-spacing: 5px;
+    padding-right: 180px;
+}
+
+.background .login-bar .login-content .login-area .success-tip {
+    float: left;
+    background: url(/static/user/img/slide-finish.png) no-repeat;
+    width: 32px;
+    height: 32px;
+    display: none;
+    margin-left: 380px;
+    margin-top: 4px;
+}
+
+.background .login-bar .login-content .login-area .login-btn {
+    margin-top: 40px;
+}
+
+.background .login-bar .login-content .login-area .login-btn button {
+    border-radius: 18px;
+    background-color: #0cb4e8;
+    color: #FFF;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    width: 360px;
+    height: 40px;
+    outline: none;
+    border: 0;
+}
+
+.background .login-bar .login-content .login-area .link-to-other {
+    width: 360px;
+    min-height: 16px;
+    text-align: center;
+    margin: 30px auto 0;
+}
+
+.background .login-bar .login-content .login-area .link-to-other a {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: rgba(201, 200, 210, 1);
+    cursor: pointer;
+}
+
+.background .login-bar .login-content .login-area .link-to-other a:hover {
+    color: #0cb4e8;
+    text-decoration: none;
+}
+
+.background .login-bar .login-content .login-area .link-to-other .link-to-reg {
+    float: left;
+}
+
+.background .login-bar .login-content .login-area .link-to-other .link-to-psw {
+    float: right;
+}
+
+.background .login-bar .login-content .login-area .other-login-way {
+    margin-top: 40px;
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-title {
+    width: 100%;
+    font-size: 16px;
+    margin: 0 auto;
+    position: relative;
+    text-align: center;
+    color: rgba(201, 200, 210, 1);
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-title:before {
+    content: "";
+    border-top: 1px solid;
+    display: block;
+    position: absolute;
+    width: 139px;
+    top: 10px;
+    left: 247px;
+-webkit-linear-gradient(left, rgba(201, 200, 210, 0.1), rgba(201, 200, 210, 1));
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-title:after {
+    content: "";
+    border-top: 1px solid;
+    display: block;
+    position: absolute;
+    width: 139px;
+    top: 10px;
+    right: 247px;
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-link {
+    min-height: 39px;
+    margin: 18px auto 0;
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-link a {
+    cursor: pointer;
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-link .other-way-wechat {
+    background: url(/static/user/img/wechat.png);
+    width: 39px;
+    height: 39px;
+    display: inline-block;
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-link .other-way-wechat:hover {
+    background: url(/static/user/img/wechat-checked.png);
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-link .other-way-qq {
+    background: url(/static/user/img/qq.png);
+    width: 39px;
+    height: 39px;
+    display: inline-block;
+    margin-left: 54px;
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-link .other-way-qq:hover {
+    background: url(/static/user/img/qq-checked.png);
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-link .other-way-weibo {
+    background: url(/static/user/img/weibo.png);
+    width: 39px;
+    height: 39px;
+    display: inline-block;
+    margin-left: 54px;
+}
+
+.background .login-bar .login-content .login-area .other-login-way .other-way-link .other-way-weibo:hover {
+    background: url(/static/user/img/weibo-checked.png);
+}

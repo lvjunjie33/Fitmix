@@ -1,0 +1,36 @@
+在/etc/profile最后添加
+export JAVA_HOME=/opt/jdk
+export ROCKETMQ_HOME=/opt/alibaba-rocketmq
+export PATH=$JAVA_HOME/bin:$ROCKETMQ_HOME/bin:$PATH
+
+#设置MQ所在服务器ip
+export NAMESRV_ADDR=Your_name_IP:9876
+
+
+
+cd /data/alibaba-rocketmq/bin
+
+关闭nameserver broker
+#/opt/alibaba-rocketmq/bin/
+#sh mqshutdown namesrv
+#sh mqshutdown broker
+
+
+启动nameserver
+#cd /opt/alibaba-rocketmq/bin/
+#nohup sh mqnamesrv &
+
+验证nameserver是否启动
+# tail -f nohup.out
+The Name Server boot success.
+
+
+启动broker
+在启动borker之前需要指点nameserver
+#export NAMESRV_ADDR=Your_IP:9876
+#cd /opt/alibaba-rocketmq/bin/
+#nohup sh mqbroker &
+
+验证mqbroker是否启动
+# tail -f nohup.out
+The broker[Your_hostname, Your_IP:10911] boot success. and name server is Your_IP:9876

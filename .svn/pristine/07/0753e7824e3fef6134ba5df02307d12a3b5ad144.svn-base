@@ -1,0 +1,221 @@
+package com.business.work.script;
+
+import com.business.core.constants.Constants;
+import com.business.core.constants.MsgConstants;
+import com.business.core.entity.community.discuss.CategoryMsg;
+import com.business.core.entity.logs.SysErrorLog;
+import com.business.core.entity.msg.Message;
+import com.business.core.entity.runPlan.RunStage;
+import com.business.core.entity.runPlan.Stages;
+import com.business.core.entity.runPlan.UserRunPlan;
+import com.business.core.entity.user.User;
+import com.business.core.entity.user.UserRun;
+import com.business.core.entity.user.info.UserRunStat;
+import com.business.core.mongo.DefaultDao;
+import com.business.core.utils.BeanManager;
+import com.business.core.utils.DateUtil;
+import com.business.core.utils.MD5Util;
+import com.business.core.utils.RunUtil;
+import com.business.work.base.support.BaseControllerSupport;
+import com.business.work.stat.StatService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.*;
+
+/**
+ *
+ * 所有的修复、迁移、临时统计等之类的脚本都写在这儿
+ *
+ * Created by edward on 2017/11/13.
+ */
+@Controller
+@RequestMapping
+public class ScriptController extends BaseControllerSupport {
+
+    private static final Logger log = LoggerFactory.getLogger(ScriptController.class);
+
+    @Autowired
+    private DefaultDao defaultDao;
+    @Autowired
+    private StatService statService;
+
+    /**
+     * 迁移话题消息 已经完成
+     *
+     * @param bId 开始编号
+     * @param eId 结束编号
+     */
+    @RequestMapping("move/theme/to/msg")
+    public void moveCategoryMsgToMessage(Long bId, Long eId) {
+        if (true) {
+            return;
+        }
+        for (;bId <= eId; bId++) {
+            log.error("id : " + bId);
+            CategoryMsg categoryMsg = defaultDao.findById(CategoryMsg.class, bId);
+            if (categoryMsg == null) {
+                continue;
+            }
+
+            Message message = defaultDao.findOne(Query.query(Criteria.where("msgBody.id").is(categoryMsg.getId().toString())), Message.class);
+            if (message != null) {
+                continue;
+            }
+
+            Map<String, String> body = new HashMap<>();
+            body.put("targetUid", categoryMsg.getTargetUId().toString());
+            body.put("fromUid", categoryMsg.getFromUId().toString());
+
+            //迁移
+            {
+                Message newMsg = new Message();
+                //消息类型
+                if (CategoryMsg.TYPE_THEME_ANSWER.equals(categoryMsg.getType())) {
+                    newMsg.setSelectChannel(MsgConstants.CHANNEL_THEME_ANSWER);
+                    body.put("themeId", categoryMsg.getTargetId().toString());
+                } else if (CategoryMsg.TYPE_THEME_DISCUSS.equals(categoryMsg.getType())) {
+                    newMsg.setSelectChannel(MsgConstants.CHANNEL_ANSWER_DISCUSS);
+                    body.put("themeId", categoryMsg.getTargetId().toString());
+                }
+
+                newMsg.setAddTime(categoryMsg.getAddTime());
+                newMsg.setStatus(MsgConstants.HANDLE_STATUS_FALSE);
+                newMsg.setMsgBody(body);
+                defaultDao.save(newMsg);
+            }
+        }
+    }
+
+
+    /**
+     * 密码密文 已经完成
+     *
+     * @param bId
+     * @param eId
+     */
+    @RequestMapping("pwd/md5")
+    public void passwordMd5(Integer bId, Integer eId) {
+        if (true) {
+            return;
+        }
+        DefaultDao defaultDao = BeanManager.getBean(DefaultDao.class);
+        for (; bId <= eId; bId++) {
+            User user = defaultDao.findById(User.class, bId, "password");
+            if (user == null) {
+                continue;
+            }
+            if (!StringUtils.isEmpty(user.getPassword())) {
+                String newPwd = MD5Util.MD5Encode(user.getPassword(), MD5Util.CHARSET_NAME_UTF);
+                user.setNewPwd(newPwd);
+                defaultDao.modifyFirst(Query.query(Criteria.where("id").is(user.getId())), Update.update("newPwd", user.getNewPwd()), User.class);
+            }
+            log.error(user.getId() + " == " + user.getPassword() + " === " + user.getNewPwd());
+        }
+    }
+
+    //====================================修复训练计划 begin================================================
+
+    @RequestMapping("restore/plan")
+    public void restoreUserRunPlan(Integer uid) {
+        if (true) {
+            return;
+        }
+
+        UserRunPlan userRunPlan = defaultDao.findOne(Query.query(Criteria.where("id").is(18116).and("uid").is(uid)), UserRunPlan.class);
+        for (Stages stages : userRunPlan.getStagesLists()) {
+            if ("2017-09-25".equals(stages.getDateTime())) {
+                stages.setState(Stages.STATE_SUCCESS);
+            }
+        }
+        defaultDao.modifyFirst(Query.query(Criteria.where("id").is(userRunPlan.getId())), Update.update("stagesLists", userRunPlan.getStagesLists()), UserRunPlan.class);
+    }
+
+    //====================================修复训练计划 begin================================================
+
+    /**
+     * 修复燃脂量统计数据
+     */
+    @RequestMapping("restore/stat/sum/consume/fat")
+    public void restoreStatSumConsumeFat(Long bId, Long eId) {
+        for (; bId <= eId; bId++) {
+//            Long currentTime = System.currentTimeMillis();
+            UserRun userRun = defaultDao.findOne(Query.query(Criteria.where("id").is(bId).and("consumeFat").ne(null)), UserRun.class);
+            if (userRun == null) {
+                continue;
+            }
+            log.error("ok>>rId:" + userRun.getId());
+            execute1(userRun);
+        }
+    }
+
+    private void execute1(UserRun userRun) {
+        String YEAR_END  = "--";
+        Date today = new Date(userRun.getStartTime());
+
+        //全部汇总
+        {
+            String sumStatTime = YEAR_END;
+            Query query = Query.query(Criteria.where("uid").is(userRun.getUid()).and("statTime").is(sumStatTime).and("type").is(UserRunStat.STAT_SUM));
+            defaultDao.modifyFirst(query, new Update().inc("sumConsumeFat", userRun.getConsumeFat()), UserRunStat.class);
+        }
+
+        //本年汇总
+        {
+            String yearStatTime = DateUtil.format(today, "yyyy") + YEAR_END;
+            defaultDao.modifyFirst(Query.query(Criteria.where("uid").is(userRun.getUid()).and("statTime").is(yearStatTime).and("type").is(UserRunStat.STAT_YEAR)), new Update().inc("sumConsumeFat", userRun.getConsumeFat()), UserRunStat.class);
+        }
+
+        //本月汇总
+        {
+            String monthStatTime = DateUtil.format(DateUtil.getMonthBegin(today), "yyyy-MM-dd");
+            defaultDao.modifyFirst(Query.query(Criteria.where("uid").is(userRun.getUid()).and("statTime").is(monthStatTime).and("type").is(UserRunStat.STAT_MONTH)), new Update().inc("sumConsumeFat", userRun.getConsumeFat()), UserRunStat.class);
+        }
+
+        //本周汇总
+        {
+            String weekStatTime = DateUtil.format(DateUtil.getWeekBegin(today), "yyyy-MM-dd");
+            defaultDao.modifyFirst(Query.query(Criteria.where("uid").is(userRun.getUid()).and("statTime").is(weekStatTime).and("type").is(UserRunStat.STAT_WEEK)), new Update().inc("sumConsumeFat", userRun.getConsumeFat()), UserRunStat.class);
+        }
+    }
+
+    /**
+     * 修复用户配速信息
+     *
+     * @param bId 开始编号
+     * @param eId 结束编号
+     */
+    @RequestMapping("/restore/user/run/stat/pace")
+    public void restoreUserRunStatPace(Long bId, Long eId) {
+        for (; bId <= eId; bId++) {
+//            Long currentTime = System.currentTimeMillis();
+            UserRunStat stat = defaultDao.findOne(Query.query(Criteria.where("id").is(bId).and("sumDistanceValid").ne(null).and("runTimeValid").ne(null)), UserRunStat.class, "sumDistanceValid", "runTimeValid");
+            if (stat == null) {
+                continue;
+            }
+            log.error("ok>>rId:" + stat.getId());
+            execute2(stat);
+        }
+    }
+    public void execute2(UserRunStat stat) {
+        String pace = RunUtil.pace(stat.getSumDistanceValid(), stat.getRunTimeValid());
+        defaultDao.modifyFirst(Query.query(Criteria.where("id").is(stat.getId())), Update.update("pace", RunUtil.getPaceInt(pace)).set("level", RunUtil.getPaceLevel(pace)), UserRunStat.class);
+    }
+
+    /**
+     * 修复用户身高数据
+     */
+    @RequestMapping("/restore/user/height")
+    public void restoreUserHeight() {
+        defaultDao.modifyMore(Query.query(Criteria.where("height").gt(300).and("gender").in(1,null, 3)), Update.update("height", 170), User.class);
+        defaultDao.modifyMore(Query.query(Criteria.where("height").gt(300).and("gender").in(2)), Update.update("height", 165), User.class);
+    }
+}

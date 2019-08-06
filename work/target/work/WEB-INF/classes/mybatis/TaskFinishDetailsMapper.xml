@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.business.work.mapper.TaskFinishDetailsMapper" >
+  <resultMap id="BaseResultMap" type="com.business.core.entity.task.TaskFinishDetails" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="task_type" property="taskType" jdbcType="INTEGER" />
+    <result column="task_key" property="taskKey" jdbcType="VARCHAR" />
+    <result column="addition_id" property="additionId" jdbcType="INTEGER" />
+    <result column="finish_time" property="finishTime" jdbcType="VARCHAR" />
+    <result column="add_time" property="addTime" jdbcType="BIGINT" />
+    <result column="finishCount" property="finishCount" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, uid, task_type, task_key, addition_id, finish_time, add_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from task_finish_details
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from task_finish_details
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.business.core.entity.task.TaskFinishDetails" useGeneratedKeys="true" keyProperty="id" >
+    insert into task_finish_details (id, uid, task_type, 
+      task_key, addition_id, finish_time, 
+      add_time)
+    values (#{id,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, #{taskType,jdbcType=INTEGER}, 
+      #{taskKey,jdbcType=VARCHAR}, #{additionId,jdbcType=INTEGER}, #{finishTime,jdbcType=VARCHAR}, 
+      #{addTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.business.core.entity.task.TaskFinishDetails" useGeneratedKeys="true" keyProperty="id" >
+    insert into task_finish_details
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="taskType != null" >
+        task_type,
+      </if>
+      <if test="taskKey != null" >
+        task_key,
+      </if>
+      <if test="additionId != null" >
+        addition_id,
+      </if>
+      <if test="finishTime != null" >
+        finish_time,
+      </if>
+      <if test="addTime != null" >
+        add_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="taskType != null" >
+        #{taskType,jdbcType=INTEGER},
+      </if>
+      <if test="taskKey != null" >
+        #{taskKey,jdbcType=VARCHAR},
+      </if>
+      <if test="additionId != null" >
+        #{additionId,jdbcType=INTEGER},
+      </if>
+      <if test="finishTime != null" >
+        #{finishTime,jdbcType=VARCHAR},
+      </if>
+      <if test="addTime != null" >
+        #{addTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.business.core.entity.task.TaskFinishDetails" >
+    update task_finish_details
+    <set >
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="taskType != null" >
+        task_type = #{taskType,jdbcType=INTEGER},
+      </if>
+      <if test="taskKey != null" >
+        task_key = #{taskKey,jdbcType=VARCHAR},
+      </if>
+      <if test="additionId != null" >
+        addition_id = #{additionId,jdbcType=INTEGER},
+      </if>
+      <if test="finishTime != null" >
+        finish_time = #{finishTime,jdbcType=VARCHAR},
+      </if>
+      <if test="addTime != null" >
+        add_time = #{addTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.business.core.entity.task.TaskFinishDetails" >
+    update task_finish_details
+    set uid = #{uid,jdbcType=INTEGER},
+      task_type = #{taskType,jdbcType=INTEGER},
+      task_key = #{taskKey,jdbcType=VARCHAR},
+      addition_id = #{additionId,jdbcType=INTEGER},
+      finish_time = #{finishTime,jdbcType=VARCHAR},
+      add_time = #{addTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectTaskFinishDetailsBy" parameterType="int" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM task_finish_details
+    WHERE uid = #{uid} and task_key = #{taskKey} and finish_time = #{finishTime}
+  </select>
+
+  <select id="selectByParams" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from task_finish_details
+    <where>
+      <if test="uid != null">
+        uid = #{uid}
+      </if>
+    </where>
+  </select>
+
+  <select id="statisticsBy" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select count(1) as finishCount, tfd.`task_key` from `task_finish_details` tfd
+     <where>
+        <if test="startTime != null and startTime != 0">
+          tfd.`add_time` &gt;= #{startTime}
+        </if>
+       <if test="endTime != null and endTime != 0">
+          AND tfd.`add_time` &lt;= #{endTime}
+       </if>
+     </where>
+       group by tfd.`task_key` order by count(1) DESC;
+  </select>
+
+</mapper>

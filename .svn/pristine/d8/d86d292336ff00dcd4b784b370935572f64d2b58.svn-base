@@ -1,0 +1,516 @@
+$(window).load(function () {
+    var durationTime = 2;
+    //var durationTime1 = 8;
+    var easingFn = function (t, b, c, d) {
+        var ts = (t /= d) * t;
+        var tc = ts * t;
+        return b + c * (tc + -3 * ts + 3 * t);
+    }
+
+
+    if($("#matchSpeed").length > 0){
+        if(typeof window.share.attributes.distance != 'undefined' && window.share.attributes.distance != null
+            && typeof window.share.attributes.runTime != 'undefined' && window.share.attributes.runTime != null
+            && share.attributes.type == undefined) {
+            //app数据
+            var temp = (window.share.attributes.runTime/1000/60) / (window.share.attributes.distance/1000);
+            var minute = parseInt(temp);
+            var second = parseInt((temp - minute) * 60);
+            second = second > 9 ? second : "0" + second;
+            // 配速
+            var matchSpeed = new CountUp("matchSpeed", 0, minute + "." + second, 2, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '\'',
+                prefix: '',
+                suffix: ''
+            });
+            matchSpeed.start();
+        } else if(typeof window.share.attributes.distance != 'undefined' && window.share.attributes.distance != null
+            && typeof window.share.attributes.runTime != 'undefined' && window.share.attributes.runTime != null
+            && share.attributes.type != undefined) {
+            //手表数据
+            var temp = (window.share.attributes.runTime / 60) / (window.share.attributes.distance / 1000);
+            if(temp>=100) {
+                // 加个限制，最多显示99分59秒
+                temp = 99.99;
+            }
+            var minute = parseInt(temp);
+            var second = parseInt((temp - minute) * 60);
+            second = second > 9 ? second : "0" + second;
+            // 配速
+            var matchSpeed = new CountUp("matchSpeed", 0, minute + "." + second, 2, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '\'',
+                prefix: '',
+                suffix: ''
+            });
+            matchSpeed.start();
+        }
+        else {
+            $("#matchSpeed").text("--");
+        }
+    }
+
+
+
+    //累积海拔
+    if($("#elevation").length > 0){
+        var step1 = window.share.attributes.stepDetail["array"];
+        if(typeof step1 != 'undefined' && step1.length > 0 && step1[0].time < 1000000) {
+            if(typeof window.share.attributes.elevation === 'undefined' || window.share.attributes.elevation === null) {
+                var array = window.share.attributes.detail["array"];
+                if(typeof array != 'undefined' && array.length > 5) {
+                    var elevation = 0;
+                    for(var i = 5;i < array.length; i++) {
+                        var diff = array[i].altitude - array[i - 1].altitude;
+                        if(diff > 0.01) {
+                            elevation += diff;
+                        }
+                    }
+                    window.share.attributes.elevation = elevation;
+                }
+            }
+
+            if(typeof window.share.attributes.elevation != 'undefined' && window.share.attributes.elevation != null) {
+                window.share.attributes.elevation = parseInt(window.share.attributes.elevation).toFixed(2);
+                var elevation = new CountUp("elevation", 0, window.share.attributes.elevation, 2, durationTime, {
+                    useEasing: true,
+                    easingFn: easingFn,
+                    useGrouping: false,
+                    separator: '',
+                    decimal: '.',
+                    prefix: '',
+                    suffix: ''
+                });
+                elevation.start();
+            } else {
+                $("#elevation").text("--")
+            }
+        } else {
+            $("#data-item").find(".icon-haiba").removeClass("icon-haiba").addClass("icon-bufu");
+            if(typeof window.share.attributes.distance != 'undefined' && window.share.attributes.distance != null &&
+                typeof window.share.attributes.step != 'undefined' && window.share.attributes.step != null && parseInt(window.share.attributes.step) != 0) {
+                window.share.attributes.elevation = (parseInt(window.share.attributes.distance) / parseInt(window.share.attributes.step)).toFixed(2);
+                //if(window.share.attributes.elevation < 2.5) {
+                //    var elevation = new CountUp("elevation", 0, window.share.attributes.elevation, 2, durationTime, {
+                //        useEasing: true,
+                //        easingFn: easingFn,
+                //        useGrouping: false,
+                //        separator: '',
+                //        decimal: '.',
+                //        prefix: '',
+                //        suffix: ''
+                //    });
+                //    elevation.start();
+                //} else {
+                //    $("#elevation").text("2");
+                //}
+                var elevation = new CountUp("elevation", 0, window.share.attributes.elevation, 2, durationTime, {
+                    useEasing: true,
+                    easingFn: easingFn,
+                    useGrouping: false,
+                    separator: '',
+                    decimal: '.',
+                    prefix: '',
+                    suffix: ''
+                });
+                elevation.start();
+            } else {
+                $("#elevation").text("--");
+            }
+            $("#data-item").find(".desc").text("步幅:米/步");
+        }
+    }
+
+    //步幅
+    //$("#data-item").find(".icon-haiba").removeClass("icon-haiba").addClass("icon-bufu");
+    //if(typeof window.share.attributes.distance != 'undefined' && window.share.attributes.distance != null &&
+    //    typeof window.share.attributes.step != 'undefined' && window.share.attributes.step != null && parseInt(window.share.attributes.step) != 0) {
+    //    window.share.attributes.elevation = (parseInt(window.share.attributes.distance) / parseInt(window.share.attributes.step)).toFixed(2);
+    //    if(window.share.attributes.elevation < 2.5) {
+    //        var elevation = new CountUp("elevation", 0, window.share.attributes.elevation, 2, durationTime, {
+    //            useEasing: true,
+    //            easingFn: easingFn,
+    //            useGrouping: false,
+    //            separator: '',
+    //            decimal: '.',
+    //            prefix: '',
+    //            suffix: ''
+    //        });
+    //        elevation.start();
+    //    } else {
+    //        $("#elevation").text("--");
+    //    }
+    //
+    //} else {
+    //    $("#elevation").text("--");
+    //}
+    //$("#data-item").find(".desc").text("步幅:米/步");
+
+    // 步数
+    if($("#step").length > 0){
+        if(typeof window.share.attributes.step != 'undefined' && window.share.attributes.step != null) {
+            var step = new CountUp("step", 0, window.share.attributes.step, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            step.start();
+        } else {
+            $("#step").text("--");
+        }
+
+    }
+
+
+    if($("#speed").length > 0 ){
+        if(typeof window.share.attributes.distance != 'undefined' && window.share.attributes.distance != null
+            && typeof window.share.attributes.runTime != 'undefined' && window.share.attributes.runTime != null
+            && share.attributes.type == undefined) {
+            //alert('app数据');
+            // 速度
+            var avgSpeed = (window.share.attributes.distance/1000) / (window.share.attributes.runTime/1000/60/60);
+            console.log(window.share.attributes.distance/1000);
+            console.log(window.share.attributes.runTime/1000/60/60);
+            var speed = new CountUp("speed", 0, avgSpeed, 2, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '.',
+                prefix: '',
+                suffix: ''
+            });
+            speed.start();
+            $(".avg-speed").text("平均:" + parseFloat(avgSpeed).toFixed(2) + "公里/小时");
+        } else if(typeof window.share.attributes.distance != 'undefined' && window.share.attributes.distance != null
+            && typeof window.share.attributes.runTime != 'undefined' && window.share.attributes.runTime != null
+            && share.attributes.type != undefined){
+            //alert('手表数据');
+            // 速度
+            var avgSpeed = (window.share.attributes.distance/1000) / (window.share.attributes.runTime/60/60);
+            console.log("distance");
+            console.log(window.share.attributes.distance/1000);
+            console.log(window.share.attributes.runTime/60/60);
+            var speed = new CountUp("speed", 0, avgSpeed, 2, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '.',
+                prefix: '',
+                suffix: ''
+            });
+            speed.start();
+            $(".avg-speed").text("平均:" + parseFloat(avgSpeed).toFixed(2) + "公里/小时");
+
+
+        } else {
+            $("#speed").text("--");
+        }
+    }
+
+    //心率
+    if($("#avgHR").length > 0){
+        if(typeof window.share.attributes.avgHR != 'undefined' && window.share.attributes.avgHR != null) {
+            // 步数
+            var avgHR = new CountUp("avgHR", 0, window.share.attributes.avgHR, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            avgHR.start();
+        } else {
+            $("#avgHR").text("--");
+        }
+    }
+
+
+    //最高时速
+    if($("#maxPace").length > 0){
+        if(window.share.attributes.maxPace) {
+            var maxPace = 3600 / window.share.attributes.maxPace;
+            var maxPace = new CountUp("maxPace", 0, maxPace,2, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '.',
+                prefix: '',
+                suffix: ''
+            });
+            maxPace.start();
+        } else {
+            $("#maxPace").text("--");
+        }
+    }
+
+
+
+    // 卡路里
+    if(typeof window.share.attributes.calorie != 'undefined' && window.share.attributes.calorie != null) {
+        var calorie = new CountUp("calorie", 0, window.share.attributes.calorie, 0, durationTime, {
+            useEasing: true,
+            easingFn: easingFn,
+            useGrouping: false,
+            separator: '',
+            decimal: '',
+            prefix: '',
+            suffix: ''
+        });
+        calorie.start();
+    } else {
+        $("#calorie").text("--");
+    }
+
+    // 最高海拔
+    if($("#peakAltitude").length > 0){
+        if(typeof window.share.attributes.peakAltitude != 'undefined' && window.share.attributes.peakAltitude != null) {
+            var peakAltitude = new CountUp("peakAltitude", 0, window.share.attributes.peakAltitude, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            peakAltitude.start();
+        } else {
+            $("#peakAltitude").text("--");
+        }
+    }
+
+
+
+    // 累计爬升
+    if($("#totalUp").length > 0){
+        if(typeof window.share.attributes.totalUp != 'undefined' && window.share.attributes.totalUp != null) {
+            var totalUp = new CountUp("totalUp", 0, window.share.attributes.totalUp, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            totalUp.start();
+        } else {
+            $("#totalUp").text("--");
+        }
+    }
+
+
+    // 累计下降
+    if($("#totalDown").length > 0){
+        if(typeof window.share.attributes.totalDown != 'undefined' && window.share.attributes.totalDown != null) {
+            var totalDown = new CountUp("totalDown", 0, window.share.attributes.totalDown, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            totalDown.start();
+        } else {
+            $("#totalDown").text("--");
+        }
+    }
+
+
+    // 燃脂
+    if($("#fatBurst").length > 0){
+        if(typeof window.share.attributes.fatBurst != 'undefined' && window.share.attributes.fatBurst != null) {
+            var fatBurst = new CountUp("fatBurst", 0, window.share.attributes.fatBurst, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            fatBurst.start();
+        } else {
+            $("#fatBurst").text("--");
+        }
+    }
+
+    // 手表数据平均心率
+    if($("#avgSportHR").length > 0){
+        if(typeof window.share.attributes.avgSportHR != 'undefined' && window.share.attributes.avgSportHR != null) {
+            var avgSportHR = new CountUp("avgSportHR", 0, window.share.attributes.avgSportHR, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            avgSportHR.start();
+        } else {
+            $("#avgSportHR").text("--");
+        }
+    }
+
+
+
+    // 步频
+    if($("#bpm").length > 0){
+        if( typeof window.share.attributes.runTime != 'undefined' && window.share.attributes.runTime != null &&
+            typeof window.share.attributes.step != 'undefined' && window.share.attributes.step != null
+            && share.attributes.type == undefined) {
+
+            //app数据
+            var avgStep = parseInt(window.share.attributes.step / (window.share.attributes.runTime/1000/60));
+            var bpm = new CountUp("bpm", 0, avgStep, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            bpm.start();
+
+            $(".avg-step").text("平均:" + avgStep + "步/分钟");
+
+        }else if( typeof window.share.attributes.runTime != 'undefined' && window.share.attributes.runTime != null &&
+            typeof window.share.attributes.step != 'undefined' && window.share.attributes.step != null
+            && share.attributes.type != undefined) {
+
+            //手表数据
+            var avgStep = parseInt(window.share.attributes.step / (window.share.attributes.runTime/60));
+            var bpm = new CountUp("bpm", 0, avgStep, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: '',
+                suffix: ''
+            });
+            bpm.start();
+
+            $(".avg-step").text("平均:" + avgStep + "步/分钟");
+
+        } else {
+            $("#bpm").text("--");
+        }
+
+    }
+
+    // 时间
+    if(typeof window.share.attributes.runTime != 'undefined' && window.share.attributes.runTime != null) {
+        if(share.attributes.type == undefined){
+            //app数据
+            // 小时
+            var hour = new CountUp("hour", 0, parseInt(window.share.attributes.runTime/1000/60/60), 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: parseInt(window.share.attributes.runTime/1000/60/60) > 9 ? '' : '0',
+                suffix: ''
+            });
+            hour.start();
+            // 分钟
+            var minute = new CountUp("minute", 0, parseInt(window.share.attributes.runTime/1000/60%60), 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: parseInt(window.share.attributes.runTime/1000/60%60) > 9 ? '' : '0',
+                suffix: ''
+            });
+            minute.start();
+            var second = new CountUp("second", 0, (parseInt(window.share.attributes.runTime/1000))%60, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: (parseInt(window.share.attributes.runTime/1000))%60 > 9 ? '' : '0',
+                suffix: ''
+            });
+            second.start();
+
+        }else{
+            //手表数据
+            // 小时
+            var hour = new CountUp("hour", 0, parseInt(window.share.attributes.runTime/60/60), 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: parseInt(window.share.attributes.runTime/60/60) > 9 ? '' : '0',
+                suffix: ''
+            });
+            hour.start();
+            // 分钟
+            var minute = new CountUp("minute", 0, parseInt(window.share.attributes.runTime/60%60), 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: parseInt(window.share.attributes.runTime/60%60) > 9 ? '' : '0',
+                suffix: ''
+            });
+            minute.start();
+            var second = new CountUp("second", 0, (parseInt(window.share.attributes.runTime))%60, 0, durationTime, {
+                useEasing: true,
+                easingFn: easingFn,
+                useGrouping: false,
+                separator: '',
+                decimal: '',
+                prefix: (parseInt(window.share.attributes.runTime))%60 > 9 ? '' : '0',
+                suffix: ''
+            });
+            second.start();
+        }
+
+    } else {
+        $("#second").text("--");
+        $("#minute").text("--");
+        $("#hour").text("--");
+    }
+
+    $("#hour").addClass("show");
+    $("#minute").addClass("show");
+    $("#second").addClass("show");
+    $('#avgHR').addClass("show");
+    $(".m-container .info-wrapper .info-item .content .text").addClass("show");
+    $(".colon").addClass("show");
+
+    // setTimeout(function () {
+    //     $("#distance").text(1929);
+    // }, 4500);
+});
+//$(window).scroll(function() {
+//    if($(window).scrollTop() >= $('.data-click1').offset().top){
+//        alert('滚动');
+//    }
+//});

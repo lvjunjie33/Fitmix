@@ -1,0 +1,107 @@
+// 首页样式
+.ugc-admin-bg {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 200px;
+  z-index: -1;
+  background: url("../../imgs/login-bg.png") no-repeat;
+}
+
+.ugc-admin-container {
+  position: absolute;
+  width: 650px;
+  height: 300px;
+  top: 50%;
+  left: 50%;
+  margin-left: -320px;
+  margin-top: -250px;
+  z-index: 100;
+  .ugc-admin-info-box, .ugc-admin-login-box {
+    display: inline-block;
+    width: 320px;
+    height: 300px;
+  }
+
+  .ugc-admin-info-box {
+    vertical-align: top;
+    padding: 40px 30px;
+    & p:nth-child(1) {
+      color: #666666;
+    }
+    & p:nth-child(2), p:nth-child(3) {
+      letter-spacing: 8px;
+      font-size: 32px;
+      color: #ffffff;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    & p:nth-child(4) {
+      letter-spacing: 2px;
+      margin-top: 0;
+      color: #ffffff;
+    }
+  }
+
+  .ugc-admin-login-box {
+    & p {
+      color: #ffffff;
+      & span {
+        color: @ugc-color;
+      }
+    }
+    background-color: #444444;
+    padding: 30px 30px 0 30px;
+    border-radius: 10px 10px;
+    .login-btn {
+      margin-top: 10px;
+      width: 100%;
+      height: 34px;
+      padding: 6px 12px;
+    }
+    .login-social {
+      text-align: center;
+      color: #FFFFFF;
+      margin-top: 10px;
+      .icon-qq, .icon-weibo, .icon-weixin {
+        font-size: 24px;
+        margin:0 5px;
+        cursor: pointer;
+      }
+    }
+    .login-footer {
+      font-size: 12px;
+      text-align: center;
+      & a {
+        margin-left: 5px;
+         color: @ugc-color;
+         font-size: 12px;
+      }
+    }
+  }
+}
+.register-form {
+  .form-control {
+    display: inline-block;
+  }
+  .avatar-box {
+    margin: 30px 0;
+  }
+  .register-input {
+    margin-top: 10px;
+  }
+  .register-item {
+    margin-top: 10px;
+    .register-declaration {
+      color: @ugc-color;
+    }
+  }
+  & hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  .warning {
+    display: inline-block;
+    color: red;
+  }
+}

@@ -1,0 +1,413 @@
+package com.business.core.utils;
+
+import com.alibaba.fastjson.JSON;
+import com.business.core.constants.ApplicationConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.*;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Redis 操作类，封装了 缓存、队列、计数 等相关方法
+ * User: sin
+ * Date: 2016/04/26
+ * Time: 4:22 PM
+ */
+public class RedisUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedisUtil.class);
+    /**
+     * 永久缓存KEY集合的KEY
+     */
+    private static final String CACHE_ALWAYS_KEY_SET_KEY = "_always_keys";
+    /**
+     * Pub/sub所在DB
+     */
+    private static final int DB_NUMBER_SUB = 12;
+    /**
+     * 用户登录信息缓存
+     * (Set)session → (Hash)user 浏览器
+     * (Set)openId  → (Hash)user 微信
+     * (Set)tokenId → (Hash)user app
+     */
+    public static final int DB_NUMBER_USER_INFO = 11;
+    /**
+     * 过期时间 - 无限,不过期
+     */
+    private static final int EXPIRE_SECONDS_INFINITE = -1;
+    /**
+     * 连接池
+     */
+    private static JedisPool jedisPool;
+
+    /**
+     * 初始化 系统会维护不要调用
+     */
+    public static synchronized void init() {
+        long now = System.currentTimeMillis();
+        LOGGER.info("初始RedisUtil开始...");
+
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(ApplicationConfig.REDIS_MAX_ACTIVE);
+        poolConfig.setMaxIdle(ApplicationConfig.REDIS_MAX_IDLE);
+        poolConfig.setMaxWaitMillis(ApplicationConfig.REDIS_MAX_WAIT);
+        poolConfig.setTestOnBorrow(ApplicationConfig.REDIS_TEST_ON_BORROW);
+        jedisPool = new JedisPool(poolConfig, ApplicationConfig.REDIS_URI, ApplicationConfig.REDIS_PORT, ApplicationConfig.REDIS_TIMEOUT,ApplicationConfig.REDIS_PASSWD);
+
+        LOGGER.info("初始化RedisUtil完成...消耗：{}毫秒!", System.currentTimeMillis() - now);
+    }
+
+    /**
+     * 停止Redis连接池方法（需在容器销毁时调用）
+     */
+    public static synchronized void destroy() {
+        long now = System.currentTimeMillis();
+        LOGGER.info("销毁RedisUtil开始...");
+
+        jedisPool.destroy();
+
+        LOGGER.info("销毁RedisUtil完成...消耗：{}毫秒!", System.currentTimeMillis() - now);
+    }
+
+    /**
+     * 获取Redis连接方法
+     *
+     * @param dbNumber 数据库编号
+     * @return Jedis连接对象
+     */
+    public static Jedis getResource(Integer dbNumber) {
+//        LOGGER.info("redis numActive 个数 前 {}", jedisPool.getNumActive());
+        Jedis jedis = jedisPool.getResource();
+        jedis.select(dbNumber);
+//        LOGGER.info("redis numActive 个数 后 {}", jedisPool.getNumActive());
+        return jedis;
+    }
+
+    public static Jedis getResourcePubSub() {
+        return getResource(DB_NUMBER_SUB);
+    }
+
+    /**
+     * 归还Redis连接方法
+     *
+     * @param jedis Jedis连接对象
+     */
+    public static void returnResource(Jedis jedis) {
+        try {
+            jedisPool.returnResource(jedis);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @return Redis情况
+     */
+    public static String info() {
+        Jedis jedis = getResource(0);
+        String v = jedis.info();
+        returnResource(jedis);
+        return v;
+    }
+
+    /**
+     * 缓存 添加/更新方法
+     *
+     * @param dbNumber 数据库编号
+     * @param key      键
+     * @param value    值
+     * @param expiry   过期时间，单位秒（{@link #EXPIRE_SECONDS_INFINITE} = 永久有效）
+     */
+    public static void cacheAddUpdate(Integer dbNumber, String key, Object value, int expiry) {
+        if (value == null) {
+            return;
+        }
+        String v = getString(value);
+        Jedis jedis = getResource(dbNumber);
+        if (EXPIRE_SECONDS_INFINITE == expiry) {
+            Transaction transaction = jedis.multi();
+            transaction.set(key, v);
+            transaction.sadd(CACHE_ALWAYS_KEY_SET_KEY, key);
+            transaction.exec();
+        } else {
+            jedis.setex(key, expiry, v);
+        }
+        returnResource(jedis);
+    }
+
+    /**
+     * cache时如果不存在返回true 存在返回false
+     *
+     * @param dbNumber 数据库编号
+     * @param key      键
+     * @param value    值
+     * @param expiry   过期时间，单位秒（{@link #EXPIRE_SECONDS_INFINITE} = 永久有效）
+     * @return
+     */
+    public static boolean ifCacheNotExist(Integer dbNumber, String key, Object value, int expiry) {
+        if (value == null || expiry == -1) {
+            return false;
+        }
+        return cacheSetNx(dbNumber, key, value, expiry) == 1;
+    }
+
+
+    /**
+     * cache时如果不存在返回1 存在返回0
+     *
+     * @param dbNumber 数据库编号
+     * @param key      键
+     * @param value    值
+     * @param expiry   过期时间，单位秒（{@link #EXPIRE_SECONDS_INFINITE} = 永久有效）
+     * @return
+     */
+    public static long cacheSetNx(Integer dbNumber, String key, Object value, int expiry) {
+        String v = getString(value);
+        Jedis jedis = getResource(dbNumber);
+        long r = jedis.setnx(key, v);
+        if (r == 1) {
+            jedis.expire(key, expiry);
+        }
+        returnResource(jedis);
+        return r;
+    }
+
+    /**
+     * 在指定的存储位置加上指定的数字，存储位置的值必须可转为数字类型，hash内计数(若key不存在，创建key,若field不存在，默认为0)
+     *
+     * @param dbNumber
+     * @param key      键
+     * @param field    hash内key
+     * @param count    要增加的数
+     * @param expiry   过期时间，单位秒（{@link #EXPIRE_SECONDS_INFINITE} = 永久有效）
+     * @return 增加后的值
+     */
+    public static long cacheHincrBy(Integer dbNumber, String key, String field,
+                                    long count, int expiry) {
+        if (key == null || field == null) {
+            return 0L;
+        }
+        Jedis jedis = getResource(dbNumber);
+        long r;
+        if (EXPIRE_SECONDS_INFINITE == expiry) {
+            Transaction transaction = jedis.multi();
+            Response<Long> longResponse = transaction.hincrBy(key, field, count);
+            transaction.sadd(CACHE_ALWAYS_KEY_SET_KEY, key);
+            transaction.exec();
+            r = longResponse.get();
+        } else {
+            r = jedis.hincrBy(key, field, count);
+            jedis.expire(key, expiry);
+        }
+        returnResource(jedis);
+        return r;
+    }
+
+    /**
+     * 从缓存hash里取field的值,若key或field不存在，list后元素为null
+     *
+     * @param dbNumber 数据库编号
+     * @param key      键
+     * @param field    hash内key
+     * @return hash内values
+     */
+    public static List<String> cacheHmGet(Integer dbNumber, String key, String... field) {
+        if (key == null || field == null || field.length == 0) {
+            return null;
+        }
+        Jedis jedis = getResource(dbNumber);
+        List<String> resultList = jedis.hmget(key, field);
+        returnResource(jedis);
+        return resultList;
+    }
+
+    /**
+     * 缓存 获取方法（重载方法，使用json反序列化）
+     *
+     * @param dbNumber 数据库编号
+     * @param key      键
+     * @param type     对象类型
+     * @return 内容
+     */
+    public static <T> T cacheGet(Integer dbNumber, String key, Class<T> type) {
+        String s = cacheGet(dbNumber, key);
+        return s == null ? null : JSON.parseObject(s, type);
+    }
+
+    /**
+     * 缓存 获取方法
+     *
+     * @param dbNumber 数据库编号
+     * @param key      键
+     * @return 内容
+     */
+    public static String cacheGet(Integer dbNumber, String key) {
+        return get(dbNumber, key);
+    }
+
+    /**
+     * 缓存 更改过期时间方法
+     *
+     * @param dbNumber 数据库编号
+     * @param key      键
+     * @param expiry   过期时间，单位秒
+     */
+    public static void expire(Integer dbNumber, String key, int expiry) {
+        Jedis jedis = getResource(dbNumber);
+        jedis.expire(key, expiry);
+        returnResource(jedis);
+    }
+
+    /**
+     * 订阅注册方法
+     *
+     * @param listener 监听器
+     * @param channel  频道
+     */
+    public static void subscribe(final JedisPubSub listener, final String channel) {
+        new Thread() {
+            /**
+             * 启动jedis监听。
+             */
+            public void run() {
+                Jedis jedis = getResource(DB_NUMBER_SUB);
+                jedis.subscribe(listener, channel); // 该处会阻塞，直到subscribe解除
+                returnResource(jedis); // 解除subscribe后施放资源
+            }
+        }.start();
+    }
+
+    /**
+     * 订阅发布消息
+     *
+     * @param channel 频道
+     * @param message 消息
+     */
+    public static void publish(String channel, String message) {
+        Jedis jedis = getResource(DB_NUMBER_SUB);
+        jedis.publish(channel, message);
+        returnResource(jedis);
+    }
+
+    /**
+     * 删除KEY
+     * <p/>
+     * DEL key [key ...]
+     * Delete a key
+     *
+     * @param dbNumber 数据库编号
+     * @param keys     删除值数组
+     */
+    public static void del(Integer dbNumber, String... keys) {
+        Jedis jedis = getResource(dbNumber);
+        jedis.del(keys);
+        returnResource(jedis);
+    }
+
+    /**
+     * 获得Key对应的String值
+     * <p/>
+     * GET key
+     * Get the value of a key
+     *
+     * @param dbNumber 数据库编号
+     * @param key      KEY
+     * @return 值
+     */
+    private static String get(Integer dbNumber, String key) {
+        Jedis jedis = getResource(dbNumber);
+        String result = jedis.get(key);
+        returnResource(jedis);
+        return result;
+    }
+
+    /**
+     * 将对象转换成String.
+     * <pre>
+     *     1. 当类型为String时，不转换
+     *     2. 其他对象，则转换成JSON字符串
+     * </pre>
+     *
+     * @param value 对象
+     * @return String
+     */
+    private static String getString(Object value) {
+        if (value instanceof String) {
+            return (String) value;
+        } else {
+            return JSON.toJSONString(value);
+        }
+    }
+
+    /**
+     * 设置某个key对应的map的kv值
+     *
+     * @param dbNumber 数据库编号
+     * @param key      KEY
+     * @param field    域
+     * @param value    值
+     * @return 1 if field is a new field in the hash and value was set.
+     * 0 if field already exists in the hash and the value was updated.
+     */
+    public static long hset(Integer dbNumber, String key, String field, String value) {
+        Jedis jedis = getResource(dbNumber);
+        long result = jedis.hset(key, field, value);
+        returnResource(jedis);
+        return result;
+    }
+
+    /**
+     * 删除某个key对应的map的k
+     *
+     * @param dbNumber 数据库编号
+     * @param key      KEY
+     * @param field    域
+     * @return the number of fields that were removed from the hash, not including specified but non existing fields
+     */
+    public static long hdel(Integer dbNumber, String key, String... field) {
+        Jedis jedis = getResource(dbNumber);
+        long result = jedis.hdel(key, field);
+        returnResource(jedis);
+        return result;
+    }
+
+    /**
+     *
+     * @param dbNumber
+     * @param key
+     * @param value
+     * @return
+     */
+    public static long sadd(Integer dbNumber, String key, String value) {
+        Jedis jedis = getResource(dbNumber);
+        long result = jedis.sadd(key, value);
+        returnResource(jedis);
+        return result;
+    }
+
+    /**
+     *
+     * @param dbNumber
+     * @param key
+     * @return
+     */
+    public static Set<String> smembers(Integer dbNumber, String key) {
+        Jedis jedis = getResource(dbNumber);
+        Set<String> result = jedis.smembers(key);
+        returnResource(jedis);
+        return result;
+    }
+
+
+    public static void main(String[] args) {
+        ApplicationConfig.init();
+
+        init();
+
+        cacheAddUpdate(1, "x", "xx", 60);
+
+        System.out.println(cacheGet(1, "DSe4VBTkkGW_7F5obDFQss0tVO9NX-HS-TI6Buv55p_psULTKrAjgpVQdc_ERWNY_88y9uXcIeZhRRF-SLQgNBKBPUUm1qwVuEHFydZaPnQrGPW7BH_cv1NtCd8QrN1GTIEgABAXMI"));
+    }
+}

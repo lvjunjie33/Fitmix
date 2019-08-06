@@ -1,0 +1,41 @@
+package com.business.app.file;
+
+import com.business.core.client.FileCenterClient;
+import com.business.core.entity.file.File;
+import com.business.core.entity.file.Voice;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Created by edward on 2016/8/17.
+ */
+@Service
+public class FileService {
+
+    @Autowired
+    private FileDao fileDao;
+
+    public List<File> voicePackets(Integer voiceType) {
+        List<File> files = fileDao.findByFileType(File.FILE_TYPE_VOICE_PACKETS, voiceType);
+        if (CollectionUtils.isEmpty(files)) {
+            return Collections.EMPTY_LIST;
+        }
+        return files;
+    }
+
+    /**
+     * 查询所有语音包清单
+     */
+    public List<Voice> findVoices() {
+        return fileDao.findVoices();
+    }
+
+    public File findFile(String voiceId, String targetApp) {
+        return fileDao.findFileByVoiceId(voiceId, targetApp);
+    }
+}

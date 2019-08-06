@@ -1,0 +1,492 @@
+package com.business.app.userRun;
+
+import com.alibaba.fastjson.JSON;
+import com.business.app.base.constants.CodeConstants;
+import com.business.app.base.support.BaseControllerSupport;
+import com.business.app.runPlan.RunPlanService;
+import com.business.app.shop.task.TaskInfoService;
+import com.business.core.client.AliyunCenterClient;
+import com.business.core.client.FileCenterClient;
+import com.business.core.constants.Constants;
+import com.business.core.constants.FileConstants;
+import com.business.core.entity.Page;
+import com.business.core.entity.user.UserHeartRate;
+import com.business.core.entity.user.UserRun;
+import com.business.core.entity.user.info.UserRunStat;
+import com.business.core.utils.DateUtil;
+import com.business.core.utils.HttpUtil;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by sin on 2015/4/20.
+ */
+@Controller
+@RequestMapping()
+public class UserRunController extends BaseControllerSupport {
+
+    @Autowired
+    private UserRunService userRunService;
+    @Autowired
+    private TaskInfoService taskInfoService;
+    @Autowired
+    private RunPlanService runPlanService;
+
+    /**
+     * 添加用户运动轨迹 (旧接口)
+     * //     * @param file 运动轨迹详细（文件保存 file）
+     * //     * @param stepFile 运动记步文件（文件保存 stepFile）
+     *
+     * @param uid          用户编号
+     * @param bpm          bpm 平均频率
+     * @param locationType 定位类型
+     * @param model        跑步模式 （室内，室外）
+     * @param runTime      运动时间（运动了多久，long 秒）
+     * @param startTime    运动开始时间
+     * @param endTime      运动结束时间
+     * @param distance     运动（米）
+     * @param startLat     起始经度
+     * @param startLng     起始纬度
+     * @param endLat       结束经度
+     * @param endLng       结束纬度
+     * @param bpmMatch     bpm匹配度
+     * @param step         步（多少步）
+     * @param calorie      卡路里（卡路里）
+     * @param type         运动类型(1、跑步、2、骑行、跳绳之类的)
+     */
+    @RequestMapping("/user-run/add-run")
+    public void addRun(Model mode,
+                       HttpServletRequest request,
+//                        @RequestParam(value = "file", required = false) MultipartFile file,
+//                        @RequestParam(value = "stepFile", required = false) MultipartFile stepFile, //TODO 必须传
+                       @RequestParam("uid") Integer uid,
+                       @RequestParam("bpm") Integer bpm,
+                       @RequestParam("locationType") Integer locationType,
+                       @RequestParam("model") Integer model,
+                       @RequestParam("type") Integer type,
+                       @RequestParam("runTime") Long runTime,
+                       @RequestParam("startTime") Long startTime,
+                       @RequestParam("endTime") Long endTime,
+                       @RequestParam("distance") Long distance,
+                       @RequestParam("startLng") Double startLng,
+                       @RequestParam("startLat") Double startLat,
+                       @RequestParam("endLng") Double endLng,
+                       @RequestParam("endLat") Double endLat,
+                       @RequestParam("bpmMatch") Double bpmMatch,
+                       @RequestParam(value = "step", required = false) Long step,
+                       @RequestParam(value = "calorie", required = false) Long calorie) throws IOException {
+
+        Map<String, MultipartFile> fileMap = FileCenterClient.buildMultipartFile(request);
+
+        String sdk = HttpUtil.getParameter(request, "_sdk");//sdk 设备类型
+
+        Object[] result = userRunService.addUserRun(fileMap.get("file"), fileMap.get("stepFile"), uid, bpm, locationType, model, type, runTime,
+                startTime, endTime, distance, startLng, startLat, endLng, endLat, bpmMatch, step, calorie, sdk.contains("iPhone"));
+
+        switch ((int) result[0]) {
+            case 0:
+                //用户等级
+                Map<String, Object> map = taskInfoService.runLevelStatistics(bpm, distance, runTime, uid);
+                for(String key : map.keySet()) {
+                    mode.addAttribute(key, map.get(key));
+                }
+            case 2:
+                mode.addAttribute("userRun", result[1]);
+                mode.addAttribute("lastAddTime", ((UserRun) result[1]).getAddTime());
+                break;
+            case 1:
+                tip(mode, CodeConstants.USER_RUN_STEP_DETAIL_NOT_UPLOAD);
+                break;
+        }
+    }
+
+    /**
+     * 添加用户运动轨迹 (新)
+     * //     * @param file 运动轨迹详细（文件保存 file）
+     * //     * @param stepFile 运动记步文件（文件保存 stepFile）
+     *
+     * @param uid          用户编号
+     * @param bpm          bpm 平均频率
+     * @param locationType 定位类型
+     * @param model        跑步模式 （室内，室外）
+     * @param runTime      运动时间（运动了多久，long 秒）
+     * @param startTime    运动开始时间
+     * @param endTime      运动结束时间
+     * @param distance     运动（米）
+     * @param startLat     起始经度
+     * @param startLng     起始纬度
+     * @param endLat       结束经度
+     * @param endLng       结束纬度
+     * @param bpmMatch     bpm匹配度
+     * @param step         步（多少步）
+     * @param calorie      卡路里（卡路里）
+     * @param type         运动类型(1、跑步、2、骑行、跳绳之类的)
+     * @param consumeFat 燃烧脂肪量 {@link UserRun#consumeFat}
+     *                     <p/>
+     *                     _ch=appStore&_lan=ch&_nw=WiFi&_product=fitmix&_sdk=iPhone OS8.1.2&_v=8&bpm=150&bpmMatch=0&calorie=4&distance=100&endLat=0&endLng=0&endTime=1471935478000&locationType=1&model=2&runTime=34000&startLat=0&startLng=0&startTime=1471935438000&step=85&type=0&uid=504051
+     */
+    @ApiOperation(value = "添加用户运动轨迹（新）", notes = "添加用户运动轨迹（新）", response = String.class, position = 2, httpMethod = "POST")
+    @RequestMapping("/user-run/{version}/add-run")
+    public void newAddRun(Model mode, HttpServletRequest request, @RequestParam("uid") Integer uid,
+                          @RequestParam("bpm") Integer bpm, @RequestParam("locationType") Integer locationType,
+                          @RequestParam("bpmMatch") Double bpmMatch, @RequestParam("model") Integer model,
+                          @RequestParam("type") Integer type, @RequestParam("runTime") Long runTime,
+                          @RequestParam("startTime") Long startTime, @RequestParam("endTime") Long endTime,
+                          @RequestParam("distance") Long distance, @RequestParam("startLng") Double startLng,
+                          @RequestParam("startLat") Double startLat, @RequestParam("endLng") Double endLng,
+                          @RequestParam("endLat") Double endLat, @RequestParam(value = "step", required = false) Long step,
+                          @RequestParam(value = "calorie", required = false) Long calorie, @RequestParam(value = "heartRate", required = false) String userHeartRate,
+                          @RequestParam(value = "elevation", required = false) Double elevation, @RequestParam(value = "consumeFat", required = false) Double consumeFat,
+                          @PathVariable("version") Integer version) throws IOException {
+
+        Map<String, MultipartFile> fileMap = FileCenterClient.buildMultipartFile(request);
+
+        String stepDetailFile = null;
+        String detailFile = null;
+        String userRunZipUrl = null;
+
+        if (fileMap.containsKey("userRunZip")) {
+            MultipartFile userRunZip = fileMap.get("userRunZip");
+            if (userRunZip != null) {
+                userRunZipUrl = AliyunCenterClient.putFile(FileConstants.FILE_TYPE_RUN_FILE_ZIP, userRunZip);
+            }
+
+        } else if (fileMap.containsKey("file") || fileMap.containsKey("stepFile")) {
+            MultipartFile file = fileMap.get("file");
+            MultipartFile stepDetail = fileMap.get("stepFile");
+            if (file != null) {
+                detailFile = AliyunCenterClient.putFile(FileConstants.FILE_TYPE_USER_RUN_DETAIL, file);
+            }
+            if (stepDetail != null) {
+                stepDetailFile = AliyunCenterClient.putFile(FileConstants.FILE_TYPE_USER_STEP_DETAIL, stepDetail);
+            }
+        } else {
+            tip(mode, CodeConstants.USER_RUN_STEP_DETAIL_NOT_UPLOAD);
+            return;
+        }
+
+        String sdk = HttpUtil.getParameter(request, "_sdk");//sdk 设备类型
+        //version app版本信息暂时没用到
+
+        UserHeartRate heartRate = null;
+        if (!StringUtils.isEmpty(userHeartRate)) {
+            heartRate = JSON.parseObject(userHeartRate, UserHeartRate.class);
+        }
+        UserRun userRun = new UserRun();
+
+        userRun.setHeartRate(heartRate);
+        if (heartRate != null) {
+            if (StringUtils.isEmpty(heartRate.getCurrentAge())){
+                heartRate.setCurrentAge(UserHeartRate.DEFAULT_AGE);
+            }
+            if (StringUtils.isEmpty(heartRate.getCurrentRestHeartRate())) {
+                heartRate.setCurrentRestHeartRate(UserHeartRate.DEFAULT_REST_HEART_RATE);
+            }
+            heartRate.setLastUpdated(System.currentTimeMillis());
+        }
+
+        userRun.setDetail(detailFile);
+        userRun.setStepDetail(stepDetailFile);
+        userRun.setZipUrl(userRunZipUrl);
+        userRun.setUid(uid);
+        userRun.setType(type);
+        userRun.setDistance(distance);
+        userRun.setStartLat(startLat);
+        userRun.setStartLng(startLng);
+        userRun.setEndLat(endLat);
+        userRun.setEndLng(endLng);
+        userRun.setRunTime(runTime);
+        userRun.setStartTime(startTime);
+        userRun.setEndTime(endTime);
+        userRun.setBpm(bpm);
+        userRun.setLocationType(locationType);
+        userRun.setModel(model);
+        // 计算 bpmMatch， 超越 100% 的 bpmMatch
+        Double calBpmMatch = 100 - bpmMatch % 100;
+        userRun.setBpmMatch(bpmMatch);
+        userRun.setUserBpmMatch(calBpmMatch);
+        //默认值
+        userRun.setAddTime(System.currentTimeMillis());
+        userRun.setUpdateTime(System.currentTimeMillis());
+        userRun.setState(UserRun.STATE_EFFECTIVE);
+
+        // 步数, 卡路里
+        userRun.setStep(step);
+        userRun.setCalorie(calorie);
+        userRun.setElevation(elevation);
+        {//设置用户运动燃烧脂肪量，默认为0
+            if (null == consumeFat) {
+                consumeFat = 0D;
+            }
+            userRun.setConsumeFat(consumeFat);
+        }
+
+        if (checkSDKType(request)) {
+            userRun.setDeviceType(Constants.TERMINAL_IOS);
+        } else {
+            userRun.setDeviceType(Constants.TERMINAL_ANDROID);
+        }
+
+        int result = userRunService.addUserRun(userRun);
+        switch (result) {
+            case 0:
+                //用户等级
+                Map<String, Object> map = taskInfoService.runLevelStatistics(bpm, distance, runTime, uid);
+                for(String key : map.keySet()) {
+                    mode.addAttribute(key, map.get(key));
+                }
+                if (type == 1 || type == 0) {
+                    runPlanService.updateUserRunPlan(userRun.getUid(), userRun.getEndTime());
+                }
+            case 2:
+                mode.addAttribute("userRun", userRun);
+                mode.addAttribute("lastAddTime", userRun.getAddTime());
+                break;
+        }
+    }
+
+    /**
+     * 用户跑步打分
+     *
+     * @param bpmMatch bpmMatch 匹配度
+     */
+    @RequestMapping("/user-run/mark")
+    public void mark(Model mode, @RequestParam("bpmMatch") Double bpmMatch) {
+        Double calBpmMatch = bpmMatch > 100 ? 100 - bpmMatch % 100 : bpmMatch;
+        mode.addAttribute("mark", userRunService.userRunMark(calBpmMatch));
+    }
+
+    /**
+     * 根据 uid ，和 运动开始时间删除 更新历史记录
+     *
+     * @param uid       用户编号
+     * @param startTime 运动开始时间
+     */
+    @RequestMapping("/user-run/remove-run")
+    public void removeRun( @RequestParam("uid") Integer uid, @RequestParam("startTime") Long startTime) {
+        userRunService.removeRun(uid, startTime);
+    }
+
+    /**
+     * 根据 uid ，和 运动开始时间删除 更新历史记录 [多个]
+     *
+     * @param uid       用户编号
+     * @param startTime 运动开始时间 多个（, 号分割  ）
+     */
+    @RequestMapping("/user-run/remove-runs")
+    public void removeRun(@RequestParam("uid") Integer uid, @RequestParam("startTime") Long[] startTime) {
+        userRunService.removeRuns(uid, startTime);
+    }
+
+    /**
+     * 用户运动查询 or  lastLoginTime 空则返回 所有
+     *
+     * @param uid         用户编号
+     * @param lastAddTime 分页
+     */
+    @RequestMapping("/user-run/history-run")
+    public void historyRun(Model model, @RequestParam(value = "uid", required = true) Integer uid, @RequestParam(value = "lastAddTime", required = false) Long lastAddTime) {
+        Object[] objects = userRunService.historyUserRun(uid, lastAddTime);
+        if (lastAddTime != null) {
+            model.addAttribute("new", objects[0]);
+            model.addAttribute("remove", objects[1]);
+            // 数据为空时返回 传入的 lastAddTime，否则给最后更新记录时间
+            UserRun lastUpdateUserRun = (UserRun) objects[2];
+            if (null != objects[1] && lastUpdateUserRun != null && null != lastUpdateUserRun.getUpdateTime()) {
+                model.addAttribute("lastAddTime", lastUpdateUserRun.getUpdateTime());
+            } else {
+                model.addAttribute("lastAddTime", lastAddTime);
+            }
+            model.addAttribute("lastAddTime", (lastUpdateUserRun == null || null == lastUpdateUserRun.getUpdateTime()) ? lastAddTime : lastUpdateUserRun.getUpdateTime());
+        } else {
+            model.addAttribute("new", objects[0]);
+            // 第一次更新 lastAddTime 为空则 给服务器时间，否则给最后更新记录时间
+            UserRun lastUpdateUserRun = (UserRun) objects[1];
+            if (null != objects[1] && null != lastUpdateUserRun.getUpdateTime()) {
+                model.addAttribute("lastAddTime", lastUpdateUserRun.getUpdateTime());
+            } else {
+                model.addAttribute("lastAddTime", System.currentTimeMillis());
+            }
+        }
+    }
+//
+//    @RequestMapping("history-run")
+//    public void historyRun (Model model,
+//                                @RequestParam(value = "uid",required = true) Integer uid,
+//                                @RequestParam(value = "index", required = true) Integer index) {
+//        model.addAttribute("historyUserRun", userRunService.historyUserRun(uid, index));
+//        model.addAttribute("index", index);
+//    }
+
+    /**
+     * 弹窗相关数据（天气及昨日运动数据）
+     *
+     * @param model
+     * @param currentCity 城市名称（中文）
+     * @param uid         用户编号
+     */
+    @RequestMapping("/user-run/popUp")
+    public void findSmartWeather(Model model, String currentCity, @RequestParam(value = "uid", required = true) Integer uid) {
+        model.addAttribute("popUp", userRunService.findPopUp(currentCity, uid));
+    }
+
+    /**
+     * 修复 用户运动数据丢失
+     *
+     * @param startTime 开始时间
+     * @param uid 用户编号
+     */
+    @RequestMapping("/user-run/detail-add-run")
+    public void detailAddRun(Model mode, HttpServletRequest request, Long startTime, Integer uid) {
+        mode.addAttribute("newUserRun", userRunService.detailAddRun(FileCenterClient.buildMultipartFile(request), startTime, uid));
+    }
+
+    /**
+     * 获取用户月运动排名榜数据
+     *
+     * @param uid 用户编号
+     * @param time 当前时间
+     */
+    @RequestMapping("/run/month/rank/get")
+    public void runMonthRankGet(Model model, Integer uid, Long time) {
+        Date monthBegin = DateUtil.getMonthBegin(new Date(time));
+        Object[] objs = userRunService.getRunMonthRank(uid, monthBegin);
+        model.addAttribute("all", objs[0]);
+        model.addAttribute("month", objs[1]);
+        model.addAttribute("beforeMonth", objs[2]);
+    }
+
+    /**
+     * 月榜单用户运动pk
+     *
+     * @param uid 用户编号
+     * @param targetUid 目标用户
+     * @param time 时间
+     */
+    @RequestMapping("/run/month/rank/pk")
+    public void runMonthRankPk(Model model, Integer uid, Integer targetUid, Long time) {
+        Date monthBegin = DateUtil.getMonthBegin(new Date(time));
+        Object[] objects = userRunService.runMonthRankPk(uid, targetUid, monthBegin);
+        model.addAttribute("stat", objects[0]);
+        model.addAttribute("targetStat", objects[1]);
+    }
+
+    /**
+     * 运动月排行榜 (最多返回3页30条数据)
+     *
+     * @param page 排行榜分页对象
+     * @param uid 用户编号
+     * @param time 时间
+     */
+    @RequestMapping("/run/month/rank")
+    public void runMonthRank(Page<UserRunStat> page, Integer uid, Long time) {
+        Date monthBegin = DateUtil.getMonthBegin(new Date(time));
+        page.removeEmpty("level").convertInt("level");
+        page.getFilter().put("type", UserRunStat.STAT_MONTH);
+        Integer pageNo = page.getPageNo();
+        //默认每页10条
+        page.setSize(10);
+        //最多显示3页
+        if (pageNo > 3) {
+            return;
+        }
+        userRunService.runMonthRank(page, uid, DateUtil.format(monthBegin, "yyyy-MM-dd"));
+        List<UserRunStat> userRunStats = page.getResult();
+        for (int i = 0; i < userRunStats.size(); i++) {
+            userRunStats.get(i).setRank(i * pageNo + 1L);
+        }
+    }
+
+
+    ///
+    ///========================================手表运动======================================================
+
+    /**
+     * 手表运动数据上传
+     *
+     * fileZip 手表运动文件（文件保存 fileZip）
+     * @param uid          用户编号
+     * @param runTime      运动时间（运动了多久，long 秒）
+     * @param startTime    运动开始时间
+     * @param endTime      运动结束时间
+     * @param calorie      卡路里（卡路里）
+     * @param type         运动类型(3、手表)
+     * @param consumeFat 脂肪燃烧量
+     * @param watchData 手表运动相关数据
+     */
+    @RequestMapping("/user-run/add/watch/run")
+    public void addWatchRun(Model mode, HttpServletRequest request, @RequestParam("uid") Integer uid,
+                            @RequestParam("type") Integer type, @RequestParam("runTime") Long runTime,
+                            @RequestParam("startTime") Long startTime, @RequestParam("endTime") Long endTime,
+                            @RequestParam("calorie") Long calorie, @RequestParam("consumeFat") Double consumeFat,
+                            @RequestParam("watchData") String watchData) throws IOException {
+
+        Map<String, MultipartFile> fileMap = FileCenterClient.buildMultipartFile(request);
+        String watchZipFile = null;
+        if (fileMap.containsKey("fileZip")) {
+            MultipartFile file = fileMap.get("fileZip");
+            if (file != null) {
+                watchZipFile = AliyunCenterClient.putFile(FileConstants.FILE_TYPE_WATCH_RUN_FILE_ZIP, file);
+            }
+        }
+
+        if (StringUtils.isEmpty(watchData)) {
+            tip(mode, CodeConstants.USER_WATCH_RUN_ADD_DETAIL_ERROR);
+            return;
+        }
+
+        Map<String, Object> watchDataMaps = JSON.parseObject(watchData);
+
+        UserRun userRun = new UserRun();
+        userRun.setUid(uid);
+        userRun.setType(type);
+        userRun.setRunTime(runTime);
+        userRun.setStartTime(startTime);
+        userRun.setEndTime(endTime);
+        //默认值
+        userRun.setAddTime(System.currentTimeMillis());
+        userRun.setUpdateTime(System.currentTimeMillis());
+        userRun.setState(UserRun.STATE_EFFECTIVE);
+        userRun.setWatch(watchDataMaps);
+        userRun.setWatchZipFile(watchZipFile);
+
+        // 步数, 卡路里
+        userRun.setCalorie(calorie);
+        {//设置用户运动燃烧脂肪量，默认为0
+            if (null == consumeFat) {
+                consumeFat = 0D;
+            }
+            userRun.setConsumeFat(consumeFat);
+        }
+
+        if (checkSDKType(request)) {
+            userRun.setDeviceType(Constants.TERMINAL_IOS);
+        } else {
+            userRun.setDeviceType(Constants.TERMINAL_ANDROID);
+        }
+
+        int result = userRunService.addWatchRun(userRun);
+        switch (result) {
+            case 0:
+            case 2:
+                mode.addAttribute("userRun", userRun);
+                mode.addAttribute("lastAddTime", userRun.getAddTime());
+                break;
+        }
+    }
+
+}

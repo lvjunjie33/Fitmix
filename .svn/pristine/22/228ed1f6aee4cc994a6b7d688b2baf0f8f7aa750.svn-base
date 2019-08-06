@@ -1,0 +1,60 @@
+package com.business.app.file;
+
+import com.business.core.constants.Constants;
+import com.business.core.entity.file.File;
+import com.business.core.entity.file.Voice;
+import com.business.core.mongo.BaseMongoDaoSupport;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+/**
+ * Created by edward on 2016/8/17.
+ */
+@Repository
+public class FileDao extends BaseMongoDaoSupport {
+
+    /**
+     * 通过类型查询 文件
+     *
+     * @param fileType 文件类型
+     * @param field 查询的字段
+     */
+    public List<File> findByFileType(Integer fileType, Integer voiceType, String...field) {
+        Query query = Query.query(Criteria.where("fileType").is(fileType).and("status").is(Constants.STATE_EFFECTIVE)
+                .and("releaseStatus").is(Constants.STATE_EFFECTIVE).and("other.voiceType").is(voiceType.toString()));
+        includeFields(query,field);
+        return getRoutingMongoOps().find(query, File.class);
+    }
+
+    /**
+     * 查询所有语音包清单
+     */
+    public List<Voice> findVoices() {
+        return getRoutingMongoOps().find(Query.query(Criteria.where("status").is(Constants.SWITCH_OPEN)), Voice.class);
+    }
+
+    /**
+     * 查询版本最高的语音包升级包
+     *
+     * @param voiceId 语音包清单编号
+     * @param targetApp app版本
+     */
+    public File findFileByVoiceId(String voiceId, String targetApp) {
+        Query query = Query.query(Criteria.where("other.voiceId").is(voiceId).and("other.targetApp").regex(targetApp));
+        query.with(new Sort(Sort.Direction.DESC, "other.version"));
+        return getRoutingMongoOps().findOne(query, File.class);
+    }
+
+    /**
+     * 保存文件
+     *
+     * @param file 文件
+     */
+    public void saveFile(File file) {
+        insertToMongo(file);
+    }
+}

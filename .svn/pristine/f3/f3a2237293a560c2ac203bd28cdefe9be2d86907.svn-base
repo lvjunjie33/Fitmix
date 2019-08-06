@@ -1,0 +1,1173 @@
+label {
+    font-weight: normal;
+}
+.background {
+    background: #1A191F no-repeat scroll center 0em;
+    width: 100%;
+    min-height: 903px;
+    position: relative;
+    background-size: cover;
+    padding-top: 60px;
+    padding-bottom: 250px;
+}
+
+.background .filter {
+    width: 100%;
+    height:100%;
+    position: absolute;
+    background: rgba(0,0,0,0.4);
+    display: none;
+}
+
+.background .container {
+    width: 1230px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/*zone-nav*/
+.background .container .zone-nav {
+    background-color: #35333E;
+    width: 234px;
+    min-height: 1px;
+    float: left;
+    margin-left: -28px;
+    padding-bottom: 50px;
+}
+
+.background .container .zone-nav .face-name {
+    margin: 40px 49px 0;
+    display: inline-block;
+}
+
+.background .container .zone-nav .face-name .face {
+    width: 136px;
+    height: 136px;
+    background-color: #FFFFFF;
+}
+
+.background .container .zone-nav .face-name .face .change-avatar {
+    position: absolute;
+    margin-top: -20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    width: 136px;
+    text-align: center;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #FFF;
+    cursor: pointer;
+    display: none;
+}
+
+.background .container .zone-nav .face-name .face img {
+    width: 100%;
+    height: 100%;
+}
+
+.background .container .zone-nav .face-name .name {
+    margin: 16px -40px 0;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    color: #FFF;
+    text-align: center;
+}
+
+.background .container .zone-nav .nav-content {
+    margin: 17px auto 0;
+
+}
+
+.background .container .zone-nav .nav-content li {
+    list-style-type: none;
+    margin: 20px auto 0;
+    text-align: center;
+}
+
+.background .container .zone-nav .nav-content li .checked {
+    color: #0cb4e8;
+}
+
+.background .container .zone-nav .nav-content li a {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    color: #FFF;
+    letter-spacing: 2px;
+}
+
+.background .container .zone-nav .nav-content li a:hover {
+    cursor: pointer;
+    color: #0cb4e8;
+    text-decoration: none;
+}
+
+/******* person-center *******/
+/*user-run-info*/
+.background .container .run-info {
+    width: 980px;
+    min-height: 1px;
+    margin-left: 14px;
+    float: left;
+    background-color: #35333E;
+    padding-bottom: 18px;
+}
+
+/*.background .container .run-info .face {
+    width: 200px;
+    height: 200px;
+    margin-top: 40px;
+    margin-left: 40px;
+    background-color: #FFF;
+    float: left;
+}*/
+
+.background .container .run-info .info {
+    float: left;
+    /*    margin-top: 50px;
+        margin-left: 40px;*/
+    width: 100%;
+    padding: 18px 37px;
+}
+
+.background .container .run-info .info .person-info {
+
+}
+
+.background .container .run-info .info .person-info .name-intro {
+    float: left;
+}
+
+.background .container .run-info .info .person-info .name-intro label {
+    display: block;
+}
+
+.background .container .run-info .info .person-info .name-intro .info-name {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 40px;
+    color: rgba(12, 180, 232, 1);
+}
+
+.background .container .run-info .info .person-info .name-intro .info-intro {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    color: #FFF;
+    width:100%;
+    cursor: pointer;
+}
+
+.background .container .run-info .info .person-info .name-intro .info-intro input {
+    color: #000;
+}
+
+/*.background .container .run-info .info .person-info .name-intro .input-border {
+    border: 1px solid #8e8e8e;
+}*/
+
+/*.background .container .run-info .info .person-info .modify-btn {
+    float: left;
+    margin-top: 39px;
+    margin-left: 160px;
+}
+
+.background .container .run-info .info .person-info .modify-btn button {
+    width: 90px;
+    height: 30px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    background-color: rgba(12, 180, 232, 1);
+    color: #FFF;
+    outline: none;
+    border: 0;
+    border-radius: 15px;
+}*/
+
+.background .container .run-info .info .run-data {
+    margin-top: 110px;
+}
+
+.background .container .run-info .info .run-data .total-distance {
+    text-align: left;
+}
+
+.background .container .run-info .info .run-data .total-time {
+    padding-left: 3px;
+}
+
+.background .container .run-info .info .run-data .total-step {
+    text-align: center;
+}
+
+.background .container .run-info .info .run-data .total-consume {
+    padding-left: 18px;
+}
+
+.background .container .run-info .info .run-data label {
+    width: 24%;
+}
+
+.background .container .run-info .info .run-data .data {
+    font-size: 34px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+}
+
+.background .container .run-info .info .run-data .data-name {
+    font-size: 16px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+}
+
+/*user-person-info*/
+.background .container .user-info {
+    float: left;
+    margin-top: 14px;
+    margin-left: 14px;
+    width: 483px;
+    min-height: 1px;
+    background-color: #35333E;
+    padding:50px 40px 40px 50px;
+}
+
+.background .container .user-info .user-info-content {
+
+}
+
+.background .container .user-info .user-info-content .main-info input {
+    color: #000;
+}
+
+.background .container .user-info .user-info-content .main-info .modify-btn {
+    float: right;
+}
+
+.background .container .user-info .user-info-content .main-info .modify-btn button {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    background-color: rgba(12, 180, 232, 1);
+    color: #FFF;
+    outline: none;
+    border: 0;
+    border-radius: 15px;
+    width:90px;
+    height:30px;
+}
+
+.background .container .user-info .user-info-content .main-info .base-info h4{
+    margin: 0;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    color: rgba(251, 246, 241, 1);
+    letter-spacing: 6px;
+}
+
+.background .container .user-info .user-info-content .main-info .body-info h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    color: rgba(251, 246, 241, 1);
+    letter-spacing: 6px;
+    margin-top: 20px;
+}
+
+.background .container .user-info .user-info-content .main-info {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: rgba(251, 246, 241, 1);
+    letter-spacing: 6px;
+}
+
+.background .container .user-info .user-info-content .main-info .base-info {
+
+}
+
+.background .container .user-info .user-info-content .main-info .base-info .gender {
+    margin-top:10px;
+}
+
+.background .container .user-info .user-info-content .main-info .base-info .age {
+    margin-top:10px;
+}
+
+.background .container .user-info .user-info-content .main-info .body-info .unit {
+    margin-top:15px;
+}
+
+.background .container .user-info .user-info-content .main-info .body-info .height {
+    margin-top:10px;
+}
+
+.background .container .user-info .user-info-content .main-info .body-info .weight {
+    margin-top:10px;
+}
+
+.background .container .user-info .user-info-content .main-info .body-info{
+
+}
+
+.background .container .user-info .user-info-content .main-info .base-info label ,.background .container .user-info .user-info-content .main-info .body-info label {
+    width:100%;
+    margin-top:29px;
+}
+
+.background .container .user-info .user-info-content .main-info .base-info div ,.background .container .user-info .user-info-content .main-info .body-info div {
+    float: left;
+}
+
+/*.background .container .user-info .base-info {
+    float: left;
+    margin-top: 50px;
+    margin-left: 40px;
+}
+
+.background .container .user-info .base-info div , .background .container .user-info .body-info div {
+    float: left;
+}
+
+.background .container .user-info .base-info h4, .background .container .user-info .body-info h4 {
+    margin: 0;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    color: rgba(251, 246, 241, 1);
+    letter-spacing: 6px;
+}
+
+.background .container .user-info .base-info label, .background .container .user-info .body-info label {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: rgba(251, 246, 241, 1);
+    margin-top: 34px;
+    letter-spacing: 6px;
+    width:100%;
+    float: left;
+}
+
+.background .container .user-info .modify-btn {
+    float: right;
+    margin-top: 45px;
+    margin-right: 40px;
+    padding-bottom: 220px;
+
+}
+
+.background .container .user-info .modify-btn button {
+    width: 90px;
+    height: 30px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    background-color: rgba(12, 180, 232, 1);
+    color: #FFF;
+    outline: none;
+    border: 0;
+    border-radius: 15px;
+}
+
+.background .container .user-info .body-info {
+    float: left;
+    margin-top: 30px;
+    margin-left: 40px;
+    padding-bottom: 50px;
+}*/
+
+/*account-info*/
+.background .container .account-info {
+    width: 484px;
+    min-height: 1px;
+    float: left;
+    margin-left: 13px;
+    margin-top: 14px;
+    background-color: #35333E;
+    padding-bottom: 47px;
+}
+
+.background .container .account-info .account-bind {
+    margin: 50px 40px 0 50px;
+}
+
+.background .container .account-info .account-bind h4, .background .container .account-info .account-modify h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    color: rgba(251, 246, 241, 1);
+    letter-spacing: 2px;
+}
+
+.background .container .account-info .account-bind label, .background .container .account-info .account-content .account-modify label {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    color: rgba(251, 246, 241, 1);
+    letter-spacing: 2px;
+    margin-top: 34px;
+    display: block;
+    width: 100%;
+}
+
+.background .container .account-info .account-bind .email-bind-label {
+    margin-top: 20px;
+}
+
+.background .container .account-info .account-bind .wechat-bind-label {
+    margin-top: 20px;
+}
+
+.background .container .account-info .account-bind .qq-bind-label {
+    margin-top: 20px;
+}
+
+.background .container .account-info .account-bind .weibo-bind-label {
+    margin-top: 20px;
+}
+
+.background .container .account-info .account-bind .item, .background .container .account-info .account-content .account-modify .item {
+    float: left;
+}
+
+.background .container .account-info .account-bind .bind-btn, .background .container .account-info .account-modify .modify-btn {
+    margin-left: 300px;
+}
+
+.background .container .account-info .account-bind .bind-btn button, .background .container .account-info .account-modify .modify-btn button {
+    width: 90px;
+    height: 30px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    background-color: rgba(12, 180, 232, 1);
+    color: #FFF;
+    outline: none;
+    border: 0;
+    border-radius: 15px;
+}
+
+.background .container .account-info .account-modify {
+    margin-left: 50px;
+    margin-top: 20px;
+}
+
+/******* training-plan *******/
+/* training-progress */
+.background .container .training-progress {
+    margin-left: 14px;
+    float: left;
+    width: 979px;
+    min-height: 1px;
+    padding: 0 20px 40px;
+    background-color: #35333E;
+}
+
+.background .container .training-progress .progress-content .training-content {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    color: #FFF;
+}
+
+.background .container .training-progress .progress-content .training-content .progress-item {
+    float: left;
+    margin-top: 42px;
+}
+
+.background .container .training-progress .progress-content .training-content .progress-btn {
+    margin-top: 40px;
+    margin-left: 20px;
+    float: left;
+}
+
+.background .container .training-progress .progress-content .training-content .progress-btn button {
+    width: 90px;
+    height: 30px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    background-color: rgba(12, 180, 232, 1);
+    color: #FFF;
+    outline: none;
+    border: 0;
+    border-radius: 15px;
+}
+
+.background .container .training-progress .progress-content .create-plan {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    color: #FFF;
+    margin:40px 0 0 10px;
+}
+
+.background .container .training-progress .progress-content .create-label {
+    margin-left: 40px;
+}
+
+.background .container .training-progress .progress-content .create-label a {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    color: #FFF;
+    font-style: oblique;
+    cursor: pointer;
+}
+
+.background .container .training-progress .training-data {
+    margin-top: 34px;
+    float: left;
+    width: 100%;
+}
+
+.background .container .training-progress .training-data label {
+    float: left;
+    width: 20%;
+    text-align: left;
+}
+
+.background .container .training-progress .training-data label .item {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    color: #FFF;
+}
+
+.background .container .training-progress .training-data label .content {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 32px;
+    color: #FFF;
+    margin-top: 20px;
+}
+
+.background .container .training-progress .training-data .run-item {
+    margin-left: 0;
+}
+
+.background .container .training-progress .training-data .predict-time {
+    text-align: center;
+    margin-left: -48px;
+}
+
+.background .container .training-progress .training-data .begin-date {
+    text-align: center;
+    margin-left: 48px;
+}
+
+.background .container .training-progress .training-data .competition-date {
+    text-align: center;
+    margin-left: 30px;
+}
+
+.background .container .training-progress .training-data .run-distance {
+    text-align: right;
+    margin-left: -30px;
+}
+
+/* histroy-plan */
+.background .container .history-plan {
+    float: left;
+    width: 980px;
+    min-height: 1px;
+    margin-left: 14px;
+    margin-top: 14px;
+    background-color: #35333E;
+    padding-bottom: 180px;
+}
+
+.background .container .history-plan .histroy-plan-content {
+    margin: 36px 20px 0 40px;
+}
+
+.background .container .history-plan .histroy-plan-content h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    letter-spacing: 5px;
+    color: rgba(251, 246, 241, 1);
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item {
+    margin-top: 34px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    color: rgba(251, 246, 241, 1);
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-head {
+    border-bottom: 1px solid #000;
+    letter-spacing: 2px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-head label {
+    margin-left: 100px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-head .time-item-label {
+    margin-left: 0;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-head .project-item-label {
+    margin-left: 131px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-head .date-item-label {
+    margin-left: 104px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-head .distance-item-label {
+    margin-left: 101px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-content {
+    border-bottom: 1px solid #000;
+    text-align: center;
+    margin-top: 60px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-content label {
+    float: left;
+    margin-left: 67px;
+    margin-top: -31px;
+    letter-spacing: 2px;
+    width: 105px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-content .plan-item-btn {
+    float: left;
+    margin-top: -40px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-content .plan-item-btn button {
+    width: 90px;
+    height: 30px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    background-color: rgba(67, 68, 68, 1);
+    color: #FFF;
+    outline: none;
+    border: 0;
+    border-radius: 15px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-content .time-item {
+    margin-left: 0;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-content .project-item {
+    margin-left: 62px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-content .date-item, .background .container .history-plan .histroy-plan-content .plan-item .plan-item-content .distance-item {
+    margin-left: 84px;
+}
+
+.background .container .history-plan .histroy-plan-content .plan-item .plan-item-content .degree-item {
+    margin-left: 73px;
+}
+
+.background .upload-avatar {
+    width: 442px;
+    min-height: 1px;
+    background-color: #0b0b0b;
+    position: absolute;
+    margin: 10% 22%;
+    padding:5px 18px 40px;
+    border-radius: 8px;
+    display: none;
+}
+
+.background .upload-avatar .upload-title {
+    float: left;
+    border-bottom: 1px solid #FFF;
+    width: 100%;
+}
+
+.background .upload-avatar .upload-title h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #FFF;
+    margin: 20px 0 12px;
+    float: left;
+}
+
+.background .upload-avatar .upload-title .upload-close {
+    float: right;
+    background: url(/static/run-plan/imgs/cancel.png) no-repeat center;
+    overflow: hidden;
+    width: 10px;
+    height: 10px;
+    margin-top:12px;
+}
+
+.background .upload-avatar .upload-body {
+    /*padding: 48px 110px 0;*/
+}
+
+.background .upload-avatar .upload-body .upload-form {
+    padding: 48px 110px 0;
+}
+
+.background .upload-avatar .upload-body .upload-form h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #FFF;
+    margin-top: 50px;
+}
+
+.background .upload-avatar .upload-body .upload-form .upload-btn {
+    margin-top:30px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:12px;
+    color: #FFF;
+    position: relative;
+}
+
+.background .upload-avatar .upload-body .upload-form .upload-btn button {
+    width:100%;
+    height:30px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:14px;
+    color: #FFF;
+    background-color: rgba(12, 180, 232, 1);
+    outline: none;
+    border: 0;
+    display: inline-block;
+}
+
+.background .upload-avatar .upload-body .upload-form .upload-btn input {
+    display: inline-block;
+    width:100%;
+    overflow: hidden;
+    position: absolute;
+    left:0;
+    top:0;
+    z-index:3;
+    opacity: 0.01;
+    cursor: pointer;
+}
+
+.background .upload-avatar .upload-body label {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:12px;
+    color: #FFF;
+}
+
+.background .upload-avatar .upload-body .upload-cancel {
+    margin:15px 44px 0;
+}
+
+.background .upload-avatar .upload-body .upload-cancel button {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:14px;
+    color: #FFF;
+    /*background-color: rgba(12, 180, 232, 1);*/
+    outline: none;
+    border: 0;
+    width:100px;
+}
+
+.background .upload-avatar .upload-body .cutting-area {
+    display:none;
+
+}
+
+.background .upload-avatar .upload-body .cutting-area .cutting-avator {
+    max-width:200px;
+    max-height:200px;
+    float: left;
+    margin-top:58px;
+}
+
+.background .upload-avatar .upload-body .cutting-area .avatar-preview {
+    margin:58px 0 0 80px;
+}
+
+.background .upload-avatar .upload-body .cutting-area .avatar-preview .les-avatar {
+/*    max-width: 100px;
+    max-height: 100px;*/
+}
+
+.background .upload-avatar .upload-body .cutting-area  .avatar-title {
+    margin:15px 0 0 -75px;
+    float: left;
+}
+
+.background .upload-avatar .upload-body .cutting-area .avatar-title h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:14px;
+    color: #FFF;
+}
+
+.background .upload-avatar .upload-body .cutting-area .cutting-area-btn {
+    float: left;
+    margin: 20px 100px 0;
+    text-align: center;
+}
+
+.background .upload-avatar .upload-body .cutting-area .cutting-area-btn button {
+    width:90px;
+    border-radius: 8px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:12px;
+    text-align: center;
+    color: #FFF;
+    margin-left:13px;
+    background-color: rgba(12, 180, 232, 1);
+    outline: none;
+    border: 0;
+}
+
+.background .bind-account {
+    width: 442px;
+    min-height: 1px;
+    background-color: #0b0b0b;
+    position: absolute;
+    margin: 10% 22%;
+    padding:5px 18px 40px;
+    border-radius: 8px;
+    display: none;
+}
+
+.background .bind-account .bind-title {
+    float: left;
+    border-bottom: 1px solid #FFF;
+    width: 100%;
+}
+
+.background .bind-account .bind-title h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #FFF;
+    margin: 20px 0 12px;
+    float: left;
+}
+
+.background .bind-account .bind-title .bind-close {
+    float: right;
+    background: url(/static/run-plan/imgs/cancel.png) no-repeat center;
+    overflow: hidden;
+    width: 10px;
+    height: 10px;
+    margin-top:12px;
+}
+
+.background .bind-account .bind-body .bind-form {
+    padding: 48px 110px 0;
+}
+
+.background .bind-account .bind-body .bind-form h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #FFF;
+    margin-top: 22px;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content {
+    width:100%;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content #phone-pattern-error {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content #phone-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content #code-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content #em-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content #email-error {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+
+.background .bind-account .bind-body .bind-form .bind-main-content .phone-item {
+    font-size:12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    background-color: transparent;
+    border-radius: 8px;
+    border: 1px solid #8e8e8e;
+    width: 180px;
+    height: 32px;
+    padding: 0 16px;
+    outline: none;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content .wap-resend-label {
+
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content .wap-resend-label .code-item {
+    font-size:12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    background-color: transparent;
+    width: 90px;
+    height: 32px;
+    border-left: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-right: 0;
+    margin-right: -2px;
+    border-radius: 8px 0px 0px 8px;
+    padding:0 12px;
+    outline: none;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content .wap-resend-label button {
+    width: 90px;
+    height: 32px;
+    border-right: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-left: 0;
+    margin-left: -2px;
+    border-radius: 0px 8px 8px 0px;
+    background-color: #0cb4e8;
+    font-size: 13px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    padding-top: 0;
+    outline: none;
+}
+
+.background .bind-account .bind-body .bind-main-content .em-item {
+    font-size:12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    background-color: transparent;
+    border-radius: 8px;
+    border: 1px solid #8e8e8e;
+    width: 180px;
+    height: 32px;
+    padding: 0 16px;
+    outline: none;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content .bind-btn {
+    margin-top:16px;
+}
+
+.background .bind-account .bind-body .bind-form .bind-main-content .bind-btn button{
+    border-radius: 18px;
+    background-color: #0cb4e8;
+    color: #FFF;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    width: 180px;
+    height: 32px;
+    outline: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.background .modify-psw {
+    width: 442px;
+    min-height: 1px;
+    background-color: #0b0b0b;
+    position: absolute;
+    margin: 10% 22%;
+    padding:5px 18px 40px;
+    border-radius: 8px;
+    display: none;
+}
+
+.background .modify-psw .mdf-title {
+    float: left;
+    border-bottom: 1px solid #FFF;
+    width: 100%;
+}
+
+.background .modify-psw .mdf-title h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #FFF;
+    margin: 20px 0 12px;
+    float: left;
+}
+
+.background .modify-psw .mdf-title .mdf-close {
+    float: right;
+    background: url(/static/run-plan/imgs/cancel.png) no-repeat center;
+    overflow: hidden;
+    width: 10px;
+    height: 10px;
+    margin-top:12px;
+}
+
+.background .modify-psw .mdf-body .mdf-form {
+    padding: 48px 110px 0;
+}
+
+.background .modify-psw .mdf-body .mdf-form .mdf-main-content h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #FFF;
+    margin-top: 22px;
+}
+
+.background .modify-psw .mdf-body .mdf-form .mdf-main-content input {
+    font-size:12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    background-color: transparent;
+    border-radius: 8px;
+    border: 1px solid #8e8e8e;
+    width: 180px;
+    height: 32px;
+    padding: 0 16px;
+    outline: none;
+}
+
+.background .modify-psw .mdf-body .mdf-form .mdf-main-content button {
+    border-radius: 18px;
+    background-color: #0cb4e8;
+    color: #FFF;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 60px;
+    height: 24px;
+    outline: none;
+    border: 0;
+    cursor: pointer;
+    margin:20px 0 0 20px;
+}
+
+.background .modify-psw .mdf-body .mdf-form .mdf-main-content .newpsw1 {
+    margin-top:20px;
+}
+
+.background .ub-account {
+    width: 442px;
+    min-height: 1px;
+    background-color: #0b0b0b;
+    position: absolute;
+    margin: 10% 22%;
+    padding:5px 18px 40px;
+    border-radius: 8px;
+    display: none;
+}
+
+.background .ub-account .bind-title {
+    float: left;
+    border-bottom: 1px solid #FFF;
+    width: 100%;
+}
+
+.background .ub-account .bind-title h4 {
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #FFF;
+    margin: 20px 0 12px;
+    float: left;
+}
+
+.background .ub-account .bind-title .ub-close {
+    float: right;
+    background: url(/static/run-plan/imgs/cancel.png) no-repeat center;
+    overflow: hidden;
+    width: 10px;
+    height: 10px;
+    margin-top:12px;
+}
+
+.background .ub-account .ub-body .ub-form {
+    padding: 48px 110px 0;
+}
+
+.background .ub-account .ub-body .ub-form #ub-code-null {
+    display: none;
+    color: red;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content .wap-resend-label {
+    margin-top: 20px;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content .wap-resend-label .code-item {
+    font-size:12px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    background-color: transparent;
+    width: 90px;
+    height: 32px;
+    border-left: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-right: 0;
+    margin-right: -2px;
+    border-radius: 8px 0px 0px 8px;
+    padding:0 12px;
+    outline: none;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content .wap-resend-label button {
+    width: 90px;
+    height: 32px;
+    border-right: 1px solid #8c8c8c;
+    border-top: 1px solid #8c8c8c;
+    border-bottom: 1px solid #8c8c8c;
+    border-left: 0;
+    margin-left: -2px;
+    border-radius: 0px 8px 8px 0px;
+    background-color: #0cb4e8;
+    font-size: 13px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    padding-top: 0;
+    outline: none;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content #em-ub-content {
+    font-size:15px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    margin: 24px 0 0 -30px;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content #wx-ub-content {
+    font-size:15px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    margin: 24px auto 0;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content #wb-ub-content {
+    font-size:15px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    margin: 24px auto 0;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content #qq-ub-content {
+    font-size:15px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #FFF;
+    margin: 24px auto 0;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content .ub-btn {
+    margin-top:16px;
+}
+
+.background .ub-account .ub-body .ub-form .ub-main-content .ub-btn  button{
+    border-radius: 18px;
+    background-color: #0cb4e8;
+    color: #FFF;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    width: 180px;
+    height: 32px;
+    outline: none;
+    border: 0;
+    cursor: pointer;
+}

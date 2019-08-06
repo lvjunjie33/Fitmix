@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--suppress SpringPlaceholdersInspection, DuplicatedBeanNamesInspection -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd"
+       default-lazy-init="true">
+
+    <description>Spring-mq配置</description>
+
+    <!--<bean id="mqProducer" class="com.business.core.mq.producer.core.BaseMQProducer"> &lt;!&ndash; start/shut都靠InitServlet  &ndash;&gt;
+        <property name="producerGroup" value="${RocketMQ.producer.group}" />
+        <property name="instanceName" value="${server.name}" />
+        <property name="namesrvAddr" value="${RocketMQ.namesrvAddr}" />
+    </bean>-->
+
+</beans>

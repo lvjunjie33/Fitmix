@@ -1,0 +1,41 @@
+#drag{
+    position: relative;
+    background-color: #e8e8e8;
+    width: 360px;
+    height: 40px;
+    line-height: 34px;
+    text-align: center;
+    margin: 20px auto -20px;
+}
+#drag .handler{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    cursor: move;
+}
+.handler_bg{
+    background: #fff url(/static/user/img/right-arrow.png) no-repeat center;
+}
+.handler_ok_bg{
+    background: #fff url(/static/user/img/slide-finish.png) no-repeat center;
+}
+#drag .drag_bg{
+    background-color: #0cb4e8;
+    height: 40px;
+    width: 0px;
+}
+#drag .drag_text{
+    position: absolute;
+    top: 4px;
+    width: 350px;
+    font-size:18px;
+    font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -o-user-select:none;
+    -ms-user-select:none;
+}

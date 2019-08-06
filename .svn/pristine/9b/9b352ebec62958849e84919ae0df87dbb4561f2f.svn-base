@@ -1,0 +1,106 @@
+
+# mysql 数据源配置
+jdbc.prediagnosis.driver=com.mysql.jdbc.Driver
+jdbc.prediagnosis.url=jdbc:mysql://192.168.16.212:3306/eku_prediagnosis?characterEncoding=utf-8
+jdbc.prediagnosis.username=test
+jdbc.prediagnosis.password=YFtest123!
+jdbc.scheduler.driver=com.mysql.jdbc.Driver
+jdbc.scheduler.url=jdbc:mysql://192.168.16.212:3306/scheduler?characterEncoding=utf-8
+jdbc.scheduler.username=test
+jdbc.scheduler.password=YFtest123!
+
+# mongo 数据源配置  参考以下配置
+#business 集群组
+mongo.hosts=192.168.1.136:27017
+#secondary 集群组
+mongo.hostsSecondary=192.168.1.136:27017
+#logs 集群组
+mongo.hostsLog=192.168.1.136:27017
+
+mongo.dbname=business
+mongo.dbname2=secondary
+mongo.dbname3=logs
+
+mongo.username=
+mongo.password=
+
+#root123root123    lch lchadmin123
+#每台机器允许的连接数
+mongo.connectionsPerHost=100
+#线程队列数
+mongo.threadsAllowedToBlockForConnectionMultiplier=20
+#系统发生错误是否重试
+mongo.autoConnectRetry=true
+mongo.socketKeepAlive=true
+
+# 文件服务配置
+#FileCenter.REQUEST_URI_PREFIX=http://119.29.86.99:8089/file
+#FileCenter.URI=
+
+FileCenter.STORAGE_PATH=http://yyssb.ifitmix.com
+#FileCenter.STORAGE_PATH=http://112.74.78.62:8089
+
+
+Aliyun.ENDPOINT=http://oss-cn-shenzhen.aliyuncs.com
+Aliyun.ACCESS_ID=sSkFTSmk7h8kzjYi
+Aliyun.ACCESS_KEY=j2M57zDaJ5X6wAmzKtGEqQSR0MwTk8
+Aliyun.BUCKET_NAME=igeekery
+
+
+# Redis配置
+redis.url=192.168.1.136
+redis.port=6379
+redis.maxActive=32
+redis.maxIdle=16
+redis.maxWait=10000
+redis.testOnBorrow=false
+redis.timeout=5000000
+
+# Scheduler配置
+Schedule.host=192.168.16.211:8081/scheduler
+
+
+# 邮箱发送地址
+mail.username=fitmix@igeekery.com
+mail.password=Lanchou888
+mail.host=smtp.qq.com
+
+# 邮箱发送地址-C罗
+mail.username_c=support01@roclivelifeloud.cn
+mail.password_c=ROCsup01
+mail.host_c=smtp.office365.com
+
+# live address
+live.port=8118
+live.connectCount=10000
+live.webSocketUrl=ws://119.29.86.99:8069/socket-server
+#live.webSocketUrl=ws://192.168.1.82:8069/socket-server
+
+
+#app 缓存地址
+app.sysParamUrl=http://192.168.1.33:8180/refresh-sys-param.htm
+app.dicUrl=http://192.168.1.33:8180/refresh-dictionary.htm
+
+#umeng
+umeng.appKey=5528bab4fd98c5ca0a000cab
+umeng.appSecret=unad3r8gezudowkqmbvrrhtjzbwewbrp
+
+#ios
+ios.appid=999239164
+ios.bundleid=com.LC.GEEKERY
+
+
+# RocketMQ配置
+#RocketMQ.namesrvAddr=120.76.74.90:9876
+RocketMQ.namesrvAddr=192.168.1.33:9876
+RocketMQ.producer.group=group_producer
+RocketMQ.consumer.group=group_consumer
+#该参数用于本地开发调试
+#说明：
+#1. 每个主题在本地开发环境时，设置该前缀。
+#2. 消费group会受到影响。如果group不设置，在消息重新消费时，
+#   即使某个consumer不监听该topic，也会因为消息异常，重新消费时，也会消费到不监听的topic
+#3. 服务器环境禁止设置该变量
+#4. 另外RocketMQ的集群消费时，相同Topic可以被ConsumerGroupA/ConsumerGroupB都消费一次。
+#   比如，Topic：SendXmppMessage，当MQ服务器启动一个ConsumerGroupA会发送一次，ConsumerGroupB会发送一次。
+RocketMQ.topic.prefix=

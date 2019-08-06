@@ -1,0 +1,105 @@
+
+/**
+ *  footer style
+ * 	2016.03.14
+ */
+
+#footer {
+  position: absolute;
+  bottom: -120px;
+  width: 100%;
+
+  display: block;
+
+  .icon-input {
+    background: @color-bg;
+    border-radius: 8px;
+    padding: 5px 8px;
+    display: inline-block;
+
+    input {
+      border: none;
+      background: @color-bg;
+      font-size: 90%;
+      outline: none !important;
+    }
+  }
+}
+
+#footer-head{
+  background-color: #444444;
+  padding: 10px;
+
+  span {
+    color: #F6F6F6;
+    margin-right: 20px;
+  }
+}
+
+/*当屏幕尺寸小于600px时，应用下面的CSS样式*/
+@media screen and (max-width: 600px) {
+  #footer-head>span{
+    display: block;
+    margin-right: 0px;
+  }
+}
+
+#footer-body{
+  background: #545454;
+  padding: 20px;
+}
+
+
+#footer-wechat>a{
+  margin: 10px;
+}
+
+.wechat{
+  display: inline-block;
+  width: 35px;
+  height: 31px;
+  background-image: url(/imgs/webo-wechat.png);
+  background-position: 0px 0px;
+  background-size: 70px;
+}
+.wechat:hover{
+  background-position: 35px 0px;
+}
+
+.weibo{
+  display: inline-block;
+  width: 35px;
+  height: 31px;
+  background-image: url(/imgs/webo-wechat.png);
+  background-position: 0px 31px;
+  background-size: 70px;
+}
+.weibo:hover{
+  background-position: 35px 31px;
+}
+
+
+
+
+#footer-link{
+  &:before{
+    width: 90px;
+    height: 19px;
+    display: inline-block;
+    position: relative;
+    top: 3px;
+    left: 0;
+  }
+
+  a{
+    display: inline-block;
+    padding: 10px 10px;
+    color: #FBFBFB;
+    font-size: 80%;
+  }
+}
+
+#footer-copyright{
+  font-size: 80%;
+  color: @color-text-light;
+}

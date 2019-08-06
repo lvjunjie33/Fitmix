@@ -1,0 +1,335 @@
+package com.business.app.userRun;
+
+import com.business.core.entity.Page;
+import com.business.core.entity.user.User;
+import com.business.core.entity.user.UserRun;
+import com.business.core.entity.user.info.UserRunStat;
+import com.business.core.mongo.BaseMongoDaoSupport;
+import com.mongodb.*;
+import com.mongodb.util.JSON;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
+
+import java.util.*;
+
+/**
+ * Created by Administrator on 2015/4/20.
+ */
+@Repository
+public class UserRunDao extends BaseMongoDaoSupport {
+
+
+    /**
+     * 添加用户 运动
+     * @param userRun 用户运动信息
+     */
+    public void insertUserRun (UserRun userRun) {
+        insertToMongo(userRun);
+    }
+
+    /**
+     * 用户运动 分页
+     *
+     * @param page 分页
+     * @param fields 列
+     */
+    public void findPageUserRun(Page<UserRun> page, String... fields) {
+        LinkedHashMap filter = page.getFilter();
+        Criteria criteria = new Criteria();
+
+        if (filter.containsKey("uid")) {
+            criteria.and("uid").is(filter.get("uid"));
+        }
+
+        if (filter.containsKey("uidSet")) {
+            criteria.and("uid").in((Set<Integer>)filter.get("uidSet"));
+        }
+
+        if (filter.containsKey("beginTime") && filter.containsKey("endTime")) {
+            criteria.and("startTime").gte(filter.get("beginTime")).lte(filter.get("endTime"));
+        }
+        if (filter.containsKey("type")) {
+            criteria.and("type").in((List<Integer>)filter.get("type"));
+        }
+
+        Query query = new Query(criteria);
+        query.with(new Sort(Sort.Direction.DESC, "startTime"));
+        findEntityPage(UserRun.class, page, query, fields);
+    }
+
+    /**
+     * 查询 用户运动
+     * <p>
+     *     时间确定数据范围
+     * </p>
+     * @param ids 用户编号
+     * @param beginTime 开始时间
+     * @param endTime 结束时间
+     * @return 用户运动数据
+     */
+    public List<UserRun> findUserRunByUidAndAddTime(Collection<Integer> ids, long beginTime, long endTime, String...fields) {
+        Query query = new Query(Criteria.where("type").in(UserRun.TYPE_RUN, UserRun.TYPE_UNKNOWN)
+                .and("state").is(UserRun.STATE_EFFECTIVE)
+                .and("uid").in(ids)
+                .and("addTime").gte(beginTime).lte(endTime));
+        includeFields(query, fields);
+        query.with(new Sort(Sort.Direction.DESC, "addTime"));
+        return getRoutingMongoOps().find(query, UserRun.class);
+    }
+
+    /**
+     * 查询 new 的 用户运动轨迹
+     *
+     * @param uid 用户编号
+     * @param addTime 添加时间
+     * @param fields 列
+     * @return list 集合
+     */
+    public List<UserRun> findNewUserRun (Integer uid, Long addTime, String... fields) {
+        Query query = new Query(Criteria.where("uid").is(uid)
+                .and("type").in(UserRun.TYPE_RUN, UserRun.TYPE_UNKNOWN, UserRun.TYPE_WATCH_SPORT)
+                .and("state").is(UserRun.STATE_EFFECTIVE)
+                .and("updateTime").gt(addTime));
+        includeFields(query, fields);
+        query.with(new Sort(Sort.Direction.DESC, "startTime"));
+        return getRoutingMongoOps().find(query, UserRun.class);
+    }
+
+    /**
+     * 查询 remove 作废的 运动轨迹
+     *
+     * @param uid 用户编号
+     * @param updateTime 更新记录时间
+     * @param fields 列
+     * @return list 集合
+     */
+    public List<UserRun> findRemoveUserRun (Integer uid, Long updateTime, String... fields) {
+        Query query = new Query(Criteria.where("uid").is(uid)
+                .and("type").in(UserRun.TYPE_RUN, UserRun.TYPE_UNKNOWN, UserRun.TYPE_WATCH_SPORT)
+                .and("state").is(UserRun.STATE_INVALID)
+                .and("updateTime").gt(updateTime));
+        includeFields(query, fields);
+        query.with(new Sort(Sort.Direction.DESC, "startTime"));
+        return getRoutingMongoOps().find(query, UserRun.class);
+    }
+
+    /**
+     * 根据用户编号，查询用户运动信息
+     * @param uid 用户编号
+     * @param fields 列
+     * @return 用户运动历史记录 集合
+     */
+    public List<UserRun> findByUidWidthStartTime(Integer uid, String... fields) {
+        Query query = new Query(Criteria.where("state").is(UserRun.STATE_EFFECTIVE)
+                .and("uid").is(uid)
+                .and("type").in(UserRun.TYPE_RUN, UserRun.TYPE_UNKNOWN, UserRun.TYPE_WATCH_SPORT));
+        includeFields(query, fields);
+        query.with(new Sort(Sort.Direction.DESC, "startTime"));
+        return getRoutingMongoOps().find(query, UserRun.class);
+    }
+
+    /**
+     * 查询最后一次的运动数据
+     * @param uid
+     * @param fields
+     * @return
+     */
+    public UserRun findLastUpdateUserRun (Integer uid, String...fields) {
+        Query query = new Query(Criteria.where("uid").is(uid).and("type").in(UserRun.TYPE_WATCH_SPORT));
+        includeFields(query, fields);
+        query.with(new Sort(Sort.Direction.DESC, "startTime"));
+        return getRoutingMongoOps().findOne(query, UserRun.class);
+    }
+
+
+    /**
+     * 查询有效的最后一次的运动数据
+     *
+     * @param uid 用户编号
+     * @param fields 查询的字段
+     */
+    public UserRun findLastUpdateUserRun2 (Integer uid, String...fields) {
+        Query query = new Query(Criteria.where("uid").is(uid).and("type").in(UserRun.TYPE_RUN, UserRun.TYPE_UNKNOWN).and("state").is(UserRun.STATE_EFFECTIVE).and("heartRate").ne(null));
+        includeFields(query, fields);
+        query.with(new Sort(Sort.Direction.DESC, "startTime"));
+        return getRoutingMongoOps().findOne(query, UserRun.class);
+    }
+
+    /**
+     * 根据 uid ，和 运动开始时间删除 更新历史记录
+     *
+     * @param uid 用户编号
+     * @param startTime 运动开始时间
+     * @param update 更新信息
+     */
+    public void updateByUidAndStartTime (Integer uid, Long startTime, Update update) {
+        Query query = new Query(Criteria.where("uid").is(uid).and("startTime").is(startTime).and("type").in(UserRun.TYPE_RUN, UserRun.TYPE_UNKNOWN, UserRun.TYPE_WATCH_SPORT));
+        getRoutingMongoOps().updateFirst(query, update, UserRun.class);
+    }
+
+    /**
+     * 根据 uid ，和 运动开始时间删除 更新历史记录 [多个]
+     *
+     * @param uid 用户编号
+     * @param startTime 运动开始时间
+     * @param update 更新信息
+     */
+    public void updateByUidAndStartTimes (Integer uid, Collection<Long> startTime, Update update) {
+        Query query = new Query(Criteria.where("uid").is(uid).and("startTime").in(startTime).and("type").in(UserRun.TYPE_RUN, UserRun.TYPE_UNKNOWN));
+        getRoutingMongoOps().updateFirst(query, update, UserRun.class);
+    }
+
+    /**
+     * 根据 uid ，和 运动开始时间还原手表运动记录
+     *
+     * @param uid 用户编号
+     * @param startTime 运动开始时间
+     * @param update 更新信息
+     */
+    public void updateUserRunState (Integer uid,  Long startTime, Update update) {
+        Query query = new Query(Criteria.where("uid").is(uid).and("startTime").in(startTime).and("type").in(UserRun.TYPE_WATCH_SPORT, UserRun.TYPE_UNKNOWN));
+        getRoutingMongoOps().updateFirst(query, update, UserRun.class);
+    }
+
+
+    /**
+     * 用户运动 根据开始时间
+     *
+     * @param startTime 运动开始时间
+     * @param fields 列
+     * @return 运动开始时间 运动数据
+     */
+    public UserRun findUserRunByStartTime (Integer uid, Long startTime, String...fields) {
+        Query query = new Query(Criteria.where("startTime").is(startTime).and("uid").is(uid));
+//                and("state").is(UserRun.STATE_EFFECTIVE));
+        includeFields(query, fields);
+        return getRoutingMongoOps().findOne(query, UserRun.class);
+    }
+
+    /**
+     * 查询用户某时间段的运动数据
+      * @param uid  用户id
+     * @param addTimeStart  时间段的开始时间
+     * @param addTimeEnd    时间段的结束时间（可以跟addTimeStart相同）
+     * @param fields    用户运动相关数据
+     * @return  用户某时间段的运动相关数据
+     */
+    public List<UserRun> findUserRunByAddTime(Integer uid, Long addTimeStart, Long addTimeEnd, String... fields){
+        Query query = new Query(Criteria.where("addTime").gte(addTimeStart).lte(addTimeEnd).
+                and("uid").is(uid).and("state").is(UserRun.STATE_EFFECTIVE));
+        includeFields(query, fields);
+        return getRoutingMongoOps().find(query,UserRun.class);
+    }
+
+    /**
+     * 根据Id 获取运动记录
+     * @param id
+     * @return
+     */
+    public UserRun findUserRunByIdAndUid(Integer id, Integer uid) {
+        Query query = new Query(Criteria.where("id").is(id).and("uid").is(uid));
+        return getRoutingMongoOps().findOne(query, UserRun.class);
+    }
+
+    /**
+     * 统计用户有效跑步记录
+     * @param startUid
+     * @param endUid
+     * @param fields
+     * @return key: uid value: distance
+     */
+    public Map<Integer,Long> statisticsValidUserRunByUid(Integer startUid, Integer endUid, String ... fields) {
+        Map<Integer,Long> map = new HashMap<>();
+        String projectStr = "{$project:{uid:1,distance:1,bpm:1}}";
+        DBObject project = (DBObject) JSON.parse(projectStr);
+        String groupStr = "{$group:{_id:{uid:'$uid'},count:{$sum:'$distance'}}}";
+        DBObject group = (DBObject) JSON.parse(groupStr);
+        String matchStr = "{$match:{distance:{$gte:1000},bpm:{$gte:120},uid:{$gte:"+startUid+",$lt:"+endUid+"}}}";
+        DBObject match = (DBObject) JSON.parse(matchStr);
+        AggregationOutput output = getRoutingMongoOps().getCollection(UserRun.class).aggregate(project,match,group);
+        CommandResult result = output.getCommandResult();
+        BasicDBList list = (BasicDBList) result.get("result");
+        for (int i = 0; i < list.size(); i ++) {
+            BasicDBObject obj = (BasicDBObject)list.get(i);
+            BasicDBObject _id = (BasicDBObject) obj.get("_id");
+            map.put(Integer.parseInt(_id.get("uid").toString()), Long.parseLong(obj.get("count").toString()));
+        }
+        return map;
+    }
+
+    /**
+     * 查询用户运动数据
+     *
+     * @param uid 用户编号
+     * @param types 类型
+     * @param fields 查询的字段
+     */
+    public List<UserRun> allUserRunsByUid(Integer uid, List<Integer> types, String...fields) {
+        Query query = Query.query(Criteria.where("uid").is(uid).and("type").in(types));
+        includeFields(query, fields);
+        query.with(new Sort(Sort.Direction.ASC, "startTime"));
+        return getRoutingMongoOps().find(query, UserRun.class);
+    }
+
+    /**
+     * 查询用户运动统计数据
+     *
+     * @param uid 用户编号
+     * @param type 运动统计类型
+     */
+    public UserRunStat findUserRunStatByUid(Integer uid, Integer type, String statTime, String...fields) {
+        Query query = Query.query(Criteria.where("uid").is(uid).and("type").is(type).and("statTime").is(statTime));
+        includeFields(query, fields);
+        query.with(new Sort(Sort.Direction.DESC, "addTime"));
+        return getRoutingMongoOps().findOne(query, UserRunStat.class);
+    }
+
+    /**
+     * 查询用户运动统计数据
+     *
+     * @param uid 用户编号
+     */
+    public Long findUserRunDay(Integer uid) {
+        Query query = Query.query(Criteria.where("uid").is(uid).and("type").is(UserRunStat.STAT_DAY));
+        return getRoutingMongoOps().count(query, UserRunStat.class);
+    }
+
+    /**
+     * 查询比当前用户排名之前的用户数量
+     *
+     * @param uid 用户编号
+     * @param type 类型
+     * @param statTime 时间
+     * @param level 级别
+     * @param distance 里程
+     * @param pace 配速
+     * @param registerTime 注册时间
+     */
+    public Long findUserRunStat(Integer uid, Integer type, String statTime, Integer level, Long distance, Integer pace, Long registerTime) {
+        Criteria criteria = Criteria.where("uid").ne(uid).and("type").is(type).and("statTime").is(statTime)
+                .and("level").is(level).and("sumDistanceValid").gte(distance);
+        if (registerTime != null) {
+            criteria.and("registerTime").lte(registerTime);
+        }
+        Query query = Query.query(criteria);
+        query.with(new Sort(Sort.Direction.DESC, "sumDistanceValid")).with(new Sort(Sort.Direction.ASC, "pace")).with(new Sort(Sort.Direction.DESC, "registerTime"));
+        return getRoutingMongoOps().count(query, UserRunStat.class);
+    }
+    /**
+     * 根据用户ID查询运动记录（最新一条运动记录）
+     *
+     * @param uid 用户id
+     * @return 用户运动集合
+     */
+    public List<UserRun> historyUserRunLimit(Integer uid) {
+        Query query = new Query(Criteria.where("uid").in(uid));
+        query.with(new Sort(Sort.Direction.DESC, "addTime"));
+        query.skip(0).limit(1);
+        return getRoutingMongoOps().find(query, UserRun.class);
+    }
+
+}

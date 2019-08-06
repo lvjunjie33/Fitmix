@@ -1,0 +1,351 @@
+﻿body, body *, * {
+	padding: 0px;
+	margin: 0px;
+	font-family: "Microsoft Yahei", "微软雅黑", "Proxima Nova", "Helvetica Neue",
+		Helvetica, Arial, sans-serif;
+	font-size: 14px;
+}
+
+body {
+	background-color: #000000;
+}
+.ovfHiden{/* 禁止上下滚动 */overflow: hidden;height: 100%;}
+.live_wai_kuang {
+	position: relative;
+	width: 94%;
+	left: 3%;
+	top: 1.5%;
+	background-color: #242424;
+	overflow: hidden;
+	border-radius: 10px;
+	padding: 0px;
+	margin: 0px;
+}
+.center_text {
+	text-align: center;
+}
+
+.userinfo {
+	position: relative;
+	margin-top: 5%;
+	width: 100%;
+	height: 40px;
+	overflow: hidden;
+}
+.userinfoImg {
+	position: relative;
+	left: 20%;
+}
+.userinfo ul {
+	position:relative;
+	list-style-type: none;
+	width: 100%;
+	
+}
+.userinfo ul li {
+	z-index:1;
+	float: left;
+	height: 30px;
+	line-height:30px;
+	color:#ffffff;
+}
+.userInfoPaddingLi {
+	background-color: #363636;
+	width: 5%;
+}
+.userinfo ul li span {
+	color:yellow;
+}
+.userInfoPage {
+	background-color: #363636;
+	line-height: 30px;
+	width: 30%
+}
+.yuyinImgDiv {
+	position: absolute;
+	z-index:3000;
+	width: 16%;
+	height: 10%;
+	left:42%;
+	top:35%;
+	display: none;
+}
+.yuyinImg {
+	width: 100%;
+	height: 100%;
+}
+.yuyinImgClose {
+	width:20%;
+	height: 20%;
+	position: absolute;
+	z-index:30001;
+	right: 0px;
+	top: 0px;
+}
+/* .userinfo img, .userinfo table {
+	position: absolute;
+}
+
+.userinfo img {
+	left: 3%;
+} */
+
+/* .userinfo table {
+	width: 70%;
+	height: 64px;
+	right: 0px;
+	font-size: 16px;
+} */
+
+/* .userinfo table td {
+	text-align: center;
+	vertical-align: middle;
+	width: 50%;
+	overflow: hidden;
+	white-space: nowrap;
+} */
+
+/* .userinfo-td-username {
+	border-top-left-radius: 10px;
+	background-color: #FF991A;
+} */
+
+/* .userinfo-td {
+	background-color: #333333;
+	color: #ffffff;
+} */
+
+.map {
+	position: relative;
+	z-index:11;
+	width: 100%;
+	height: 48%;
+	overflow: hidden;
+}
+
+.map_2 {
+	position: absolute;
+	z-index: 11;
+	height: 80%;
+}
+
+.map .mapZoom {
+	position: absolute;
+	z-index: 100;
+	width: 30px;
+	height: 30px;
+	right: 5px;
+	top: 5px;
+}
+
+.amap-copyright {
+	/*高德地图底部文字*/
+	position: absolute;
+	z-index: 1;
+	left: 0px;
+	background-color: #333333;
+	text-align: center;
+	width: 100%;
+	color: #CCCCCC;
+	font-size: 14px;
+}
+
+.interactive {
+	position: relative;
+	margin-top: 4%;
+	width: 100%;
+	height: 8%;
+	overflow:hidden;
+	/* background-color: red; */
+}
+.interactive ul {
+	list-style-type: none;
+	width: 100%;
+	position: relative;
+}
+.audience,.specialEffects {
+	width: 100%;
+}
+/* .audience {
+	background-color: aqua;
+}
+.specialEffects {
+	background-color: yellow;
+} */
+.specialEffects {
+	padding-top: 10px;
+}
+.audience img,.specialEffects img {
+	width:10%;
+}
+.audience img {
+	margin-left: 1.2%;
+}
+.specialEffects img {
+	margin-left: 11%;
+}
+
+
+.do {
+	-webkit-animation: halo 1s 0.5s;
+	-moz-animation: halo 1s 0.5s;
+	animation: halo 1s 0.5s;
+}
+
+/* .interactive img {
+	position: absolute;
+	z-index: 10;
+	width: 30px;
+	height: 30px;
+} */
+
+a.button {
+	-webkit-animation-duration: 2s;
+	-webkit-animation-iteration-count: infinite;
+}
+
+.orangellow.button {
+	-webkit-animation-name: orangellowPulse;
+	-webkit-animation-duration: 5s;
+	width: 60px;
+	height: 40px;
+	text-align: center;
+	line-height: 40px;
+}
+
+.textDiv {
+	position: absolute;
+	bottom: 22%;
+	width: 94%;
+	left:3%;
+	height: 40px;
+	list-style-type: none;
+}
+.textDiv li {
+	float: left;
+	height: 40px;
+}
+.textDiv li img {
+	width: 100%;
+	height: 100%;
+} 
+.inputText {
+	/* margin-left: 10px; */
+	width:100%;
+	height: 40px;
+	font-size: 20px;
+	position: relative;
+	/* top: 3px; */
+	background-color: #333333;
+	color: #FFFFFF;
+	border: 0px;
+	/* padding-left: 6px; */
+}
+
+.audioDiv {
+	width: 100%;
+	height: 50px;
+	background-color: #333333;
+	position: absolute;
+	bottom: 12%;
+}
+
+.audioDiv ul {
+	width: 100%;
+	height: 50px;
+}
+
+.audioDiv ul li {
+	list-style-type: none;
+	float: left;
+	width: 33.33%;
+}
+
+.audioDiv ul li .tu {
+	height: 40px;
+	position: relative;
+	top: 5px;
+	left: 10%;
+}
+
+.audioDiv ul li .boimg {
+	width: 40px;
+	height: 40px;
+	position: relative;
+	top: 5px;
+	right: -40%;
+}
+
+.audioDiv ul li p {
+	position: relative;
+	top: 14px;
+	color: #FFFFFF;
+	height: 20px;
+	line-height: 20px;
+	width: 100%;
+	margin-top: 2px;
+	margin-left: 10px;
+	white-space: normal;
+	overflow: hidden;
+}
+
+.audioDiv ul li .bo {
+	float: none;
+}
+
+.buttonImg {
+	background-image: url(../img/xiazai.PNG);
+	background-size: 100% 100%;
+	position: absolute;
+	z-index: 12;
+	left: 0px;
+	bottom: 0px;
+	width: 100%;
+	height: 10%;
+}
+
+.tanmu {
+	position: absolute;
+	font-size: 33px;
+	border-radius: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	z-index: 100;
+	color: #000000;
+	white-space: nowrap; /*强制在一行显示*/
+}
+
+.tanmu img {
+	width:30px;
+	height:30px;
+	-moz-border-radius: 15px; 
+	-webkit-border-radius: 15px;
+}
+
+.amap-icon img {
+	width: 50px;
+	height: 50px;
+}
+
+::-webkit-input-placeholder { /* WebKit browsers */
+	color: #4d4d4d;
+}
+
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+	color: #4d4d4d;
+}
+
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+	color: #4d4d4d;
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+	color: #4d4d4d;
+}
+
+.MSG_RC {
+	position: absolute;
+	z-index: 1000;
+	width: 66px;
+	height: 66px;
+}

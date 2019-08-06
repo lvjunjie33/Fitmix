@@ -1,0 +1,106 @@
+package com.business.app.mixBanner;
+
+import com.business.app.mix.MixDao;
+import com.business.app.mix.MixService;
+import com.business.app.wd.SpeedwayDao;
+import com.business.core.client.FileCenterClient;
+import com.business.core.entity.mix.Mix;
+import com.business.core.entity.mix.MixBanner;
+import com.business.core.entity.wd.Speedway;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * Created by Sin on 2016/3/8.
+ */
+@Service
+public class MixBannerService {
+
+    @Autowired
+    private MixBannerDao mixBannerDao;
+    @Autowired
+    private MixDao mixDao;
+    @Autowired
+    private MixService mixService;
+    @Autowired
+    private SpeedwayDao speedwayDao;
+    /**
+     * banner 列表
+     */
+    public List<MixBanner> list(String lan) {
+        List<MixBanner> mixBannerList = mixBannerDao.findAllMixBanner();
+        buildMixBannerFiles(mixBannerList);
+
+        for (MixBanner banner : mixBannerList) {
+            // 单个 mix 和 radio 特殊处理
+            if (banner != null && banner.getType() != null && (banner.getType().equals(MixBanner.TYPE_UNIT_MIX) || banner.getType().equals(MixBanner.TYPE_RADIO))) {
+                Mix mix = mixDao.findMixById(lan,Integer.valueOf(banner.getTypeValue().trim()));
+                if (mix != null) {
+                    mixService.buildMixFileUrl(mix);
+                    banner.setMix(mix);
+                }
+            }
+        }
+        return mixBannerList;
+    }
+
+    /**
+     * 特殊推荐 (城市:赛道)
+     *
+     * @param city 城市
+     * @param wayId 赛道
+     * @return 对应banner 列表
+     */
+    public List<MixBanner> list(String lan,String city, String wayId) {
+
+        Speedway speedway = speedwayDao.findSpeedwayByCityAndWayId(city, wayId);
+        if (speedway == null) {
+            return list(lan);
+        }
+        List<MixBanner> mixBannerList = mixBannerDao.findMixBannerByIds(speedway.getBannerIds());
+
+        buildMixBannerFiles(mixBannerList);
+
+        for (MixBanner banner : mixBannerList) {
+            // 单个 mix 和 radio 特殊处理
+            if (banner.getType().equals(MixBanner.TYPE_UNIT_MIX)
+                    || banner.getType().equals(MixBanner.TYPE_RADIO)) {
+                Mix mix = mixDao.findMixById(lan,Integer.valueOf(banner.getTypeValue().trim()));
+                if (mix != null) {
+                    mixService.buildMixFileUrl(mix);
+                    banner.setMix(mix);
+                }
+            }
+        }
+
+        mixBannerList.addAll(list(lan));
+        return mixBannerList;
+    }
+
+    ///
+    /// 工具
+
+    /**
+     * 构建 banner file 路径
+     *
+     * @param mixBannerList banner 信息
+     */
+    public void buildMixBannerFiles(List<MixBanner> mixBannerList) {
+        for (MixBanner mixBanner : mixBannerList) {
+            buildMixBannerFile(mixBanner);
+        }
+    }
+
+    /**
+     * 构建 banner file 路径
+     *
+     * @param mixBanner banner 信息
+     */
+    public void buildMixBannerFile(MixBanner mixBanner) {
+        if (null != mixBanner.getBackImage()) {
+            mixBanner.setBackImage(FileCenterClient.buildUrl(mixBanner.getBackImage()));
+        }
+    }
+}

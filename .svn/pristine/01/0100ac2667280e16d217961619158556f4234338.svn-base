@@ -1,0 +1,25 @@
+.week_color{
+    background-color:rgba(12,232,147,0.3);
+    color:rgb(12,232,147);
+}
+
+.state_now{
+    background-color: rgba(12,232,147,1);
+}
+
+/*
+.run_plan_column_1:hover{
+    background-color: rgba(12,232,147,1);
+}
+
+.run_plan_column_2:hover{
+    background-color: rgba(12,232,147,1);
+}
+
+.run_plan_column_3:hover{
+    background-color: rgba(12,232,147,1);
+}
+
+.run_plan_column_4:hover{
+    background-color: rgba(12,232,147,1);
+}*/

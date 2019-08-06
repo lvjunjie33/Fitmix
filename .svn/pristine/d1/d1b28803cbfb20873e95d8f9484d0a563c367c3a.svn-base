@@ -1,0 +1,254 @@
+package com.business.app.file;
+
+import com.business.app.base.support.BaseControllerSupport;
+import com.business.core.client.AliyunCenterClient;
+import com.business.core.client.FileCenterClient;
+import com.business.core.constants.Constants;
+import com.business.core.constants.FileConstants;
+import com.business.core.entity.file.File;
+import com.business.core.entity.file.Voice;
+import com.business.core.entity.user.info.UserDevice;
+import com.business.core.mongo.DefaultDao;
+import com.business.core.utils.BeanManager;
+import com.business.core.utils.HttpUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by edward on 2016/8/17.
+ */
+@RequestMapping
+@Controller
+public class FileController extends BaseControllerSupport{
+
+    @Autowired
+    private FileService fileService;
+
+    /**
+     * app语音包下发接口 TODO 废弃
+     */
+    @RequestMapping("app/voice-packets")
+    public void voicePackets(Model model,
+                             HttpServletRequest request, @RequestParam(required =false) Integer voiceType) {
+        if (true) {
+            model.addAttribute("voicePackets", Collections.EMPTY_LIST);
+        }
+        if (StringUtils.isEmpty(voiceType)) {
+            model.addAttribute("voicePackets", Collections.EMPTY_LIST);
+            return;
+        }
+        if (checkVersion(request, 11, 50)) {//安卓大于50,iOS大于11版本，才返回语音包列表
+            model.addAttribute("voicePackets", fileService.voicePackets(voiceType));
+        } else {
+            model.addAttribute("voicePackets", Collections.EMPTY_LIST);
+        }
+    }
+
+    /**
+     * 获取语音包清单
+     */
+    @RequestMapping("voice/packets")
+    public void voicePackets(Model model) {
+        List<Voice> voices = fileService.findVoices();
+        for (Voice voice : voices) {
+            voice.setIconLink(FileCenterClient.buildUrl(voice.getIconLink()));
+            voice.setCoverLink(FileCenterClient.buildUrl(voice.getCoverLink()));
+            if (!StringUtils.isEmpty(voice.getTags())) {
+                voice.setTagList(voice.getTags().split("、"));
+                voice.setTags(null);
+            }
+        }
+        model.addAttribute("voices", voices);
+    }
+
+    /**
+     * 获取 语音包升级包文件
+     *
+     * @param voiceId 语音包清单编号
+     */
+    @RequestMapping("voice/get/file")
+    public void voiceGetFile(Model model, HttpServletRequest request, String voiceId) {
+        Integer version = HttpUtil.getIntParameter(request, "_v");
+        String targetApp;
+        String product = HttpUtil.getParameter(request, "_product");
+        if (UserDevice.PRODUCT_ROC.equals(product)) {
+            if (checkSDKType(request)) {
+                targetApp = "CL-I-" + version;
+            } else {
+                targetApp = "CL-A-" + version;
+            }
+        } else {
+            if (checkSDKType(request)) {
+                targetApp = "I-" + version;
+            } else {
+                targetApp = "A-" + version;
+            }
+        }
+
+        File file = fileService.findFile(voiceId, targetApp);
+        if (file != null) {
+            file.setFileLink(FileCenterClient.buildUrl(file.getFileLink()));
+            model.addAttribute("file", file);
+        }
+    }
+
+
+    /**
+     * 耳机升级包
+     *
+     * @param version 当前版本
+     */
+    @RequestMapping("headset/upgrade")
+    public void headsetUpgrade(Model model, String version) {
+
+        DefaultDao defaultDao = BeanManager.getBean(DefaultDao.class);
+        File currentFile = defaultDao.findOne(Query.query(Criteria.where("other.version").is(version).and("fileType").is(File.FILE_TYPE_HEADSET)), File.class, "other");
+        if (currentFile == null) {
+            return;
+        }
+        Map<String, String> currentOther = currentFile.getOther();
+        if (CollectionUtils.isEmpty(currentOther)) {
+            return;
+        }
+        if (!currentOther.containsKey("serial") || !currentOther.containsKey("version")) {
+            return;
+        }
+
+        Criteria criteria = Criteria.where("fileType").is(File.FILE_TYPE_HEADSET).and("other.serial").is(currentOther.get("serial")).and("other.isNew").is(Constants.IS_NEW_TRUE);
+        File newFile = defaultDao.findOne(Query.query(criteria), File.class, "other", "fileLink", "des");
+        if (newFile == null) {
+            return;
+        }
+
+        Map<String, String> newOther = newFile.getOther();
+        if (CollectionUtils.isEmpty(newOther)) {
+            return;
+        }
+        if (!newOther.containsKey("serial") || !newOther.containsKey("version")) {
+            return;
+        }
+
+        Integer currentVersion = Integer.parseInt(currentOther.get("version"));
+        Integer newVersion = Integer.parseInt(newOther.get("version"));
+        if (currentVersion < newVersion) {
+            model.addAttribute("url", FileCenterClient.buildUrl(newFile.getFileLink()));
+            model.addAttribute("newVersion", newVersion);
+            model.addAttribute("des", newFile.getDes());
+        }
+
+    }
+
+    /**
+     * 手表升级包
+     *
+     * @param version 版本
+     */
+    @RequestMapping("watch/upgrade")
+    public void watchUpgrade(Model model, @RequestParam(required = true) Integer fileType, String version) {
+        model.addAttribute("fileType", fileType);
+
+        if (!File.FILE_TYPE_WATCH.equals(fileType) && !File.FILE_TYPE_WATCH_MODE_ABO.equals(fileType)) {
+            return;
+        }
+        DefaultDao defaultDao = BeanManager.getBean(DefaultDao.class);
+        File currentFile = defaultDao.findOne(Query.query(Criteria.where("other.version").is(version).and("fileType").is(fileType)), File.class, "other");
+        if (currentFile == null) {
+            return;
+        }
+        Map<String, String> currentOther = currentFile.getOther();
+        if (CollectionUtils.isEmpty(currentOther)) {
+            return;
+        }
+        if (!currentOther.containsKey("serial") || !currentOther.containsKey("version")) {
+            return;
+        }
+
+        Criteria criteria = Criteria.where("fileType").is(fileType).and("other.serial").is(currentOther.get("serial")).and("other.isNew").is(Constants.IS_NEW_TRUE);
+        File newFile = defaultDao.findOne(Query.query(criteria), File.class, "other", "fileLink", "des","isForce");
+        if (newFile == null) {
+            return;
+        }
+
+        Map<String, String> newOther = newFile.getOther();
+        if (CollectionUtils.isEmpty(newOther)) {
+            return;
+        }
+        if (!newOther.containsKey("serial") || !newOther.containsKey("version")) {
+            return;
+        }
+
+        model.addAttribute("url", FileCenterClient.buildUrl(newFile.getFileLink()));
+        model.addAttribute("newVersion", newOther.get("version"));
+        model.addAttribute("des", newFile.getDes());
+        model.addAttribute("version", newOther.get("number"));
+        model.addAttribute("isForce", newFile.getIsForce());
+
+    }
+
+
+
+    /**
+     * 上传手表日志文件
+     *
+     * @param file 文件相关信息
+     * @param uid 用户id
+     * @param chipID 手表chipID
+     */
+    @ApiOperation(value = "上传手表日志文件", notes = "上传手表日志文件", position = 2, httpMethod = "POST")
+    @RequestMapping("watch/log")
+    public void watchLog(Model model, File file,HttpServletRequest request,Integer uid,String chipID) {
+        Map<String, MultipartFile> fileMap = FileCenterClient.buildMultipartFile(request);
+        MultipartFile uploadFile=null;
+        if (fileMap.containsKey("uploadFile")) {
+             uploadFile = fileMap.get("uploadFile");
+        }
+        file.setFileType(File.FILE_TYPE_WARCH_LOG);
+        file.setUid(uid);
+        Map <String, String> other=new HashMap<String,String>();
+        other.put("chipID",chipID);
+        file.setOther(other);
+        file.setTitle("手表错误日志");
+        fileService.add(file, uploadFile);
+        model.addAttribute("link", FileCenterClient.buildUrl(file.getFileLink()));
+    }
+
+
+
+    /**
+     * PC升级工具获取手表版本信息
+     */
+    @ApiOperation(value = "PC升级工具获取手表版本信息", notes = "PC升级工具获取手表版本信息", position = 2, httpMethod = "POST")
+    @RequestMapping("get/watch/version")
+    public void getWatchVersion(Model model,HttpServletRequest request) {
+//        Map<String, MultipartFile> fileMap = FileCenterClient.buildMultipartFile(request);
+//        MultipartFile uploadFile=null;
+//        if (fileMap.containsKey("uploadFile")) {
+//            uploadFile = fileMap.get("uploadFile");
+//        }
+//        file.setFileType(File.FILE_TYPE_WARCH_LOG);
+//        file.setUid(uid);
+//        Map <String, String> other=new HashMap<String,String>();
+//        other.put("chipID",chipID);
+//        file.setOther(other);
+//        file.setTitle("手表错误日志");
+//        fileService.add(file, uploadFile);
+//        model.addAttribute("link", FileCenterClient.buildUrl(file.getFileLink()));
+    }
+}

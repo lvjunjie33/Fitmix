@@ -1,0 +1,129 @@
+@charset "UTF-8";
+$ppr: 750px/16px/1rem;
+
+body, .container {
+  background-color: #f9f9fc;
+  padding: 0;
+  margin: 0;
+}
+
+.container {
+  max-width: 750/$ppr;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  //justify-content: center;
+  flex-direction: column;
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.logo {
+  margin-top: -100/$ppr;
+  text-align: center;
+}
+.logo img {
+  width: 160/$ppr;
+  height: 160/$ppr;
+}
+
+.content {
+  margin-top: 40/$ppr;
+  .title {
+    color: #333333;
+    font-size: 28/$ppr;
+    display: block;
+    text-align: center;
+    margin-top: 80/$ppr;
+    margin-bottom: 30/$ppr;
+  }
+  .text {
+    display: block;
+    color: #4A4A4A;
+    font-size: 24/$ppr;
+    text-align: center;
+    padding-left: 50/$ppr;
+    padding-right: 50/$ppr;
+  }
+}
+
+.drop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+.drop-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.drop-content .button, .drop-content .text {
+  text-align: center;
+}
+
+.drop-content .text {
+  & img {
+    width: 532/$ppr;
+    height: 96/$ppr;
+  }
+}
+.drop-content .button {
+  margin-top: 30px;
+  & img {
+    width: 200/$ppr;
+    height: 88/$ppr;
+  }
+}
+.drop .drop-arrow {
+  position: absolute;
+  top: 10px;
+  right: 30px;
+  & img {
+    width: 92/$ppr;
+    height: 92/$ppr;
+  }
+}
+
+.download {
+  height: 100%;
+  background-color: #fff9ec;
+  .mark {
+    color: #4A4A4A;
+    font-size: 28/$ppr;
+    padding: 70/$ppr 40/$ppr;
+  }
+  .logo1 {
+    margin-top: 50/$ppr;
+    margin-bottom: 20/$ppr;
+    text-align: center;
+    & img {
+      width: 324/$ppr;
+      height: 90/$ppr;
+    }
+  }
+  .slogan {
+    text-align: center;
+    margin-bottom: 160/$ppr;
+    & img {
+      width: 502/$ppr;
+      height: 52/$ppr;
+    }
+  }
+  .download-wrapper {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    & img {
+      width: 388/$ppr;
+      height: 120/$ppr;
+    }
+  }
+}

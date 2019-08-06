@@ -1,0 +1,1571 @@
+/**
+ * Created by wjcaozhi1314 on 2016/3/31.
+ *
+ * 数据图表
+ */
+
+var chart = {};
+chart.ios = true;//判断是否为ios
+chart.timeArray = [];//时间轴数组
+chart.distance = {
+    pointNumber: 30, // 描点个数
+    timeMin:180,
+    timeMax:1800,
+    maxNumber: 0,
+    minNuber: 0,
+    gap: 1,//间隙
+    labels: [],
+    data: [],// Y轴数据
+    average: [],//平均数组
+    maxY:0,//Y轴最大值
+};
+chart.iosSpeed = [];//ios 速度图标deta
+
+chart.frequency = {
+    pointNumber: 30,
+    maxNumber: 0,
+    minNuber: 0,
+    labels: [],
+    data: [],
+    average: [],//平均数组
+    xWidth:0 //X轴间距
+}
+
+/***
+ * 按照付工 给的方案根据时间来判断是否为 ios 或者为android
+ * 如果为ios return true
+ * android return false
+ * @param time
+ */
+function isIos(time) {
+    if (time > 1000000) {
+        return false;
+    } else {
+        return true;
+    }
+}
+/***
+ * 获取平均数组
+ * @param array
+ */
+function getAverage(max, number) {
+    var p = max / 2;
+    var returnVaules = [];
+    returnVaules.push(p);
+    for (var i = 1; i < number - 1; i++) {
+        returnVaules.push(p);
+    }
+    returnVaules.push(p);
+    return returnVaules;
+}
+/***
+ * 获取平均数组
+ * @param array
+ */
+function getAverage_android_(number) {
+    var p = max / 2;
+    var returnVaules = [];
+    returnVaules.push(p);
+    for (var i = 1; i < number - 1; i++) {
+        returnVaules.push(p);
+    }
+    returnVaules.push(p);
+    return returnVaules;
+}
+/***
+ * 获取最大和最小
+ * @param array
+ * @returns {{max: number, min: min}}
+ */
+function getMinAndMax(array) {
+    var max = 0, min = 0;
+    if (array.length > 0) {
+        max = array[0], min = array[0];
+        for (var i = 0; i < array.length; i++) {
+            if (parseFloat(min) > parseFloat(array[i])) {
+                min = array[i]
+            }
+
+            if (parseFloat(max) < parseFloat(array[i])) {
+                max = array[i]
+            }
+
+        }
+    }
+    return {
+        max: max,
+        min: min,
+        gap: max / array.length
+    }
+}
+//ios 步频
+function iosFrequency(array) {
+    chart.timeArray = [];
+    var dianNumber = 100;
+    var time = window.share.attributes.runTime / 1000;
+    var jiangeNumber = time / dianNumber;//间隔时间 秒
+    var indexO = array[0];
+
+    var returnValues = [];
+    for (var i = 0; i < array.length; i++) {
+        if (array[i].time - indexO.time >= jiangeNumber) {
+            var step = array[i].step - indexO.step;
+            var time = array[i].time - indexO.time;
+            returnValues.push(parseInt(step / time * 60));
+            chart.timeArray.push(Math.round(array[i].time / 60 * 100) / 100.0);
+            indexO = array[i];
+        }
+    }
+    var o = getMinAndMax(returnValues);
+
+    chart.frequency.maxNumber = o.max;
+    chart.frequency.minNuber = o.min;
+
+    chart.frequency.average = getFrequencyAve(returnValues);
+
+    return returnValues;
+}
+/***
+ * 自动补全空缺
+ * @param number
+ * @param sizeNumber
+ * @param array
+ */
+function completionArray(sizeNumber, array) {
+    var size = sizeNumber - array.length;
+    if (size > 0) {
+        for (var i = 0; i < size; i++) {
+            array.unshift(array[0]);
+        }
+    }
+    return array;
+}
+
+/**
+ * 获取 指定点数的 平均速度
+ * @param array
+ * @returns {Array}
+ */
+function iosStep(array) {
+
+    var lengthNumber = array.length;
+    var returnValues = [];
+    var max = lengthNumber / chart.distance.pointNumber;
+    if (lengthNumber > chart.distance.pointNumber) {
+        for (var i = 0; i < chart.distance.pointNumber  ; i++) {
+            var index = i * max < lengthNumber ? parseInt( i * max ) : lengthNumber ;
+            returnValues.push(array[index].distance * 1000 / array[index].time * 3.6);
+        }
+    } else {
+        for (var i = 0; i < lengthNumber ; i++) {
+            returnValues.push(array[i].distance * 1000 / array[i].time * 3.6);
+        }
+    }
+
+
+
+    //for (var i = 0; i < array.length; i++) {
+    //    //distance /time*3.6
+    //    returnValues.push(array[i].distance * 1000 / array[i].time * 3.6);
+    //}
+    return returnValues;
+}
+/***
+ * 获取距离
+ * @param array
+ */
+function getDistanceDeta(array) {
+
+    var lengthNumber = array.length;
+    var returnValues = [];
+    var max = lengthNumber / chart.distance.pointNumber;
+    if (lengthNumber > chart.distance.pointNumber) {
+        for (var i = 0; i < chart.distance.pointNumber; i++) {
+            var index = i * max < lengthNumber ? parseInt( i * max ) : lengthNumber ;
+            returnValues.push(array[index].distance);
+        }
+    } else {
+        for (var i = 0; i < lengthNumber ; i++) {
+            returnValues.push(array[i].distance);
+        }
+    }
+
+    //if (max > 20) {
+    //    for (var i = 0; i < 18; i++) {
+    //        returnValues.push(array[i * max].distance);
+    //    }
+    //} else {
+    //    var b = parseInt(20 / lengthNumber);
+    //    for (var i = 0; i < 18; i++) {
+    //        if (i == max) {
+    //            returnValues.push(array[i * max].distance);
+    //        } else {
+    //            returnValues.push("");
+    //        }
+    //    }
+    //}
+    return returnValues;
+}
+
+function getSuDu(array, maxTime) {
+
+    var jiangeTime = maxTime / 20;//毫秒间隔时间
+    var indexO = array[0];
+    for (var i = 1; i < array.length; i++) {
+        var time = (array[i].time - indexO.time);
+        if (time >= jiangeTime) {
+            //step / time
+            var step = array[i].step - indexO.step;
+            var distance = array[i].distance - indexO.distance;
+            var ssb = parseInt(distance * 3.6 / (time / 1000));
+            chart.distance.deta.push(ssb);
+            indexO = array[i];
+        }
+    }
+
+
+    var bb = chart.timeArray.length - chart.distance.deta.length;
+    if (bb > 0) {
+        for (var i = 0; i < bb; i++) {
+            chart.distance.deta.unshift(chart.distance.deta[0]);
+        }
+    }
+
+    var maxAndMin = getMinAndMax(chart.distance.deta);
+
+    chart.distance.maxNumber = maxAndMin.max;
+    chart.distance.minNuber = maxAndMin.min;
+
+    chart.distance.average = getAverage(chart.distance.maxNumber, chart.distance.deta.length);
+
+}
+
+
+//获取步频 数据列表 maxTime 总时长
+function getAndroidStep(array, maxTime) {
+
+    var step = window.share.attributes.step;
+    var runTime = window.share.attributes.runTime;
+    var number = step / parseInt(runTime / 1000 / 60);
+    $("#detail").text(parseInt(number));
+
+    var jiangeTime = maxTime / 20;//毫秒间隔时间
+    var returnValue = [];
+    var indexO = array[0];
+    for (var i = 1; i < array.length; i++) {
+        var time = (array[i].time - indexO.time);
+        if (time >= jiangeTime) {
+            //step / time
+            var step = array[i].step - indexO.step;
+            var ssb = parseInt(parseFloat(step) * 60 / (time / 1000));
+            chart.frequency.deta.push(ssb);
+            //chart.distance.deta.push(ssb);
+            indexO = array[i];
+        }
+    }
+    //console.log(chart.frequency.deta);
+    var maxAndMin = getMinAndMax(chart.frequency.deta);
+
+    chart.frequency.maxNumber = maxAndMin.max;
+    chart.frequency.minNuber = maxAndMin.min;
+    $("#detail").text()
+    chart.frequency.average = getAverage(chart.frequency.maxNumber, chart.frequency.deta.length);
+
+    var bb = chart.timeArray.length - chart.frequency.deta.length;
+    if (bb > 0) {
+        for (var i = 0; i < bb; i++) {
+            chart.frequency.deta.unshift(chart.frequency.deta[0]);
+        }
+    }
+    bb = chart.timeArray.length - chart.frequency.average.length;
+    if (bb > 0) {
+        for (var i = 0; i < bb; i++) {
+            chart.frequency.average.unshift(chart.frequency.average[0]);
+        }
+    }
+
+
+}
+//android
+function setAndroidDistance(array) {
+
+    getSuDu(array, window.share.attributes.runTime);
+    getAndroidStep(array, window.share.attributes.runTime);
+
+
+}
+
+/***
+ * 设置距离数据
+ * @param array
+ */
+function setDistance(array) {
+
+    var runTime = window.share.attributes.runTime;
+
+    chart.distance.data = iosStep(array);
+    var returnValues = [];
+
+    for (var i = 0; i < array.length; i++) {
+        returnValues.push(array[i].distance);
+    }
+
+    var maxAndMin = getMinAndMax(chart.distance.data);
+    chart.distance.maxNumber = maxAndMin.max;
+    chart.distance.minNuber = maxAndMin.min;
+
+    chart.distance.labels = getDistanceDeta(array);
+
+}
+
+/***
+ * 设置时间
+ * @param time
+ * @param beishu
+ * @param dangwei
+ */
+function setTimeArray(time, beishu, dangwei) {
+    chart.timeArray = [];
+    var t = beishu / parseInt(time);//显示倍数
+    var b = 1;
+    var bb = b = parseInt(20 * t);//显示数值的下标 标记 间隔点
+    var v = 1;
+    chart.timeArray.push(0);
+    for (var i = 0; i < 20; i++) {
+        if (i == b) {
+            chart.timeArray.push(v * beishu);
+            b += bb;
+            v++;
+        } else {
+            chart.timeArray.push("");
+        }
+    }
+    if(chart.timeArray[chart.timeArray.length - 1] == "" &&
+        chart.timeArray[chart.timeArray.length - 2] == "" &&
+        chart.timeArray[chart.timeArray.length - 3] == ""){
+        chart.timeArray[chart.timeArray.length - 1] = v * beishu;
+    }
+    chart.timeArray.push(dangwei);
+}
+
+function iosGetAverages(number, average) {
+    var Averages = [];
+    for (var i = 0; i < number; i++) {
+        Averages.push(average);
+    }
+    return Averages;
+}
+
+function getFrequencyAve(array) {
+    var bpm = 0;
+    for (var i = 0; i < array.length; i++) {
+        bpm += array[i];
+    }
+    var number = bpm / array.length;
+    $("#detail").text(parseInt(number));
+    var returnValues = [];
+    for (var i = 0; i < array.length; i++) {
+        returnValues.push(parseInt(number));
+    }
+    return returnValues;
+
+}
+
+/****
+ *  获取速度平均值
+ * @param array 速度列表
+ */
+function getStepAve(array) {
+    var speeds = 0;
+    var avgSpeeds = 0;
+    for ( var i = 0; i < array.length; i++ ) {
+        speeds += array[i];
+    }
+    avgSpeeds = parseFloat( speeds / array.length ).toFixed(2);
+    $("#speed").text(avgSpeeds);
+    chart.distance.average = iosGetAverages(array.length, avgSpeeds);
+    return array.length;
+
+}
+/**
+ * 获取一个变频线的渐变色值
+ * @param mm
+ * @param speed float
+ * @param number
+ * return color
+ */
+function getColor(mm, speed, number) {
+    if (mm == 3) {
+        return "rgb(255, " + (255 * (speed - mm) / 7) + ", 0)";
+    } else if (mm == 10) {
+        return "rgb(" + (255 - 255 * (speed - mm) / 10) + ", 255, 0)";
+    } else {
+        return 0;
+    }
+}
+
+
+/***
+ * 根据运动时间设置渐变线
+ * 时间为int型
+ * @param mm 分钟
+ */
+function setYunButtomBorder(mm, array) {
+
+    var colorStr = [];
+    //设置渐变线
+    if (mm <= 3) {
+        //(255,0,0)
+        colorStr.push("rgb(255, 0, 0)");
+    } else if (mm > 3 && mm <= 10) {
+        //(255, 255 * (配速 - 3 分钟)/ 7 分钟, 0)
+        for (var i = 0; i < array.length; i++) {
+            colorStr.push(parseInt(getColor(3, stringFormatFloat(array[i].speed))));
+        }
+
+    } else if (mm > 10 && mm <= 20) {
+        //(255 - 255 * (配速 - 10 分钟)/ 10 分钟, 255, 0)
+        for (var i = 0; i < array.length; i++) {
+            colorStr.push(getColor(10, parseInt(stringFormatFloat(array[i].speed))));
+        }
+    } else {
+        //(0,255,0)
+        colorStr.push("rgb(0,255,0)");
+    }
+
+    $(".yunButtomBorder").css("background", "linear-gradient(to right, " + colorStr.toString() + ")");
+}
+/***
+ * 创建速度图标数据
+ * @param deta
+ * @param ave
+ * @returns {Array}
+ */
+function chartLineDatasets(deta,ave){
+    var obj = [];
+    //速度图表数据分析
+    obj.push(
+        {
+            fillColor: "rgba(104,124,228, 0)",//填充color
+            strokeColor: "#6d87f8",//曲线color
+            pointColor: "#fff",//节点color
+            pointStrokeColor: "#fff",//节点边框color
+            data: deta,//封装成获取后台数据 纵向
+        }
+        //,
+        //{//平均先
+        //    fillColor: "transparent",//填充color
+        //    strokeColor: "#453a5f",//曲线color
+        //    pointColor: "#945AD8",//节点color
+        //    pointStrokeColor: "#fff",//节点边框color
+        //    data: ave//pedometer.getSpeed(detailAll)//封装成获取后台数据 纵向
+        //}
+    );
+    return obj;
+}
+/***
+ * 创建步频图标数据
+ * @param deta
+ * @param ave
+ * @returns {Array}
+ */
+function frequencyLineDatasets(deta,ave){
+
+    var obj = [];
+    obj.push(
+        {
+            fillColor: "rgba(235,177,102, 0)",//填充color
+            strokeColor: "#ecb267",//曲线color
+            pointColor: "#fff",//节点color
+            pointStrokeColor: "#fff",//节点边框color
+            data: deta//pedometer.getCadence(detailAll)//封装成获取后台数据 纵向
+        }
+        //,
+        //{
+        //    fillColor: "transparent",//填充color
+        //    strokeColor: "#363646",//曲线color
+        //    pointColor: "#945AD8",//节点color
+        //    pointStrokeColor: "#fff",//节点边框color
+        //    data: ave//pedometer.getCadence(detailAll)//封装成获取后台数据 纵向
+        //}
+    );
+    return obj;
+}
+
+/***
+ * 创建心率图表数据
+ * @param deta
+ * @param ave
+ * @returns {Array}
+ */
+function hreatLineDatasets(deta,ave){
+
+    var obj = [];
+    obj.push(
+        {
+            fillColor: "rgba(239,68,117, 0)",//填充color
+            strokeColor: "#eb2a61",//曲线color
+            pointColor: "#fff",//节点color
+            pointStrokeColor: "#fff",//节点边框color
+            data: deta//pedometer.getCadence(detailAll)//封装成获取后台数据 纵向
+        }
+        //,
+        //{
+        //    fillColor: "transparent",//填充color
+        //    strokeColor: "#363646",//曲线color
+        //    pointColor: "#945AD8",//节点color
+        //    pointStrokeColor: "#fff",//节点边框color
+        //    data: ave//pedometer.getCadence(detailAll)//封装成获取后台数据 纵向
+        //}
+    );
+    return obj;
+}
+
+/**
+ * 设置 X 轴 间隔
+ * @param array
+ * @param tableType 1:速度表 2:步频表
+ * @param type 1:IOS 2:android
+ */
+function setXWidth(array, tableType, type) {
+    if(tableType == 1){
+
+    } else if(tableType == 2) {
+        if (type == "IOS") { //IOS 步频表
+            var length = array.length;
+            if(length < 20) {
+                chart.frequency.xWidth = 0;
+            } else {
+                chart.frequency.xWidth = parseInt(array[length - 1].time / chart.frequency.pointNumber);
+            }
+        } else if(type == "ANDROID") {//android 步频表
+
+        }
+    }
+}
+
+/**
+ * 平滑 获取 平均速度
+ * @param array
+ */
+function setIOSSpeedTableDataAvg(array) {
+    var gap = 5;
+    var xValues = [];
+    var yValues = [];
+    var length = array.length;
+
+    xValues.push(0);
+    yValues.push(0);
+
+    for (var i = 0; i < length; i++) {
+        if ( (i + gap) < length ) {
+            xValues.push(array[i + gap].time);
+            var speed = parseFloat( (array[i + gap].distance - array[i].distance) / ((array[i + gap].time - array[i].time) / 3600)).toFixed(1);
+            yValues.push(speed);
+        }
+    }
+    debugger
+    //滑动取值
+    var gapXValues = [];
+    var gapYValuse = [];
+    var avgGap = 50;
+    gapXValues.push(0);
+    gapYValuse.push(0);
+    for (var i = 0; i < yValues.length; i++) {
+        if ( (i + avgGap) < yValues.length ) {
+            var sumSpeed = 0;
+            for (var j = 0; j < avgGap; j++) {
+                sumSpeed += parseFloat(yValues[i+j]);
+            }
+            gapXValues.push(xValues[i+avgGap]);
+            gapYValuse.push(parseFloat( sumSpeed / avgGap).toFixed(1));
+
+        }
+    }
+
+    var gapXValues1 = [];
+    var gapYValuse1 = [];
+    var avgGap1 = 50;
+    gapXValues1.push(0);
+    gapYValuse1.push(0);
+    for (var i = 0; i < gapYValuse.length; i++) {
+        if ( (i + avgGap1) < gapYValuse.length ) {
+            var sumSpeed = 0;
+            for (var j = 0; j < avgGap1; j++) {
+                sumSpeed += parseFloat(gapYValuse[i+j]);
+            }
+            gapXValues1.push(gapXValues[i+avgGap1]);
+            gapYValuse1.push(parseFloat( sumSpeed / avgGap1).toFixed(1));
+
+        }
+    }
+
+    var gapXValues2 = [];
+    var gapYValuse2 = [];
+    var avgGap2 = 50;
+    gapXValues2.push(0);
+    gapYValuse1.push(0);
+    for (var i = 0; i < gapYValuse1.length; i++) {
+        if ( (i + avgGap2) < gapYValuse1.length ) {
+            var sumSpeed = 0;
+            for (var j = 0; j < avgGap2; j++) {
+                sumSpeed += parseFloat(gapYValuse1[i+j]);
+            }
+            gapXValues2.push(gapXValues1[i+avgGap2]);
+            gapYValuse2.push(parseFloat( sumSpeed / avgGap2).toFixed(1));
+
+        }
+    }
+
+    ////过滤重复点
+    //var gapYValues3 = [];
+    //var gapXValues3 = [];
+    //var diff = 0.5;
+    //gapYValues3.push(gapYValuse2[0]);
+    //gapXValues3.push(gapXValues2[0]);
+    //for (var i = 0; i < gapYValuse2.length; i++) {
+    //    if( parseFloat(gapYValues3[gapYValues3.length - 1]) - parseFloat(gapYValuse2[i]) > diff || parseFloat(gapYValuse2[i]) - parseFloat(gapYValues3[gapYValues3.length - 1]) > 0.5 ) {
+    //        gapYValues3.push(gapYValuse2[i]);
+    //        gapXValues3.push(gapXValues2[i]);
+    //    }
+    //}
+
+    chart.distance.data = gapYValuse2;
+    chart.distance.labels = gapXValues2;
+
+    //2 计算平均速度
+    var avgValues = [];
+    var avgSpeed = 0;
+    avgSpeed = parseFloat(array[array.length - 1].distance / ( array[array.length - 1].time / 3600 ) ).toFixed(1);
+    for (var i = 0; i < gapXValues2.length; i++) {
+        gapXValues2[i] = parseInt(gapXValues2[i] / 60);
+        //console.log(i+":" + gapYValuse2[i]);
+        avgValues.push(avgSpeed);
+    }
+    $("#speed").text(avgSpeed);
+
+    var maxAndMin = getMinAndMax(yValues);
+    chart.distance.average = avgValues;
+    chart.distance.maxY = maxAndMin.max;
+
+}
+
+
+/**
+ * 平滑 步频
+ * @param array
+ */
+function setIOSFrequencyTableDataAvg(array) {
+    var gap = 5;
+    var xValues = [];
+    var yValues = [];
+    var length = array.length;
+
+    xValues.push(0);
+    yValues.push(0);
+
+    for (var i = 0; i < length; i++) {
+        if ( (i + gap) < length ) {
+            xValues.push(array[i + gap].time);
+            var frequency = parseFloat( (array[i + gap].step - array[i].step) / ((array[i + gap].time - array[i].time) / 60)).toFixed(2);
+            yValues.push(frequency);
+        }
+    }
+
+    //滑动取值
+    var gapXValues = [];
+    var gapYValuse = [];
+    var avgGap = 50;
+    gapXValues.push(0);
+    gapYValuse.push(0);
+    for (var i = 0; i < yValues.length; i++) {
+        if ( (i + avgGap) < yValues.length ) {
+            var sumSpeed = 0;
+            for (var j = 0; j < avgGap; j++) {
+                sumSpeed += parseFloat(yValues[i+j]);
+            }
+            gapXValues.push(xValues[i+avgGap]);
+            gapYValuse.push(parseFloat( sumSpeed / avgGap).toFixed(2));
+
+        }
+    }
+
+    var gapXValues1 = [];
+    var gapYValuse1 = [];
+    var avgGap1 = 50;
+    gapXValues1.push(0);
+    gapYValuse1.push(0);
+    for (var i = 0; i < gapYValuse.length; i++) {
+        if ( (i + avgGap1) < gapYValuse.length ) {
+            var sumSpeed = 0;
+            for (var j = 0; j < avgGap1; j++) {
+                sumSpeed += parseFloat(gapYValuse[i+j]);
+            }
+            gapXValues1.push(gapXValues[i+avgGap1]);
+            gapYValuse1.push(parseFloat( sumSpeed / avgGap1).toFixed(2));
+
+        }
+    }
+
+    var gapXValues2 = [];
+    var gapYValuse2 = [];
+    var avgGap2 = 50;
+    gapXValues2.push(0);
+    gapYValuse1.push(0);
+    for (var i = 0; i < gapYValuse1.length; i++) {
+        if ( (i + avgGap2) < gapYValuse1.length ) {
+            var sumSpeed = 0;
+            for (var j = 0; j < avgGap2; j++) {
+                sumSpeed += parseFloat(gapYValuse1[i+j]);
+            }
+            gapXValues2.push(gapXValues1[i+avgGap2]);
+            gapYValuse2.push(parseFloat( sumSpeed / avgGap2).toFixed(2));
+
+        }
+    }
+
+    chart.frequency.data = gapYValuse2;
+    chart.frequency.labels = gapXValues2;
+    //for(var i=0; i < chart.frequency.data.length; i++) {
+    //    console.log("步频" + i + ": " + chart.frequency.data[i]);
+    //}
+}
+
+/**
+ * 设置 IOS 速度图表数据,步频数据
+ * @param array 计步数据
+ */
+function setIOSTableData(array) {
+    var lengthNumber = array.length;
+    var xValues = []; //横坐标
+    var yValuesSpeed = []; //速度 纵坐标
+    var distanceValues = []; //对应距离
+    var yValuesFrequency = []; //步频 纵坐标
+    var stepValues = []; //对应步数
+    var avgValues = []; //平均速度 纵坐标
+    var avgSpeed = 0; //平均速度
+    var avgFrequency = 0; // 平均步频
+    var temp;
+    // 1.获取横纵坐标点
+    var max = array[lengthNumber - 1].time / chart.distance.pointNumber;
+    if (array[lengthNumber - 1].time > chart.distance.timeMin && array[lengthNumber - 1].time < chart.distance.timeMax) {
+        max = 60; // 一分钟一个点
+        for (var i = 0; i < lengthNumber; i++) {
+            // 纵坐标
+            if (i == 0) {
+                xValues.push(0);
+                yValuesSpeed.push(0);
+                yValuesFrequency.push(0);
+                distanceValues.push(0);
+                stepValues.push(0);
+                temp = array[0];
+            } else {
+                if (array[i].time - temp.time > max) {
+                    // 横坐标
+                    xValues.push(array[i].time);
+                    distanceValues.push(array[i].distance);
+                    stepValues.push(array[i].step);
+                    // 速度
+                    var speed = (array[i].distance - temp.distance) / ( (array[i].time - temp.time) / 3600 );
+                    yValuesSpeed.push(speed);
+                    // 步频
+                    var frequency = (array[i].step - temp.step) / ( (array[i].time - temp.time) / 60 );
+                    yValuesFrequency.push(frequency);
+                    temp = array[i];
+                }
+
+            }
+        }
+    } else if(array[lengthNumber - 1].time >= chart.distance.timeMax){
+        for (var i = 0; i < lengthNumber; i++) {
+            // 纵坐标
+            if (i == 0) {
+                xValues.push(0);
+                yValuesSpeed.push(0);
+                yValuesFrequency.push(0);
+                distanceValues.push(0);
+                stepValues.push(0);
+                temp = array[0];
+            } else {
+                if (array[i].time - temp.time > max) {
+                    // 横坐标
+                    xValues.push(array[i].time);
+                    distanceValues.push(array[i].distance);
+                    stepValues.push(array[i].step);
+                    // 速度
+                    var speed = (array[i].distance - temp.distance) / ( (array[i].time - temp.time) / 3600 );
+                    yValuesSpeed.push(speed);
+                    // 步频
+                    var frequency = (array[i].step - temp.step) / ( (array[i].time - temp.time) / 60 );
+                    yValuesFrequency.push(frequency);
+                    temp = array[i];
+                }
+
+            }
+        }
+    } else {
+        array = filterData(array, 1);
+        array = filterData(array, 2);
+        array = filterData(array, 3);
+        console.log(JSON.stringify(array));
+        xValues.push(0);
+        yValuesSpeed.push(0);
+        yValuesFrequency.push(0);
+        for (var i = 0; i < array.length ; i++) {
+            // 横坐标
+            xValues.push(array[i].time);
+            distanceValues.push(array[i].distance);
+            stepValues.push(array[i].step);
+            // 纵坐标
+            if (i == 0) {
+                yValuesSpeed.push(0);
+                yValuesFrequency.push(0);
+            } else {
+                // 速度
+                var speed = (array[i].distance - array[i - 1].distance) / ( (array[i].time - array[i - 1].time) / 3600 );
+                yValuesSpeed.push(speed);
+                // 步频
+                var frequency = (array[i].step - array[i - 1].step) / ( (array[i].time - array[i - 1].time) / 60 );
+                yValuesFrequency.push(frequency);
+            }
+        }
+    }
+
+    //添加最后一条数据
+    if ( xValues[xValues.length - 1] != array[array.length - 1].time) {
+        // 横坐标
+        xValues.push(array[array.length - 1].time);
+        distanceValues.push(array[array.length - 1].distance);
+        stepValues.push(array[array.length - 1].step);
+        // 速度 纵坐标
+        var speed = (distanceValues[distanceValues.length - 1] - distanceValues[distanceValues.length - 2]) / ( (xValues[xValues.length - 1] - xValues[xValues.length - 2]) / 3600 );
+        yValuesSpeed.push(speed);
+        // 步频 纵坐标
+        var frequency = (stepValues[stepValues.length - 1] - stepValues[stepValues.length - 2]) / ( (xValues[xValues.length - 1] - xValues[xValues.length - 2]) / 60 );
+        yValuesFrequency.push(frequency);
+    }
+
+
+    //2 计算平均速度
+    avgSpeed = parseFloat(array[array.length - 1].distance / ( array[array.length - 1].time / 3600 ) ).toFixed(2);
+    //for (var i = 0; i < yValuesSpeed.length; i++) {
+    //    avgValues.push(avgSpeed);
+    //}
+    console.log('计算这里');
+    $("#speed").text(avgSpeed);
+
+    // 3. 计算平均步频
+    avgFrequency = parseInt( array[array.length - 1].step / ( array[array.length - 1].time / 60 ) );
+    $("#detail").text(avgFrequency);
+
+    for (var i = 0; i < xValues.length; i++) {
+        xValues[i] = (xValues[i] / 60).toFixed(2);
+    }
+
+    // 4.平滑 数据
+    //var gap = 2;
+    //var yValuesSpeed1 = [];
+    //yValuesSpeed1.push(0);
+    //for (var i = 0; i < yValuesSpeed.length; i++) {
+    //    if(i >= gap - 1) {
+    //        var sum = 0;
+    //        for(var j = 0; j < gap; j++){
+    //            sum += yValuesSpeed[i-j];
+    //        }
+    //        yValuesSpeed1.push( parseFloat( sum / gap ).toFixed(2));
+    //    }
+    //
+    //}
+
+
+    //速度表数据
+    chart.distance.labels = xValues;
+    chart.distance.data = yValuesSpeed;
+    console.log("x:"+JSON.stringify(xValues) + "  y:" + JSON.stringify(yValuesSpeed));
+    //chart.distance.average = avgValues;
+    var maxAndMin = getMinAndMax(yValuesSpeed);
+    chart.distance.maxY = maxAndMin.max;
+
+    //步频 数据
+    chart.frequency.labels = xValues;
+    chart.frequency.data = yValuesFrequency;
+
+}
+
+/**
+ * 设置 IOS 步频图表数据
+ * @param array
+ */
+function setIOSFrequencyTableData(array) {
+
+    var xValues = [];//横坐标
+    var yValues = [];//纵坐标
+    var avgValues = [];// 平均步频纵坐标
+    var avgFrequency = 0;
+    setXWidth(array, 2, "IOS");
+    var indexO = array[0];
+    // 1.计算步频横纵坐标
+    for (var i = 0; i < array.length; i++) {
+        if(i == 0) {
+            yValues.push(0);
+            xValues.push(0);
+        }
+        if (array[i].time - indexO.time >= chart.frequency.xWidth) {
+            var step = array[i].step - indexO.step;
+            var time = array[i].time - indexO.time;
+            yValues.push(parseInt(step / time * 60));
+            xValues.push(parseInt(array[i].time / 60 ));
+            indexO = array[i];
+        } else {
+            if ( i == (array.length - 1) ) {
+                var step = array[i].step - indexO.step;
+                var time = array[i].time - indexO.time;
+                yValues.push(parseInt(step / time * 60));
+                xValues.push(parseInt(array[i].time / 60));
+                indexO = array[i];
+            }
+        }
+    }
+    // 2. 计算平均步频
+    avgFrequency = parseInt( window.share.attributes.step / ( window.share.attributes.runTime / 1000 / 60 ) );
+    $("#detail").text(avgFrequency);
+
+    for (var i = 0; i < yValues.length; i++) {
+        avgValues.push(avgFrequency);
+    }
+
+    chart.frequency.deta = yValues;
+    chart.frequency.labels = xValues;
+    chart.frequency.average = avgValues;
+
+}
+
+/**
+ * 设置 Android 速度表数据
+ * @param array
+ */
+function setAndroidTableData(array) {
+
+    var lengthNumber = array.length;
+    var xValues = []; //横坐标
+    var yValuesSpeed = []; //速度 纵坐标
+    var distanceValues = []; //对应距离
+    var yValuesFrequency = []; //步频 纵坐标
+    var stepValues = []; //对应步数
+    var avgValues = []; //平均速度 纵坐标
+    var avgSpeed = 0; //平均速度
+    var avgFrequency = 0; // 平均步频
+    var temp;
+    // 1.获取横纵坐标点
+    var max = ( array[lengthNumber - 1].time - array[0].time ) / 1000 / chart.distance.pointNumber;
+    if (( array[lengthNumber - 1].time - array[0].time ) / 1000 > chart.distance.timeMin && ( array[lengthNumber - 1].time - array[0].time ) / 1000 < chart.distance.timeMax) {
+        max = 60;
+        for (var i = 0; i < lengthNumber; i++) {
+            // 纵坐标
+            if (i == 0) {
+                xValues.push(0);
+                yValuesSpeed.push(0);
+                yValuesFrequency.push(0);
+                distanceValues.push(0);
+                stepValues.push(0);
+                temp = array[0];
+            } else {
+                if(array[i].time - temp.time > 0 && array[i].distance - temp.distance > 0) {
+                    if ( (array[i].time - temp.time) / 1000 > max) {
+                        // 横坐标
+                        xValues.push((array[i].time - array[0].time) / 1000);
+                        distanceValues.push(array[i].distance);
+                        stepValues.push(array[i].step);
+                        // 速度
+                        var speed = ((array[i].distance - temp.distance) / 1000 ) / ( (array[i].time - temp.time) / 1000 / 3600 );
+                        yValuesSpeed.push(speed);
+                        // 步频
+                        var frequency = (array[i].step - temp.step) / ( (array[i].time - temp.time) / 1000 / 60 );
+                        yValuesFrequency.push(frequency);
+                        temp = array[i];
+                    }
+                }
+            }
+        }
+    } else if(( array[lengthNumber - 1].time - array[0].time ) / 1000 >= chart.distance.timeMax) {
+        for (var i = 0; i < lengthNumber; i++) {
+            // 纵坐标
+            if (i == 0) {
+                xValues.push(0);
+                yValuesSpeed.push(0);
+                yValuesFrequency.push(0);
+                distanceValues.push(0);
+                stepValues.push(0);
+                temp = array[0];
+            } else {
+                if(array[i].time - temp.time > 0 && array[i].distance - temp.distance > 0) {
+                    if ( (array[i].time - temp.time) / 1000 > max) {
+                        // 横坐标
+                        xValues.push((array[i].time - array[0].time) / 1000);
+                        distanceValues.push(array[i].distance);
+                        stepValues.push(array[i].step);
+                        // 速度
+                        var speed = ((array[i].distance - temp.distance) / 1000 ) / ( (array[i].time - temp.time) / 1000 / 3600 );
+                        yValuesSpeed.push(speed);
+                        // 步频
+                        var frequency = (array[i].step - temp.step) / ( (array[i].time - temp.time) / 1000 / 60 );
+                        yValuesFrequency.push(frequency);
+                        temp = array[i];
+                    }
+                }
+            }
+        }
+    } else {
+        for (var i = 0; i < lengthNumber ; i++) {
+            distanceValues.push(array[i].distance);
+            stepValues.push(array[i].step);
+            // 纵坐标
+            if (i == 0) {
+                xValues.push(0);
+                yValuesSpeed.push(0);
+                yValuesFrequency.push(0);
+            } else {
+                if(array[i].time -  array[0].time > 0 && array[i].distance - array[i - 1].distance > 0) {
+                    // 横坐标
+                    xValues.push((array[i].time - array[0].time) / 1000);
+                    // 速度
+                    var speed = ((array[i].distance - array[i - 1].distance) / 1000) / ( (array[i].time - array[i - 1].time) / 1000 / 3600 );
+                    yValuesSpeed.push(speed);
+                    // 步频
+                    var frequency = (array[i].step - array[i - 1].step) / ( (array[i].time - array[i - 1].time) / 1000 / 60 );
+                    yValuesFrequency.push(frequency);
+                }
+            }
+        }
+    }
+
+    //添加最后一条数据
+    if ( xValues[xValues.length - 1] != (array[array.length - 1].time - array[0].time) / 1000) {
+        // 横坐标
+        xValues.push((array[array.length - 1].time - array[0].time) / 1000);
+        distanceValues.push(array[array.length - 1].distance);
+        stepValues.push(array[array.length - 1].step);
+        // 速度 纵坐标
+        var speed = (distanceValues[distanceValues.length - 1] - distanceValues[distanceValues.length - 2]) / 1000 / ( (xValues[xValues.length - 1] - xValues[xValues.length - 2]) / 3600 );
+        yValuesSpeed.push(speed);
+        // 步频 纵坐标
+        var frequency = (stepValues[stepValues.length - 1] - stepValues[stepValues.length - 2]) / ( (xValues[xValues.length - 1] - xValues[xValues.length - 2]) / 60 );
+        yValuesFrequency.push(frequency);
+    }
+
+
+    //2 计算平均速度
+    avgSpeed = parseFloat(array[array.length - 1].distance / 1000 / ( (array[array.length - 1].time - array[0].time) / 1000 / 3600 ) ).toFixed(2);
+    //for (var i = 0; i < yValuesSpeed.length; i++) {
+    //    avgValues.push(avgSpeed);
+    //}
+    $("#speed").text(avgSpeed);
+
+    // 3. 计算平均步频
+    avgFrequency = parseInt( array[array.length - 1].step / ( (array[array.length - 1].time - array[0].time) / 1000 / 60 ) );
+    $("#detail").text(avgFrequency);
+
+    for (var i = 0; i < xValues.length; i++) {
+        //xValues[i] = parseInt(xValues[i] / 60);
+        xValues[i] = (xValues[i] / 60).toFixed(2);
+    }
+
+    // 4.平滑 数据
+    //var gap = 2;
+    //var yValuesSpeed1 = [];
+    //yValuesSpeed1.push(0);
+    //for (var i = 0; i < yValuesSpeed.length; i++) {
+    //    if(i >= gap - 1) {
+    //        var sum = 0;
+    //        for(var j = 0; j < gap; j++){
+    //            sum += yValuesSpeed[i-j];
+    //        }
+    //        yValuesSpeed1.push( parseFloat( sum / gap ).toFixed(2));
+    //    }
+    //
+    //}
+
+
+    //速度表数据
+    chart.distance.labels = xValues;
+    chart.distance.data = yValuesSpeed;
+    //chart.distance.average = avgValues;
+    var maxAndMin = getMinAndMax(yValuesSpeed);
+    chart.distance.maxY = maxAndMin.max;
+
+    //步频 数据
+    chart.frequency.labels = xValues;
+    chart.frequency.data = yValuesFrequency;
+
+}
+
+/**
+ * 设置 Android 步频图表数据
+ * @param array
+ */
+function setAndroidFrequencyTableData(array) {
+    var xValues = [];//横坐标
+    var yValues = [];//纵坐标
+    var avgValues = [];// 平均步频纵坐标
+    var avgFrequency = 0;
+    var sumFrequency = 0;
+    var time = parseInt( window.share.attributes.runTime / 1000 );
+    var jiangeNumber = time / chart.frequency.pointNumber;//间隔时间 秒
+    var indexO = array[0];
+    var timeO = array[0].time;
+    // 1.计算步频横纵坐标
+    for (var i = 0; i < array.length; i++) {
+        if(i == 0) {
+            yValues.push(0);
+            xValues.push(0);
+        }
+        if ( (array[i].time - indexO.time) / 1000 >= jiangeNumber) {
+            var step = array[i].step - indexO.step;
+            var time = parseInt( (array[i].time - indexO.time) / 1000 ) == 0 ? 1 : parseInt( (array[i].time - indexO.time) / 1000 );
+            yValues.push(parseInt(step / time * 60));
+            xValues.push(parseInt((array[i].time - timeO) / 1000 / 60 ));
+            indexO = array[i];
+        } else {
+            if ( i == (array.length - 1) ) {
+                var step = array[i].step - indexO.step;
+                var time = parseInt( (array[i].time - indexO.time) / 1000 ) == 0 ? 1 : parseInt( (array[i].time - indexO.time) / 1000 );
+                yValues.push(parseInt(step / time * 60));
+                xValues.push(parseInt( (array[i].time - timeO) / 1000 / 60 ) );
+                indexO = array[i];
+            }
+        }
+    }
+    // 2. 计算平均步频
+    for (var i = 0; i < yValues.length; i++) {
+        sumFrequency += yValues[i];
+    }
+    avgFrequency = parseInt(sumFrequency / yValues.length);
+    $("#detail").text(avgFrequency);
+
+    for (var i = 0; i < yValues.length; i++) {
+        avgValues.push(avgFrequency);
+    }
+
+    chart.frequency.data = yValues;
+    chart.frequency.labels = xValues;
+    chart.frequency.average = avgValues;
+}
+
+/**
+ * 过滤重复数据 (距离重复)
+ * @param array
+ * @param type 1:过滤重复距离，2:过滤重复步数 3:过滤重复时间
+ */
+function filterData(array, type) {
+    var temp = [];
+    temp[0] = array[0];
+    if(type == 1) {
+        for(var i = 1; i < array.length; i++) {
+            if ( temp[temp.length - 1].distance == array[i].distance ) {
+                temp[temp.length - 1] = array[i];
+            } else {
+                temp.push(array[i]);
+            }
+        }
+    } else if(type == 2) {
+        for(var i = 1; i < array.length; i++) {
+            if ( temp[temp.length - 1].step == array[i].step ) {
+                temp[temp.length - 1] = array[i];
+            } else {
+                temp.push(array[i]);
+            }
+        }
+    } else if(type == 3) {
+        for(var i = 1; i < array.length; i++) {
+            if ( temp[temp.length - 1].time == array[i].time ) {
+                temp[temp.length - 1] = array[i];
+            } else {
+                temp.push(array[i]);
+            }
+        }
+    }
+    return temp;
+}
+
+
+
+
+function createTable(array) {
+
+    chart.ios = isIos(array[0].time);//判断数据源
+
+    //计算时间数组 将时间分成20个时间段
+    var time = window.share.attributes.runTime;
+    var ss = time / 1000;//秒
+    var mm = ss / 60;//分
+    var hh = mm / 60;//时
+    var dw = "秒";
+    if (parseInt(ss) > 0 && parseInt(ss) <= 10) {
+        setTimeArray(ss, 1, "秒");
+    } else if (parseInt(ss) > 10 && parseInt(ss) <= 60) {
+        setTimeArray(ss, 10, "秒");
+    } else if (parseInt(mm) > 0 && parseInt(mm) <= 10) {
+        setTimeArray(mm, 1, "分钟");
+        dw = "分钟";
+    } else if (parseInt(mm) > 10 && parseInt(mm) <= 60) {
+        setTimeArray(mm, 10, "分钟");
+        dw = "分钟";
+    } else {
+        setTimeArray(hh, 1, "小时");
+        dw = "小时";
+    }
+    $("#su-span").text("米/"+dw);
+
+    var suDuChart = echarts.init(document.getElementById('mainSuDu'));
+    if($("#mainBuPin").length > 0){
+        var buPinChart = echarts.init(document.getElementById('mainBuPin'));
+    }
+    var fonts = $('.step-speed').css("font-size");
+    var font = parseInt(fonts)*3/4;
+    var pad = parseInt(fonts)/2;
+    var bordWidth = parseInt(fonts)/12;
+    var bordRadius = parseInt(fonts)/12*4;
+    //速度表
+    function suDu(x,y){
+        var optionSuDu = {
+            //tooltip: {
+            //    trigger: 'axis',
+            //    show:false,
+            //    showDelay: 0,
+            //    hideDelay: 0,
+            //    transitionDuration:0,
+            //    backgroundColor : 'rgba(109,135,248,0.7)',
+            //    borderColor : '#6d87f8',
+            //    borderRadius : bordRadius,
+            //    borderWidth: bordWidth,
+            //    padding: pad,    // [5, 10, 15, 20]
+            //    textStyle:{
+            //        fontSize:font
+            //    },
+            //    formatter: function (params,ticket,callback) {
+            //        console.log(params);
+            //        console.log(params[0]);
+            //        if(params[0].name == ''){
+            //            params[0].name = 0;
+            //        }
+            //        //var res =  dw +":"+params[0].name+'<br/>'+"米:"+params[0].value.toFixed(2);
+            //        var res = "";
+            //        return res;
+            //    }
+            //},
+            xAxis: {
+                data: x,
+                boundaryGap:false,
+                splitLine:{show: true},//去除网格线
+                axisLine: {
+                    lineStyle: {
+                        color:'#303032',
+                        width:3
+                    }
+                },
+                //axisTick:{
+                //    //lineStyle:{
+                //    //    color:'#fff'
+                //    //},
+                //    length:5
+                //},//刻度线颜色
+                splitLine: {show: false},
+                axisLabel:{
+                    show: true,
+                    textStyle:{
+                        fontSize:font,
+                        color: '#d1cdd5'
+                        // 让字体变大
+                    }
+                }
+
+            },
+            yAxis: {
+                type: 'value',
+                splitLine:{
+                    show: true,
+                    lineStyle: {
+                        // 使用深浅的间隔色
+                        color: '#303032'
+                    }
+                    //interval:2
+                },//去除网格线
+                axisLine:{
+
+                    lineStyle:{
+                        color:'#303032',
+                        width:3//这里是为了突出显示加上的
+                    }
+                },
+                //axisTick:{
+                //    lineStyle:{
+                //        color:'#fff'
+                //    }
+                //},//刻度线颜色
+                axisLabel:{
+                    show: true,
+                    textStyle:{
+                        fontSize:font,
+                        color: '#d1cdd5'
+                        // 让字体变大
+                    }
+                }
+            },
+            grid: {
+                x:"8%",
+                x2:"4%",
+                y:"9%",
+                y2:"10%"
+            },
+            series: [{
+                type: 'line',
+                showSymbol: false,
+                itemStyle: {
+                    normal: {
+                        color: "#6d87f8",
+                        lineStyle: {
+                            color: "#6d87f8"
+                        }
+                    }
+                },
+                areaStyle: {
+                    normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: 'rgba(109,135,248,0.3)'
+                        }, {
+                            offset: 1,
+                            color: 'rgba(109,135,248,0)'
+                        }])
+                    }
+                },
+                smooth:true,
+                data:y
+            }]
+        };
+        suDuChart.setOption(optionSuDu);
+    }
+
+    //步频表
+    function buPin(x,y){
+        var optionBuPin = {
+            //tooltip: {
+            //    trigger: 'axis',
+            //    show:false,
+            //    showDelay: 0,
+            //    hideDelay: 0,
+            //    transitionDuration:0,
+            //    backgroundColor : 'rgba(235,177,102,0.7)',
+            //    borderColor : '#ebb166',
+            //    borderRadius : bordRadius,
+            //    borderWidth: bordWidth,
+            //    padding: pad,    // [5, 10, 15, 20]
+            //    textStyle:{
+            //        fontSize:font
+            //    },
+            //    formatter: function (params,ticket,callback) {
+            //        console.log(params);
+            //        console.log(params[0]);
+            //        if(params[0].name == ''){
+            //            params[0].name = 0;
+            //        }
+            //        //var res = "X:"+params[0].name+'<br/>'+"Y:"+params[0].value.toFixed(2);
+            //        var res = "";
+            //        return res;
+            //    }
+            //},
+            xAxis: {
+                data: x,
+                boundaryGap:false,
+                splitLine:{show: true},//去除网格线
+                axisLine: {
+                    lineStyle: {
+                        color:'#303032',
+                        width:3
+                    }
+                },
+                //axisTick:{
+                //    lineStyle:{
+                //        color:'#fff'
+                //    }
+                //},//刻度线颜色
+                splitLine: {show: false},
+                axisLabel:{
+                    show: true,
+                    textStyle:{
+                        fontSize:font,
+                        color: '#d1cdd5'
+                        // 让字体变大
+                    }
+                }
+
+            },
+            yAxis: {
+                type: 'value',
+                splitLine:{
+                    show: true,
+                    lineStyle: {
+                        // 使用深浅的间隔色
+                        color: '#303032'
+                    }
+                    //interval:2
+                },//去除网格线
+                axisLine:{
+                    lineStyle:{
+                        color:'#303032',
+                        width:3//这里是为了突出显示加上的
+                    }
+                },
+                //axisTick:{
+                //    lineStyle:{
+                //        color:'#fff'
+                //    }
+                //},//刻度线颜色
+                axisLabel:{
+                    show: true,
+                    textStyle:{
+                        fontSize:font,
+                        color: '#d1cdd5'
+                        // 让字体变大
+                    }
+                }
+            },
+            grid: {
+                x:"8%",
+                x2:"4%",
+                y:"9%",
+                y2:"10%"
+            },
+            series: [{
+                type: 'line',
+                showSymbol: false,
+                itemStyle: {
+                    normal: {
+                        color: "#ebb166",
+                        lineStyle: {
+                            color: "#ebb166"
+                        }
+                    }
+                },
+                areaStyle: {
+                    normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: 'rgba(235,177,102,0.3)'
+                        }, {
+                            offset: 1,
+                            color: 'rgba(235,177,102,0)'
+                        }])
+                    }
+                },
+                smooth:true,
+                data: y
+            }]
+        };
+        buPinChart.setOption(optionBuPin);
+
+    }
+
+
+    //var myChart = document.getElementById("myChart").getContext("2d");
+
+    //var canvasW = $(".myCanvas_div").width();
+
+    //array = filterData(array);
+    function zero(x,y){
+        var Label_ = [];
+        var Data_ = [];
+        var i_ = 0;
+        var targetNum = 0;
+        var array_ = [];
+        for(var i = 0; i< x.length; i++){
+            if (x[i] < 0) {
+                continue;
+            }
+            if (x[i] >= targetNum) {
+                var v_=parseInt(x[i]);
+                if (array_.length != 0 && array_[v_] != undefined) {
+                    continue;
+                }
+                Label_[i_] = v_;
+                Data_[i_] = y[i];
+                array_[v_] = 0;
+                targetNum ++;
+                i_++;
+            }
+
+        }
+        x = Label_;
+        y = Data_;
+        return {x:x,y:y};
+    }
+
+    if (chart.ios) {
+        // setYunButtomBorder(parseInt(mm), array);
+        //ios
+
+        // 图表数据分析
+        setIOSTableData(array);
+        //速度表
+        var suDuXY = zero(chart.distance.labels,chart.distance.data);
+        console.log("速度");
+        console.log(suDuXY.x);
+        console.log(suDuXY.y);
+        suDu(suDuXY.x,suDuXY.y);
+
+
+        if($("#mainBuPin").length > 0){
+            var buPinXY = zero(chart.frequency.labels,chart.frequency.data);
+            console.log("步频");
+            console.log(buPinXY.x);
+            console.log(buPinXY.y);
+            buPin(buPinXY.x,buPinXY.y);
+        }
+
+
+        //createCanvas("myChart", chart.distance.labels, chartLineDatasets(chart.distance.data, chart.distance.average), canvasW, true, 5, parseInt( chart.distance.maxY / 5 ) + 1, parseInt(chart.distance.labels.length / 5));
+        ////步频表
+        //createCanvas("myChart1", chart.frequency.labels, frequencyLineDatasets(chart.frequency.data, chart.frequency.average), canvasW, true, 250 / 5, 5, parseInt(chart.distance.labels.length / 5));
+    } else {
+        //android
+
+
+        //速度图表数据分析
+        setAndroidTableData(array);
+        var suDuXY = zero(chart.distance.labels,chart.distance.data);
+        suDu(suDuXY.x,suDuXY.y);
+
+        if($("#mainBuPin").length > 0){
+            var buPinXY = zero(chart.frequency.labels,chart.frequency.data);
+            buPin(buPinXY.x,buPinXY.y);
+        }
+        //createCanvas("myChart", chart.distance.labels, chartLineDatasets(chart.distance.data, chart.distance.average), canvasW, true, 5, parseInt( chart.distance.maxY / 5 ) + 1, parseInt(chart.distance.labels.length / 5));
+        ////步频图表数据分析
+        //setAndroidFrequencyTableData(filterData(array, 2));
+        //createCanvas("myChart1", chart.frequency.labels, frequencyLineDatasets(chart.frequency.data, chart.frequency.average), canvasW, true, 250 / 5, 5, parseInt(chart.distance.labels.length / 5));
+    }
+
+
+    //多图表自适应
+    window.addEventListener("resize", function () {
+        //自适应
+        suDuChart.resize();
+        buPinChart.resize();
+
+    });
+    window.addEventListener('orientationchange', function(event){
+        if ( window.orientation == 180 || window.orientation==0 ) {
+            console.log("竖屏");
+            window.location.reload();
+        }
+        if( window.orientation == 90 || window.orientation == -90 ) {
+            console.log("横屏");
+            window.location.reload();
+        }
+    });
+
+}
+
+//objId, labels, data, width, dataSetFill, scaleStepWidth, scaleSteps, xLabelsSkip
+//objId, labels, data, width, dataSetFill, scaleStepWidth, scaleSteps, xLabelsSkip
+//createHeartCanvas("heartCanvas", heartLabel, hreatLineDatasets(heartData, Math.round(parseInt(window.share.attributes.avgHR))), canvasW, true, 250 / 5, 5, parseInt(heartLabel.length / 5));

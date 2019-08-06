@@ -1,0 +1,188 @@
+package com.business.app.base.interceptor;
+
+import com.business.app.base.constants.Constants;
+import com.business.app.base.context.SystemContext;
+import com.business.app.base.context.SystemContextHolder;
+import com.business.app.user.UserService;
+import com.business.core.constants.VersionConstants;
+import com.business.core.utils.HttpUtil;
+import com.business.core.utils.StringUtil;
+import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
+
+/**
+ * Created by sin on 2015/5/5.
+ */
+public class AppBaseInterceptor extends HandlerInterceptorAdapter {
+
+    private static final String HEADER_USER_AGENT_REGEX =  "Fitmix\\/[0-9]{1,3}\\/[0-9]\\.[0-9]\\.[0-9]\\s\\((Android.*|iOS.*|iPhone.*|iPad.*|iPod.*)\\)";
+
+    /**
+     * 用户 service
+     */
+    private UserService userService;
+
+    public AppBaseInterceptor(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+//        stat/user-devices-info.json
+//        user/login.json
+//        user/login-qq.json
+//        user/login-wb.json
+//        user/login-wx.json
+//        user/mobile-register.json
+//        user/last-run.json
+//        user-run/mark.json
+//        user/register.json
+//        user/mobile-register.json
+
+        String uri = request.getRequestURI();
+
+        if(uri.contains("/v2/api-docs.json")) {
+            response.addHeader("Access-Control-Allow-Origin", "*");
+            return true;
+        }
+
+        //_k=avavava&_lan=en&_ch=12&_v=12&_sdk=ios9&_nw=1&uid=12
+
+        // 校验签名
+        if (!uri.endsWith(".json")) {
+            response.getWriter().write("{\"code\":9600,\"msg\":\"suffix auth error\"}");
+            return false;
+        }
+
+        String dickVal = HttpUtil.getParameter(request, Constants.PARAM_DICK_VALUE_KEY);
+        String language = HttpUtil.getParameter(request, Constants.PARAM_LANGUAGE);
+        String channel = HttpUtil.getParameter(request, Constants.PARAM_CHANNEL);
+        String version = HttpUtil.getParameter(request, Constants.PARAM_VERSION);
+        String network = HttpUtil.getParameter(request, Constants.PARAM_NETWORK);
+        String uid = HttpUtil.getParameter(request, Constants.PARAM_UID);
+        String sdk = HttpUtil.getParameter(request, Constants.PARAM_SDK);
+
+        // 没有渠道则不验证
+        if (StringUtils.isEmpty(language) ||
+                StringUtils.isEmpty(channel) ||
+                StringUtils.isEmpty(version) ||
+                StringUtils.isEmpty(network) ||
+                StringUtils.isEmpty(sdk) ||
+                !version.matches("\\d+")) {
+            response.getWriter().write("{\"code\":9800,\"msg\":\"auth error\"}");
+            return false;
+        }
+
+        // 过滤 请求 Header
+        // User-Agent: Fitmix/23/2.3.0 (Android 4.0 or IOS 10)
+        // User-Agent: Fitmix/44/2.3.0 (Android 4.0)
+        // User-Agent: Fitmix/5/2.3.0 (IOS 4.0)
+        Integer InternalVersion = Integer.valueOf(version);
+        String userAgent = request.getHeader("User-Agent");
+        String regexString = StringUtil.regexFirst(userAgent == null ? "" : userAgent, HEADER_USER_AGENT_REGEX);
+        if (sdk.contains("OS")) {
+            if ( InternalVersion >= VersionConstants.IOS.VERSION_12.getVersion()) {
+                // 过滤 User-Agent 验证 key
+                // TODO【sin to sin】 dick 验证 和 login 用户数据加密
+                if (StringUtils.isEmpty(regexString) /*|| StringUtils.isEmpty(dickVal)*/) {
+                    return false;
+                }
+            }
+        } else if(!sdk.equals("web")) {// Android
+            if ( InternalVersion >= VersionConstants.Android.VERSION_45.getVersion()) {
+                // 过滤 User-Agent 验证 key
+                // TODO【sin to sin】 dick 验证 和 login 用户数据加密
+                if (StringUtils.isEmpty(regexString) /*|| StringUtils.isEmpty(dickVal)*/) {
+                    return false;
+                }
+            }
+        }
+
+        // 客户端一直带着的参数
+        SystemContext systemContext = new SystemContext(request, response, request.getRequestURI());
+        systemContext.setServerReceiveTime(System.currentTimeMillis());
+        systemContext.setLanguage(language);
+        systemContext.setVersion(Integer.valueOf(version));
+        systemContext.setNetwork(network);
+        systemContext.setSdk(sdk);
+        systemContext.setMatchedPath(request.getRequestURI());
+
+        systemContext.setChannel(channel);
+
+        systemContext.setIp(HttpUtil.getIP(request));
+        systemContext.setServerReceiveTime(System.currentTimeMillis());
+        if (!StringUtils.isEmpty(uid)) {
+            systemContext.setUid(Integer.parseInt(uid));
+        }
+
+        // 设置 加密 key
+        systemContext.setDickValue(dickVal);
+        SystemContextHolder.put(systemContext);
+
+        if(request.getRequestURI().contains("/user/tourist-login.json")) {
+            return true;
+        }
+
+        if (!StringUtils.isEmpty(uid)) {
+            if ("0".equals(uid)) {
+                if (checkVersion(request, 12, 53)) {//新版本之后不允许uid=0的访问
+                    response.getWriter().write("{\"code\":2000,\"msg\":\"auth error\"}");
+                    return false;
+                } else {//TODO to Edward 旧版本目前全部放行，之后迭代几个版本，屏蔽掉该访问方式
+                    return true;
+                }
+            }
+
+            if (org.apache.commons.lang.StringUtils.isNumeric(uid)) {
+                // 进行 redis 缓存
+                return userService.doLogin(Integer.valueOf(uid));
+            } else {
+                response.getWriter().write("{\"code\":2000,\"msg\":\"auth error\"}");
+                return false;
+            }
+        }
+
+        /*if (!StringUtils.isEmpty(uid) && !"0".equals(uid)) {
+            // 进行 redis 缓存
+            return userService.doLogin(Integer.valueOf(uid));
+        }*/
+
+        // 进行 redis 缓存
+        return true;
+    }
+
+    protected boolean checkVersion(HttpServletRequest request, Integer iOSVersion, Integer androidVersion){
+        boolean isIOS = checkSDKType(request);
+        //version app版本信息暂时没用到
+        Integer version = HttpUtil.getIntParameter(request, "_v");
+        if (isIOS) {
+            return version > iOSVersion;
+        } else {
+            return version > androidVersion;
+        }
+    }
+
+    protected boolean checkSDKType(HttpServletRequest request) {//是否是iOS
+        String sdk = HttpUtil.getParameter(request, "_sdk");//sdk 设备类型
+        if (sdk.contains("iPhone") || sdk.contains("iOS1") || sdk.contains("iPad")) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        super.postHandle(request, response, handler, modelAndView);
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        SystemContextHolder.remove();
+    }
+}

@@ -1,0 +1,34 @@
+// 专辑管理
+.albums-list {
+  .albums-item {
+    display: inline-block;
+    margin: 20px 20px 20px 0;
+    width: 150px;
+    height: 200px;
+    .albums-cover {
+      & img {
+        width: 150px;
+        height: 150px;
+      }
+    }
+    .albums-title {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .albums-manage {
+      text-align: center;
+      & a {
+        color: #ffffff;
+        background-color: #00a8e6;
+        padding: 2px 4px;
+        border-radius: 10px 10px;
+        font-size: 12px;
+        margin: 5px 2px;
+      }
+    }
+  }
+  .albums-new {
+    vertical-align: top;
+    cursor: pointer;
+  }
+}

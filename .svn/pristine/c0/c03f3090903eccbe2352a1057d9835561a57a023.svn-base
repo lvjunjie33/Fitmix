@@ -1,0 +1,237 @@
+package com.business.msg.server.task;
+
+import com.business.core.client.AliyunCenterClient;
+import com.business.core.client.FileCenterClient;
+import com.business.core.constants.FileConstants;
+import com.business.core.constants.MsgConstants;
+import com.business.core.entity.msg.Message;
+import com.business.core.entity.user.UserRun;
+import com.business.core.entity.user.info.UserRunStat;
+import com.business.core.mongo.DefaultDao;
+import com.business.core.utils.BeanManager;
+import com.business.core.utils.DateUtil;
+import com.business.core.utils.RunUtil;
+import com.business.msg.MsgSubscribeAnnotation;
+import com.business.msg.core.RedisConcurrentlyCommand;
+import com.business.msg.util.zip.DownLoadFile;
+import com.business.msg.util.zip.ZipDecompressing;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by edward on 2018/2/25.
+ *
+ * 手表运动异步任务
+ */
+@MsgSubscribeAnnotation(channel = MsgConstants.CHANNEL_USER_RUN_WATCH_TASK)
+public class UserRunWatchTask implements RedisConcurrentlyCommand {
+
+    private static Logger logger = LoggerFactory.getLogger(UserRunWatchTask.class);
+
+    @Override
+    public void execute(String msgId) {
+        DefaultDao defaultDao = BeanManager.getBean(DefaultDao.class);
+        Message message = defaultDao.findOne(Query.query(Criteria.where("id").is(Long.parseLong(msgId))), Message.class);
+
+        Long userRunId = Long.parseLong(message.getMsgBody().toString());
+        UserRun userRun = defaultDao.findOne(Query.query(Criteria.where("id").is(userRunId)), UserRun.class, "step", "distance", "calorie", "runTime", "uid", "startTime", "addTime", "bpm", "watch", "watchZipFile","consumeFat");
+        Object sportType = userRun.getWatch().get("sportType");
+//        if (sportType.equals(0) || sportType.equals(1) || sportType.equals(2) || sportType.equals(8) || sportType.equals(4) || sportType.equals(15) || sportType.equals(16)) {
+        //2018-08-17  手表数据只统计室内跑和户外跑
+        if (sportType.equals(0) || sportType.equals(1)) {
+            //解压文件
+            handleZipFile(userRun);
+            handleWatchRun(defaultDao, userRun);
+        }
+    }
+
+    private void handleWatchRun(DefaultDao defaultDao, UserRun userRun) {
+        if (userRun == null) {
+            return;
+        }
+        Date today = new Date(userRun.getStartTime());
+
+        UserRunStatTask.handUserRun(userRun);
+        try {
+
+            //本日汇总
+            {
+                String todayTime = DateUtil.format(today, "yyyy-MM-dd");
+                UserRunStat stat = defaultDao.findOne(Query.query(Criteria.where("uid").is(userRun.getUid()).and("statTime").is(todayTime).and("type").is(UserRunStat.STAT_DAY)), UserRunStat.class);
+
+                UserRunStatTask.handUserRunStat(stat);
+
+                Map<String, Object> watch = userRun.getWatch();
+                if (CollectionUtils.isEmpty(watch)) {
+                    return;
+                }
+
+                Long distance = 0L;
+                Long bpm = 0L;
+                Long runTime = 0L;//sportTime
+                Long step = 0L;
+                Long calorie = 0L;
+
+                if (watch.containsKey("totalSteps")) {
+                    step = Long.parseLong(watch.get("totalSteps").toString());
+                }
+                if (watch.containsKey("totalDistance")) {
+                    distance = Long.parseLong(watch.get("totalDistance").toString());
+                }
+                if (watch.containsKey("totalCalorie")) {
+                    calorie = Long.parseLong(watch.get("totalCalorie").toString());
+                }
+
+                if (watch.containsKey("sportTime")) {// 秒转化为毫秒
+                    runTime = Long.parseLong(watch.get("sportTime").toString()) * 1000;
+                }
+
+                if (stat == null) {
+                    stat = new UserRunStat();
+                    stat.setUid(userRun.getUid());
+                    stat.setSumStep(step);
+                    stat.setSumDistance(distance);
+                    stat.setSumCalorie(calorie);
+                    stat.setRunTime(runTime);
+
+                    bpm = stat.getSumStep() / stat.getRunTime();
+                    stat.setRunNum(1);
+                    stat.setRunDay(1);
+                    stat.setType(UserRunStat.STAT_DAY);
+                    stat.setStatTime(todayTime);
+                    stat.setAddTime(System.currentTimeMillis());
+                    stat.setModifyTime(userRun.getStartTime());
+                    stat.setSumConsumeFat(userRun.getConsumeFat());
+
+                    if (distance >= 1000 && bpm > 120) {
+                        stat.setSumDistanceValid(0L);
+                        stat.setRunTimeValid(0L);
+
+                        String pace = RunUtil.pace(distance, runTime);
+                        if (RunUtil.getPaceInt(pace) > 230) {//小于230视为作弊，世界记录为230
+                            stat.setSumStepValid(step);
+
+                            stat.setSumDistanceValid(distance);
+                            stat.setRunTimeValid(runTime);
+
+                            stat.setSumCalorieValid(calorie);
+                            stat.setRunNumValid(1);
+                            stat.setRunDayValid(1);
+
+
+                            stat.setPace(RunUtil.getPaceInt(pace));
+                            stat.setLevel(RunUtil.getPaceLevel(pace));
+                            stat.setModifyTimeValid(userRun.getStartTime());
+                        }
+                    }
+                    defaultDao.save(stat);
+                } else {
+                    Update update = Update.update("modifyTime", today.getTime())
+                            .inc("sumStep", step)
+                            .inc("sumDistance", distance)
+                            .inc("sumCalorie", calorie)
+                            .inc("runTime", runTime)
+                            .inc("runNum", 1)
+                            .inc("sumConsumeFat", userRun.getConsumeFat());
+
+                    if (distance >= 1000 && bpm > 120) {//汇总有效运动数据
+                        if (stat.getSumDistanceValid() == null) {
+                            stat.setSumDistanceValid(0L);
+                        }
+                        if (stat.getRunTimeValid() == null) {
+                            stat.setRunTimeValid(0L);
+                        }
+
+                        String pace = RunUtil.pace(stat.getSumDistanceValid() + distance, stat.getRunTimeValid() + runTime);
+                        if (RunUtil.getPaceInt(pace) > 230) { //小于230视为作弊，世界记录为230
+                            update.set("modifyTimeValid", today.getTime())
+                                    .inc("sumStepValid", step)
+                                    .inc("sumDistanceValid", distance)
+                                    .inc("sumCalorieValid", calorie)
+                                    .inc("runTimeValid", runTime)
+                                    .inc("runNumValid", 1);
+                            if (stat.getRunDayValid() == null || stat.getRunDayValid() == 0) {
+                                stat.setRunDayValid(1);
+                            }
+                            update.set("pace", RunUtil.getPaceInt(pace));
+                            update.set("level", RunUtil.getPaceLevel(pace));
+                        }
+                    }
+                    defaultDao.modifyFirst(Query.query(Criteria.where("id").is(stat.getId())), update, UserRunStat.class);
+                    //2018-08-27 lvjj 修复脂肪燃烧量统计数据
+//                    UserRunStatTask.revertConsumeFat(defaultDao,userRun.getUid());
+                }
+            }
+
+            UserRunStatTask.handleOther(defaultDao, today, userRun);
+
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleZipFile(UserRun userRun) {
+        if (!StringUtils.isEmpty(userRun.getDetail()) && !StringUtils.isEmpty(userRun.getSkipDetail())) {
+            return;
+        }
+
+        if (StringUtils.isEmpty(userRun.getWatchZipFile())) {
+            return;
+        }
+
+        try {
+            String name = userRun.getId().toString();
+            String path = System.getProperty("user.dir") + "/";
+            String zipLink = FileCenterClient.buildUrl(userRun.getWatchZipFile());
+            //下载
+            DownLoadFile.handle(zipLink, name + ".zip", path);
+            //解压
+            List<String> files = ZipDecompressing.handle(path + name + ".zip", path);
+
+
+            //文件上传阿里云文件服务器
+            for (String file : files) {
+                if (file.contains("step")) {
+                    userRun.setStepDetail(AliyunCenterClient.putFile(FileConstants.FILE_TYPE_USER_STEP_DETAIL.toString(), file, DownLoadFile.getContent(file)));
+                }
+
+                if (file.contains("json")) {
+                    userRun.setDetail(AliyunCenterClient.putFile(FileConstants.FILE_TYPE_USER_RUN_DETAIL.toString(), file, DownLoadFile.getContent(file)));
+                }
+                //销毁解压文件
+                new File(file).delete();
+            }
+
+
+            //销毁压缩包
+            new File(path + name + ".zip").delete();
+            //销毁压缩解压目录
+            new File(path + name);
+
+            //清理本地文件
+
+            Update update = new Update();
+            if (!StringUtils.isEmpty(userRun.getDetail())) {
+                update.set("detail", userRun.getDetail());
+            }
+            if (!StringUtils.isEmpty(userRun.getStepDetail())) {
+                update.set("stepDetail", userRun.getStepDetail());
+            }
+            BeanManager.getBean(DefaultDao.class).modifyFirst(Query.query(Criteria.where("id").is(userRun.getId())), update, UserRun.class);
+
+        }catch (Exception e) {
+            logger.error(ExceptionUtils.getMessage(e));
+        }
+    }
+}

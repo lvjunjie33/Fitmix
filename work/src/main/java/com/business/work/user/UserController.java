@@ -1,0 +1,196 @@
+package com.business.work.user;
+
+import com.alibaba.fastjson.JSON;
+import com.business.core.constants.DicConstants;
+import com.business.core.entity.Dictionary;
+import com.business.core.entity.Page;
+import com.business.core.entity.user.User;
+import com.business.core.entity.user.info.SmartDevice;
+import com.business.core.operations.user.UserCoreService;
+import com.business.core.utils.CommonUtil;
+import com.business.core.utils.DateUtil;
+import com.business.core.utils.DicUtil;
+import com.business.core.utils.OfficeUtil;
+import com.business.work.base.support.BaseControllerSupport;
+import com.google.common.collect.ImmutableList;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created by sin on 2015/7/31 0031.
+ */
+@Controller
+@RequestMapping("user")
+public class UserController extends BaseControllerSupport{
+
+    private static Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserCoreService userCoreService;
+
+    /**
+     * 用户分页
+     */
+    @RequestMapping("user-page")
+    public String userPage(Model model, Page<User> page) {
+        page.removeEmptys("mobile", "email", "id", "beginWeight", "endWeight", "beginHeight", "endHeight", "gender",
+                "beginLoginCount", "endLoginCount", "isRun", "isDownload", "currentVersion","version", "bAge", "eAge", "bTime", "eTime")
+                .convertInt("id", "beginWeight", "endWeight", "beginHeight", "endHeight", "gender", "beginLoginCount", "endLoginCount", "isRun", "isDownload", "bAge", "eAge")
+                .convertDate2("bTime", "beginTime", "yyyy-MM-dd").convertDate2("eTime", "endTime", "yyyy-MM-dd");
+        userService.userPage(page);
+        model.addAttribute("channelDictionary", JSON.toJSONString(DicUtil.getDictionary(DicConstants.DIC_TYPE_CHANNEL)));
+        return "user/user-page";
+    }
+
+    /**
+     * 用户分页 （导出）
+     */
+    @RequestMapping("user-page-export")
+    public void userPageExport(Page<User> page, HttpServletResponse response) {
+        page.convertInt("id", "beginWeight", "endWeight", "beginHeight", "endHeight", "gender", "beginLoginCount", "endLoginCount");
+        page.setSize(0); // 0 代表查询所有
+        userService.userPage(page);
+        ImmutableList<Integer> columnWidths = ImmutableList.of(2000, 5000, 5000 ,5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 8000, 5000, 5000, 5000
+                , 5000, 5000, 8000, 5000, 5000, 5000, 5000, 5000, 8000, 5000, 5000, 5000, 5000, 5000, 8000, 5000);
+        ImmutableList<String> columnNames = ImmutableList.of("序号", "编号", "名称", "性别", "年龄", "身高", "体重", "用户类型", "电子邮箱",
+                "登录次数", "下载次数", "总距离", "总步数", "运动时间", "卡路里", "sdk", "终端", "手机型号", "运营商", "渠道信息",
+                "最后登录时间", "用户版本", "注册渠道", "注册方式", "注册地区地区", "登录地区", "创建时间", "状态");
+        List<List<String>> list = new ArrayList<>();
+
+        int index = 0;
+        for (User user : page.getResult()) {
+
+            Dictionary genderDic = DicUtil.getDictionary(DicConstants.DIC_TYPE_GENDER, user.getGender()); //性别
+
+            /// 当前渠道
+            String channel = userCoreService.buildChannel(user.getChannel());
+
+            /// 注册渠道
+            String registerChannel = userCoreService.buildChannel(user.getRegisterChannel());
+
+            /// 注册方式
+            String registerType = userCoreService.buildTerminal(user.getRegisterType());
+
+            /// 终端
+            String terminal = userCoreService.buildTerminal(user.getTerminal());
+
+            list.add(
+                ImmutableList.of(
+                    String.valueOf(++index),
+                    String.valueOf(user.getId()),
+                    user.getName(),
+                    genderDic == null ? "" : genderDic.getName(),
+                    String.valueOf(null == user.getAge() ? "" : user.getAge()),
+                    String.valueOf(null == user.getHeight() ? "" : user.getHeight() + "" + (user.getType().equals(User.TYPE_1) ? " cm" : " in")),
+                    String.valueOf(null == user.getWeight() ? "" : user.getWeight() + "" + (user.getType().equals(User.TYPE_1) ? " kg" : " ib")),
+                    String.valueOf(null == user.getType() ? "" : user.getType().equals(User.TYPE_1) ? "国内" : "国外"),
+                    String.valueOf(null == user.getEmail() ? "" : user.getEmail()),
+                    String.valueOf(user.getLoginCount()),
+                    String.valueOf(user.getDownloadCount()),
+                    String.valueOf(user.getDistance()),
+                    String.valueOf(user.getStep()),
+                    String.valueOf(user.getRunTime() + " 分"),
+                    String.valueOf(user.getCalorie()),
+                    String.valueOf(null == user.getSdk() ? "" : user.getSdk()),
+                    String.valueOf(terminal),
+                    String.valueOf(null == user.getMobileType() ? "" : user.getMobileType()),
+                    String.valueOf(null == user.getOperators() ? "" : user.getOperators()),
+                    String.valueOf(channel),
+                    String.valueOf(null == user.getLoginTime() ? "" : DateUtil.format(new Date(user.getLoginTime()), "yyyy-MM-dd HH:mm")),
+                    String.valueOf(null == user.getVersion() ? "" : user.getVersion()),
+                    String.valueOf(registerChannel),
+                    String.valueOf(registerType),
+                    String.valueOf(null != user.getRegisterTaoBaoIp() ? user.getRegisterTaoBaoIp().getRegion() : ""),
+                    String.valueOf(null != user.getTaoBaoIp() ? user.getTaoBaoIp().getRegion() : ""),
+                    String.valueOf(DateUtil.format(new Date(user.getAddTime()), "yyyy-MM-dd HH:mm")),
+                    String.valueOf(user.getState().equals(User.STATE_ACTIVATES) ? "激活" : "未激活")
+                )
+            );
+        }
+        HSSFWorkbook wb = OfficeUtil.buildExcel("用户信息", columnWidths, columnNames, list);
+        CommonUtil.downLoadExcel(response, "用户信息", wb);
+    }
+
+    /**
+     * 用户详细信息
+     * @param uid
+     * @return
+     */
+    @RequestMapping("user-info")
+    public String userInfo(Model model, @RequestParam("uid") Integer uid) {
+        User user = userService.userInfo(uid);
+        if (user.getThemeVip() == null) {
+            user.setThemeVip(User.THEME_VIP_FALSE);
+        }
+        model.addAttribute("user", user);
+        model.addAttribute("channelDictionary", JSON.toJSONString(DicUtil.getDictionary(DicConstants.DIC_TYPE_CHANNEL)));
+        return "user/user-info";
+    }
+
+    /**
+     * 设置用户论坛Vip标识
+     *
+     * @param uid 用户编号
+     * @param themeVip 0.普通用户、1.vip用户
+     */
+    @RequestMapping("set/theme/vip")
+    public String setThemeVip(Integer uid, Integer themeVip) {
+        userService.setThemeVip(uid, themeVip);
+        return "redirect:/user/user-info.htm?uid=" + uid;
+    }
+
+    @RequestMapping("/smart/device/find")
+    public String findSmartDevice(Page<SmartDevice> page) {
+        page.removeEmptys("uid").convertInt("uid");
+        userService.findSmartDevice(page);
+        return "/user/device/page";
+    }
+
+    @RequestMapping("/smart/device/remove")
+    public String  removeSmartDevice(Page<SmartDevice> page,SmartDevice SmartDevice) {
+        userService.removeSmartDevice(SmartDevice.getId());
+        userService.findSmartDevice(page);
+        return "/user/device/page";
+    }
+
+    /*=============================================ROC RX=================================================*/
+    /**
+     * ROC用户分页
+     */
+    @RequestMapping("user-page-roc")
+    public String userPageRoc(Model model, Page<User> page) {
+        page.removeEmptys("mobile", "email", "id", "beginWeight", "endWeight", "beginHeight", "endHeight", "gender",
+                "beginLoginCount", "endLoginCount", "isRun", "isDownload", "currentVersion","version", "bAge", "eAge", "bTime", "eTime")
+                .convertInt("id", "beginWeight", "endWeight", "beginHeight", "endHeight", "gender", "beginLoginCount", "endLoginCount", "isRun", "isDownload", "bAge", "eAge")
+                .convertDate2("bTime", "beginTime", "yyyy-MM-dd").convertDate2("eTime", "endTime", "yyyy-MM-dd");
+        userService.findPageRoc(page);
+        model.addAttribute("channelDictionary", JSON.toJSONString(DicUtil.getDictionary(DicConstants.DIC_TYPE_CHANNEL)));
+        return "user/roc/user-page";
+    }
+
+    /**
+     * 用户详细信息
+     * @param uid
+     * @return
+     */
+    @RequestMapping("user-info-roc")
+    public String userInfoRoc(Model model, @RequestParam("uid") Integer uid) {
+        User user = userService.userInfoRoc(uid);
+        model.addAttribute("user", user);
+        model.addAttribute("channelDictionary", JSON.toJSONString(DicUtil.getDictionary(DicConstants.DIC_TYPE_CHANNEL)));
+        return "user/roc/user-info";
+    }
+}

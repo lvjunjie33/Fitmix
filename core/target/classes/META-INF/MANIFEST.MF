@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Implementation-Title: core
+Implementation-Version: 1.0-SNAPSHOT
+Built-By: Administrator
+Implementation-Vendor-Id: com.business
+Build-Jdk: 1.8.0_51
+Created-By: Maven Integration for Eclipse
+

@@ -1,0 +1,360 @@
+package com.business.work.file;
+
+import com.business.core.client.FileCenterClient;
+import com.business.core.constants.Constants;
+import com.business.core.entity.Page;
+import com.business.core.entity.file.File;
+import com.business.core.entity.file.Voice;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+
+/**
+ * Created by edward on 2016/8/17.
+ */
+@RequestMapping()
+@Controller
+public class FileController {
+
+    @Autowired
+    private FileService fileService;
+
+    //==============================================标准普通文件存储====================================================================//
+    /**
+     * 其他文件
+     *
+     * @param page 分页对象
+     */
+    @RequestMapping("/file/list")
+    public String pageOther(Page<File> page) {
+        page.removeEmptys("title", "fileType", "status").convertInt("status", "fileType");
+        page.getFilter().put("fileType", File.FILE_TYPE_COMMON);
+        fileService.page(page);
+        return "file/common/list";
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param file 文件相关信息
+     * @param uploadFile 上传的文件对象
+     */
+    @RequestMapping("file/add")
+    public void add(Model model, File file, @RequestParam("uploadFile") MultipartFile uploadFile) {
+        file.setFileType(File.FILE_TYPE_COMMON);
+        fileService.add(file, uploadFile);
+        //话题板块 上传文件 需要link
+        model.addAttribute("link", FileCenterClient.buildUrl(file.getFileLink()));
+    }
+
+    /**
+     * 去修改文件页面
+     *
+     * @param id 文件编号
+     */
+    @RequestMapping(value = "file/modify", method = RequestMethod.GET)
+    public String modify(Model model, Long id) {
+        model.addAttribute("file", fileService.findFileById(id));
+        return "file/common/modify";
+    }
+
+    /**
+     * 修改文件信息
+     *
+     * @param file 文件内容
+     * @param uploadFile 文件对象
+     */
+    @RequestMapping(value = "file/modify", method = RequestMethod.POST)
+    public void modify(File file, @RequestParam(value = "uploadFile", required = false) MultipartFile uploadFile) {
+        file.setFileType(File.FILE_TYPE_COMMON);
+        fileService.modifyFile(file, uploadFile);
+    }
+
+    //============================================耳机升级包管理===================================================================//
+
+    /**
+     * 耳机升级包 分页
+     *
+     * @param page 耳机升级包列表
+     */
+    @RequestMapping("handset/list")
+    public String handsetList(Page<File> page) {
+        page.removeEmptys("title", "fileType", "status").convertInt("status", "fileType");
+        page.getFilter().put("fileType", File.FILE_TYPE_HEADSET);
+        fileService.page(page);
+        return "file/handset/list";
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param file 文件相关信息
+     * @param uploadFile 上传的文件对象
+     */
+    @RequestMapping("handset/add")
+    public void handsetAdd(Model model, File file, @RequestParam("uploadFile") MultipartFile uploadFile) {
+        fileService.add(file, uploadFile);
+        file.setFileType(File.FILE_TYPE_HEADSET);
+        model.addAttribute("link", FileCenterClient.buildUrl(file.getFileLink()));
+    }
+
+    /**
+     * 去修改文件页面
+     *
+     * @param id 文件编号
+     */
+    @RequestMapping(value = "handset/modify", method = RequestMethod.GET)
+    public String handsetModify(Model model, Long id) {
+        model.addAttribute("file", fileService.findFileById(id));
+        return "file/handset/modify";
+    }
+
+    /**
+     * 修改文件信息
+     *
+     * @param file 文件内容
+     * @param uploadFile 文件对象
+     */
+    @RequestMapping(value = "handset/modify", method = RequestMethod.POST)
+    public void handsetModify(File file, @RequestParam(value = "uploadFile", required = false) MultipartFile uploadFile) {
+        file.setFileType(File.FILE_TYPE_HEADSET);
+        fileService.modifyFile(file, uploadFile);
+    }
+
+    /**
+     * 最新
+     *
+     * @param id 编号
+     */
+    @RequestMapping("handset/set/new")
+    public void handsetSetNew(Long id) {
+        fileService.handsetSetNew(id);
+    }
+
+    //============================================语音包管理===================================================================//
+
+    /**
+     * 语音包清单列表
+     */
+    @RequestMapping("voice/list")
+    public String voiceList(Model model) {
+        model.addAttribute("voices", fileService.voiceList());
+        return "file/voice/voice-list";
+    }
+
+    /**
+     * 添加语音包清单
+     *
+     * @param voice 语音包
+     */
+    @RequestMapping("voice/add")
+    public void voiceAdd(Voice voice) {
+        fileService.voiceAdd(voice);
+    }
+
+    /**
+     * 去修改语音包清单页面
+     *
+     * @param id 编号
+     */
+    @RequestMapping(value = "voice/modify", method = RequestMethod.GET)
+    public String voiceModify(Model model, Integer id) {
+        Voice voice= fileService.findVoice(id);
+        model.addAttribute("voice", voice);
+        return "file/voice/voice-modify";
+    }
+
+    /**
+     * 修改文件信息
+     *
+     * @param voice 语音包
+     */
+    @RequestMapping(value = "voice/modify", method = RequestMethod.POST)
+    public void voiceModify(Voice voice) {
+        fileService.voiceModify(voice);
+    }
+
+    /**
+     * 语音包清单详细
+     *
+     * @param id 编号
+     */
+    @RequestMapping("voice/detail")
+    public String voiceDetail(Model model, Integer id) {
+        model.addAttribute("voice", fileService.findVoice(id));
+        return "file/voice/voice-detail";
+    }
+
+
+    /**
+     * 添加封面图
+     *
+     * @param id 文件编号
+     * @param coverImg 封面图
+     */
+    @RequestMapping("voice/set/cover/img")
+    public void voiceSetCoverImg(Integer id, @RequestParam("coverImg") MultipartFile coverImg) {
+        fileService.setCoverImg(id, coverImg);
+    }
+
+    /**
+     * 添加Icon图
+     *
+     * @param id 文件编号
+     * @param iconImg icon图
+     */
+    @RequestMapping("voice/set/icon/img")
+    public void voiceSetIconImg(Integer id, @RequestParam("iconImg") MultipartFile iconImg) {
+        fileService.setIconImg(id, iconImg);
+    }
+
+    /**
+     * 文件列表
+     *
+     * @param page 分页对象
+     * @return
+     */
+    @RequestMapping("voice/packets/list")
+    public String voicePacketsList(Model model, Page<File> page) {
+        page.removeEmptys("title", "fileType", "releaseStatus", "status").convertInt("status", "releaseStatus", "fileType");
+        if (!page.getFilter().containsKey("voiceId")) {
+            page.getFilter().put("voiceId", null);
+        } else {
+            Integer voiceId = Integer.parseInt(page.getFilter().get("voiceId").toString());
+            model.addAttribute("voice", fileService.findVoice(voiceId));
+        }
+        page.getFilter().put("fileType", File.FILE_TYPE_VOICE_PACKETS);
+        fileService.page(page);
+        for (File file : page.getResult()) {
+            if (CollectionUtils.isEmpty(file.getOther())) {
+                file.setOther(new HashMap<String, String>());
+            }
+        }
+        return "/file/voice/list";
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param file 文件相关信息
+     * @param uploadFile 上传的文件对象
+     */
+    @RequestMapping("voice/packets/add")
+    public void voicePacketsAdd(Model model, File file, @RequestParam("uploadFile") MultipartFile uploadFile) {
+        file.setFileType(File.FILE_TYPE_VOICE_PACKETS);
+        file.setStatus(Constants.STATUS_NORMAL);
+        fileService.add(file, uploadFile);
+        model.addAttribute("link", FileCenterClient.buildUrl(file.getFileLink()));
+    }
+
+    /**
+     * 去修改文件页面
+     *
+     * @param id 文件编号
+     */
+    @RequestMapping(value = "voice/packets/modify", method = RequestMethod.GET)
+    public String voicePacketsModify(Model model, Long id) {
+        File file = fileService.findFileById(id);
+        if (CollectionUtils.isEmpty(file.getOther())) {
+            file.setOther(new HashMap<String, String>());
+        }
+        model.addAttribute("file", file);
+        return "file/voice/modify";
+    }
+
+    /**
+     * 修改文件信息
+     *
+     * @param file 文件内容
+     * @param uploadFile 文件对象
+     */
+    @RequestMapping(value = "voice/packets/modify", method = RequestMethod.POST)
+    public void voicePacketsModify(File file, @RequestParam(value = "uploadFile", required = false) MultipartFile uploadFile) {
+        file.setFileType(File.FILE_TYPE_VOICE_PACKETS);
+        file.setStatus(Constants.STATUS_NORMAL);
+        fileService.modifyFile(file, uploadFile);
+    }
+
+    //============================================手表升级包管理===================================================================//
+
+    /**
+     * 手表升级包 分页
+     *
+     * @param page 耳机升级包列表
+     */
+    @RequestMapping("watch/list")
+    public String watchList(Page<File> page) {
+        page.removeEmptys("title", "fileType", "status").convertInt("status", "fileType");
+        if (!page.getFilter().containsKey("fileType")) {
+            page.getFilter().put("fileType", File.FILE_TYPE_WATCH);
+        }
+        fileService.page(page);
+        return "file/watch/list";
+    }
+
+    /**
+     * 手表错误日志 分页
+     *
+     * @param page 耳机升级包列表
+     */
+    @RequestMapping("watch/log")
+    public String watchLogList(Page<File> page) {
+        page.removeEmptys("title", "fileType", "status").convertInt("status", "fileType");
+        if (!page.getFilter().containsKey("fileType")) {
+            page.getFilter().put("fileType", File.FILE_TYPE_WATCH);
+        }
+        fileService.page(page);
+        return "file/watch/log";
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param file 文件相关信息
+     * @param uploadFile 上传的文件对象
+     */
+    @RequestMapping("watch/add")
+    public void watchAdd(Model model, File file, @RequestParam("uploadFile") MultipartFile uploadFile) {
+        fileService.add(file, uploadFile);
+        model.addAttribute("link", FileCenterClient.buildUrl(file.getFileLink()));
+    }
+
+    /**
+     * 去修改文件页面
+     *
+     * @param id 文件编号
+     */
+    @RequestMapping(value = "watch/modify", method = RequestMethod.GET)
+    public String watchModify(Model model, Long id) {
+        model.addAttribute("file", fileService.findFileById(id));
+        return "file/watch/modify";
+    }
+
+    /**
+     * 修改文件信息
+     *
+     * @param file 文件内容
+     * @param uploadFile 文件对象
+     */
+    @RequestMapping(value = "watch/modify", method = RequestMethod.POST)
+    public void watchModify(File file, @RequestParam(value = "uploadFile", required = false) MultipartFile uploadFile) {
+        fileService.modifyFile(file, uploadFile);
+    }
+
+    /**
+     * 最新
+     *
+     * @param id 编号
+     */
+    @RequestMapping("watch/set/new")
+    public void watchSetNew(Long id) {
+        fileService.handsetSetNew(id);
+    }
+}

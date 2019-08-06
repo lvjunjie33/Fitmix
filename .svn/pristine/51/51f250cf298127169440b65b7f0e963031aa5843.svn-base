@@ -1,0 +1,343 @@
+package com.business.work.api;
+
+import com.business.core.entity.api.Api;
+import com.business.core.entity.api.ApiDetails;
+import com.business.core.entity.api.Fields;
+import com.business.core.utils.CollectionUtil;
+import com.business.work.apiDetails.ApiDetailsService;
+import com.business.work.base.support.BaseControllerSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Created by zhangtao on 2016/4/26.
+ */
+@Controller
+@RequestMapping("api")
+public class ApiController extends BaseControllerSupport {
+
+    @Autowired
+    private ApiService apiService;
+    @Autowired
+    private ApiDetailsService apiDetailsService;
+
+    public static ArrayList<File> files = new ArrayList<>();
+
+    /**
+     * 生成API
+     * @param path
+     * @throws Exception
+     */
+    @RequestMapping(value = "api-generate")
+    public void generateApi(String path) throws Exception {
+
+        if( path == null) {
+            return;
+        }
+
+        //删除之前的API
+        if( path != null) {
+            apiService.removeAll();
+            apiDetailsService.removeAll();
+        }
+
+        File root = new File(path);
+        showAllFiles(root);
+
+        // 属性类型
+        HashMap<String, String> typeMap = new HashMap<>();
+
+        //1.添加到Api中
+        for(File file : files) {
+
+            Api api = new Api();
+            api.setStatus(1);
+            api.setAddTime(System.currentTimeMillis());
+            api.setModules("app");
+            api.setPid(0);
+            api.setSort(1);
+            BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), "GBK"));
+            List<String> list = new ArrayList<>();
+
+            String context = null;
+
+            do{
+                context = br.readLine();
+
+                if(context == null) {
+                    break;
+                }
+
+                if(context.trim().startsWith("@RequestMapping")) {
+
+                    String regex = "\"(\\S*)\"";
+                    Pattern pattern = Pattern.compile (regex);
+                    Matcher matcher = pattern.matcher(context.trim());
+                    if(matcher.find()) {
+//                        list.add("方法名称:"+matcher.group(1));
+                        api.setUrl(matcher.group(1));
+                        api.setApiName(matcher.group(1)+"相关接口");
+                        apiService.apiAdd(api);
+                        break;
+                    }
+                }
+
+            } while (context != null);
+            br.close();
+        }
+
+        //2.生成详情
+        List<Map<String,String>> list = new ArrayList<>();
+
+        for(File file : files) {
+//            FileReader fl = new FileReader(file);//File name
+            FileInputStream is = new FileInputStream(file);
+            InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+            BufferedReader bf = new BufferedReader(isr);
+
+//             List<String> list = new ArrayList<String>();
+
+//             list.add("类名："+file.getName());
+
+            String baseUri = "";
+
+            Integer flag = 0;
+
+            String context = null;
+
+            StringBuffer sb = null;
+
+            do{
+                context = bf.readLine();
+
+                if(context == null) {
+                    break;
+                }
+
+                if(context.trim().startsWith("*")) {
+
+                    String regex = "@param\\s([A-Za-z]+)\\s(\\S*)";
+                    Pattern pattern = Pattern.compile (regex);
+                    Matcher matcher = pattern.matcher (context.trim());
+                    if(matcher.find()){
+                        Map<String,String> map = new HashMap<String, String>();
+                        map.put("fields",matcher.group(1)+":"+matcher.group(2));
+                        list.add(map);
+//                         list.add("字段名称:"+matcher.group(1));
+//                         list.add("字段描述:"+matcher.group(2));
+                    }
+
+                    if(!context.trim().contains("@param") && !context.trim().contains("@return")) {
+                        Pattern p = Pattern.compile("\\*\\s(\\S*)");
+                        Matcher m = p.matcher (context.trim());
+                        if(m.find()) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("methodDesc",m.group(1));
+                            list.add(map);
+//                             list.add("方法描述："+m.group(1));
+                        }
+
+                    }
+
+                } else if(context.trim().startsWith("@RequestMapping")) {
+
+                    String regex = "\"(\\S*)\"";
+                    Pattern pattern = Pattern.compile (regex);
+                    Matcher matcher = pattern.matcher (context.trim());
+                    if(matcher.find()) {
+                        if(flag == 0) {
+                            flag++;
+                            Map<String,String> map = new HashMap<>();
+                            map.put("url",matcher.group(1));
+                            list.add(map);
+                            baseUri = matcher.group(1);
+                        } else {
+                            Map<String,String> map = new HashMap<>();
+                            map.put("url",baseUri+"=="+matcher.group(1));
+                            list.add(map);
+                        }
+//                         list.add("方法名称:"+matcher.group(1));
+                    }
+                } else if (context.contains("@RequestParam")) {
+                    String[] requestParamStrs = context.split(",");
+                    for (String requestParamStr : requestParamStrs) {
+                        if(requestParamStr.contains("@RequestParam")) {
+                            String[] requestParams = requestParamStr.split(" ");
+                            if(requestParams.length >= 2) {
+                                typeMap.put(requestParams[requestParams.length-1].trim(), requestParams[requestParams.length-2]);
+                            }
+                        }
+                    }
+                }
+
+            } while (context != null);
+
+            bf.close();
+            isr.close();
+            is.close();
+        }
+
+        ArrayList<Integer> index = new ArrayList<>();
+        index.add(0);
+        int lenght = list.size();
+        for(int i = 0; i < lenght; i++) {
+            Map<String, String> map = list.get(i);
+            if(map.containsKey("url")) {
+                index.add(i);
+            }
+        }
+
+        for(int i=0; i < index.size() - 1; i++) {
+            ApiDetails apiDetails = new ApiDetails();
+            apiDetails.setAddTime(System.currentTimeMillis());
+            apiDetails.setStatus(1);
+            apiDetails.setResult("");
+
+            Api api = new Api();
+            api.setStatus(1);
+            api.setAddTime(System.currentTimeMillis());
+            api.setModules("app");
+            api.setSort(1);
+
+
+            int start = index.get(i) + 1;
+            int end = index.get(1 + i);
+            for(; start <= end; start++) {
+                if(list.get(start).containsKey("url")) {
+                    String[] urls = list.get(start).get("url").split("==");
+                    Api rootApi = apiService.findApiByUrl(urls[0]);
+                    if(urls.length == 2) {
+                        api.setUrl(urls[1]);
+                        apiDetails.setUrl(urls[1]);
+                        apiDetails.setName(urls[1] + " 接口");
+                        api.setApiName(urls[1] + " 接口");
+                    }
+                    api.setPid(rootApi.getId());
+                }
+
+                if(list.get(start).containsKey("methodDesc")) {
+                    apiDetails.setDesc(list.get(start).get("methodDesc"));
+                }
+
+                if(list.get(start).containsKey("fields")) {
+                    String[] temp = list.get(start).get("fields").split(":");
+                    Fields fields = new Fields();
+                    fields.setIsNeed(1);
+                    fields.setName(temp[0]);
+                    String type = typeMap.containsKey(temp[0]) ? typeMap.get(temp[0]) : "string";
+                    fields.setType(type);
+                    if(temp.length == 2){
+                        fields.setDesc(temp[1]);
+                    }
+
+                    if(null == apiDetails.getFieldsList()) {
+                        List<Fields> fieldsList = new ArrayList<>();
+                        fieldsList.add(fields);
+                        apiDetails.setFieldsList(fieldsList);
+                    }else {
+                        apiDetails.getFieldsList().add(fields);
+                    }
+                }
+
+            }
+
+            apiService.apiAdd(api);
+            apiDetails.setApiId(api.getId());
+
+            apiDetailsService.apiDetailsAdd(apiDetails);
+
+
+        }
+
+    }
+
+
+    @RequestMapping("api-list")
+    public String apiList(String modules, Model model) {
+        List<Api> apiList = apiService.findAllApiByModules(modules);
+
+        Map<Integer, List<Api>> map = CollectionUtil.buildMultimap(apiList, Integer.class, Api.class, "pid");
+
+        List<Api> resultList = map.get(0);
+
+        for(Api api : resultList){
+            if(map.containsKey(api.getId())) {
+                api.setChildren(map.get(api.getId()));
+            }
+        }
+
+        model.addAttribute("apiList", resultList);
+        return "api/api-list";
+    }
+
+
+    /**
+     * API接口展示首页
+     * @param model
+     * @param request
+     * @return
+     */
+    @RequestMapping("api-index")
+    public String apiIndex(Model model, HttpServletRequest request) {
+
+        List<Api> apiList = apiService.findAllApi();
+        Map<Integer, List<Api>> apiMap = CollectionUtil.buildMultimap(apiList, Integer.class, Api.class, "pid");
+        List<Api> resultList = apiMap.get(0);
+
+        for(Api api : resultList) {
+            if(apiMap.containsKey(api.getId())) {
+                api.setChildren(apiMap.get(api.getId()));
+            }
+        }
+
+        request.getSession().setAttribute("apiList", resultList);
+
+        return "api/index";
+    }
+
+    /**
+     * 跳转接口详情
+     * @param apiId 接口编号
+     * @param model
+     * @return
+     */
+    @RequestMapping("api-details")
+    public String apiDetails(@RequestParam("apiId") Integer apiId, @RequestParam("rootUrl") String rootUrl, Model model) {
+        model.addAttribute("apiDetails", apiDetailsService.findApiDetailsByApiId(apiId))
+             .addAttribute("rootUrl", rootUrl);
+        return "api/api-details";
+    }
+
+
+    /**
+     * 循环遍历文件夹下所有文件
+     * @param dir
+     * @throws Exception
+     */
+    public static final void showAllFiles(File dir) throws Exception {
+        File[] fs = dir.listFiles();
+        for(int i = 0; i < fs.length; i++) {
+            if(fs[i].isDirectory()) {
+                try {
+                    showAllFiles(fs[i]);
+                } catch (Exception e) {}
+            } else {
+                if(fs[i].getName().contains("Controller")) {
+                    files.add(fs[i]);
+                }
+            }
+        }
+    }
+
+
+}

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5"
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+        http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath*:applicationContext.xml,
+            classpath*:applicationContext-quartz.xml
+        </param-value>
+    </context-param>
+
+    <!--  system default init  -->
+    <servlet>
+        <servlet-name>baseInitServlet</servlet-name>
+        <servlet-class>com.business.scheduler.base.servlet.BaseInitServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>baseInitServlet</servlet-name>
+        <url-pattern>/init</url-pattern>
+    </servlet-mapping>
+
+    <!--  scheduler servlet handler  -->
+    <servlet>
+        <servlet-name>scheduleServlet</servlet-name>
+        <servlet-class>com.business.scheduler.base.servlet.ScheduleServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>scheduleServlet</servlet-name>
+        <url-pattern>/scheduler/*</url-pattern>
+    </servlet-mapping>
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+    </listener>
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+</web-app>

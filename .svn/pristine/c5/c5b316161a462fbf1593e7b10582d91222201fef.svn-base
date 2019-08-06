@@ -1,0 +1,42 @@
+body, .container {
+  background-color: #f9f9fc;
+  padding: 0;
+  margin: 0; }
+
+.container {
+  max-width: 16rem;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column; }
+
+.logo, .slogan, .ios, .android {
+  text-align: center; }
+
+.logo img {
+  width: 6.4rem;
+  height: auto; }
+
+.slogan {
+  margin-top: 2.13333rem; }
+
+.slogan img {
+  width: 9.89867rem;
+  height: auto; }
+
+.ios {
+  margin-top: 2.56rem; }
+
+.ios img {
+  height: 2.13333rem;
+  width: auto; }
+
+.android {
+  margin-top: 1.06667rem; }
+
+.android img {
+  height: 2.13333rem;
+  width: auto; }
+
+/*# sourceMappingURL=generalize.css.map */

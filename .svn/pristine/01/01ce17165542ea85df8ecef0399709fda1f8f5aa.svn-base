@@ -1,0 +1,632 @@
+package com.business.app.userRun;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.business.app.base.support.BaseServiceSupport;
+import com.business.app.user.UserDao;
+import com.business.app.userEveryDayRun.UserEveryDayRunService;
+import com.business.core.client.AliyunCenterClient;
+import com.business.core.client.FileCenterClient;
+import com.business.core.constants.Constants;
+import com.business.core.constants.FileConstants;
+import com.business.core.constants.VersionConstants;
+import com.business.core.entity.CityNo;
+import com.business.core.entity.Page;
+import com.business.core.entity.PopUp;
+import com.business.core.entity.SysParam;
+import com.business.core.entity.cityNo.CityNoCoreDao;
+import com.business.core.entity.user.User;
+import com.business.core.entity.user.UserRun;
+import com.business.core.entity.user.info.UserRunStat;
+import com.business.core.mongo.DefaultDao;
+import com.business.core.operations.user.UserCoreDao;
+import com.business.core.operations.userRun.UserRunCoreDao;
+import com.business.core.redis.RedisMsgManager;
+import com.business.core.utils.*;
+import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
+
+/**
+ * Created by sin on 2015/4/20.
+ */
+@Service
+public class UserRunService extends BaseServiceSupport {
+
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private UserRunDao userRunDao;
+    @Autowired
+    private CityNoCoreDao cityNoCoreDao;
+    @Autowired
+    private UserEveryDayRunService userEveryDayRunService;
+    @Autowired
+    private UserRunCoreDao userRunCoreDao;
+
+    /**
+     * 添加用户运动轨迹
+     *
+     * @param file 运动轨迹详细（文件保存）
+     * @param uid 用户编号
+     * @param bpm bpm 平均频率
+     * @param locationType 定位类型
+     * @param model 跑步模式 （室内，室外）
+     * @param runTime 运动时间（运动了多久，long 秒）
+     * @param startTime 运动开始时间
+     * @param endTime 运动结束时间
+     * @param distance 运动（米）
+     * @param startLat 起始经度
+     * @param startLng 起始纬度
+     * @param endLat 结束经度
+     * @param endLng 结束纬度
+     * @param bpmMatch bpm匹配度
+     * @param step 步（多少步）
+     * @param calorie 卡路里（卡路里）
+     */
+    public Object[] addUserRun (MultipartFile file, MultipartFile stepDetail, Integer uid, Integer bpm, Integer locationType, Integer model, Integer type, Long runTime,
+                               Long startTime, Long endTime, Long distance, Double startLng, Double startLat, Double endLng, Double endLat, Double bpmMatch, Long step, Long calorie, Boolean isIOS) {
+
+        // IOS V1.0 体育部 不需要 记步文件
+        boolean stepDetailCheck = true;
+        if (getTerminalType() == Constants.TERMINAL_IOS && getContext().getVersion().equals(VersionConstants.IOS.VERSION_1.getVersion())) {
+            stepDetailCheck = false;
+        }
+
+        if (stepDetailCheck && stepDetail == null) {
+            return new Object[]{1};
+        }
+
+        UserRun beforeUserRun = userRunDao.findUserRunByStartTime(uid, startTime);
+        if (beforeUserRun != null) {
+            buildUserRunFileUrl(beforeUserRun);
+            return new Object[]{2, beforeUserRun};
+        }
+
+        UserRun userRun = new UserRun();
+        String detailFile = "";
+        if (file != null) {
+            detailFile = AliyunCenterClient.putFile(FileConstants.FILE_TYPE_USER_RUN_DETAIL, file);
+        }
+        userRun.setDetail(detailFile);
+
+        String stepDetailFile = "";
+        if (stepDetail != null) {
+            stepDetailFile = AliyunCenterClient.putFile(FileConstants.FILE_TYPE_USER_STEP_DETAIL, stepDetail);
+        }
+
+        userRun.setStepDetail(stepDetailFile);
+        userRun.setUid(uid);
+        userRun.setType(type);
+        userRun.setDistance(distance);
+        userRun.setStartLat(startLat);
+        userRun.setStartLng(startLng);
+        userRun.setEndLat(endLat);
+        userRun.setEndLng(endLng);
+        userRun.setRunTime(runTime);
+        userRun.setStartTime(startTime);
+        userRun.setEndTime(endTime);
+        userRun.setBpm(bpm);
+        userRun.setLocationType(locationType);
+        userRun.setModel(model);
+        // 计算 bpmMatch， 超越 100% 的 bpmMatch
+        Double calBpmMatch = 100 - bpmMatch % 100;
+        userRun.setBpmMatch(bpmMatch);
+        userRun.setUserBpmMatch(calBpmMatch);
+        //默认值
+        userRun.setAddTime(System.currentTimeMillis());
+        userRun.setUpdateTime(System.currentTimeMillis());
+        userRun.setState(UserRun.STATE_EFFECTIVE);
+
+        // 用户运动打分， 超越多少用户
+//        userRun.setMark(userRunMark(calBpmMatch));
+
+        // 步数, 卡路里
+        userRun.setStep(step);
+        userRun.setCalorie(calorie);
+
+        beforeUserRun = userRunDao.findUserRunByStartTime(uid, startTime);
+        if (beforeUserRun != null) {
+            buildUserRunFileUrl(beforeUserRun);
+            return new Object[]{2, beforeUserRun};
+        }
+
+        if (isIOS) {
+            userRun.setDeviceType(Constants.TERMINAL_IOS);
+        } else {
+            userRun.setDeviceType(Constants.TERMINAL_ANDROID);
+        }
+
+        userRunDao.insertUserRun(userRun);
+
+        //更新最后运动数据、以及总运动数据
+        //更新俱乐部信息
+        //运动榜单
+        //异步任务
+        RedisMsgManager.sendUserRunTask(userRun);
+        if(userRun.getType() == UserRun.TYPE_RUN || userRun.getType() == UserRun.TYPE_UNKNOWN) {
+            updateUser(userRun);
+            afterUserRunHandle(userRun);
+        }
+
+        // 构建 文件地址
+        buildUserRunFileUrl(userRun);
+        return new Object[]{0, userRun};
+    }
+
+    /**
+     * TODO 这个方法没用了
+     * 用户运动打分
+     * @param calBpmMatch 匹配度
+     * @return 分数 如：（超越 99 的用户）
+     */
+    @Deprecated
+    public Double userRunMark (Double calBpmMatch) {
+        Double bpmMatch = 0.0;
+        if (calBpmMatch <= 0) {
+            return bpmMatch;
+        }
+        Integer allUserCount = userDao.findUserByLastRunGtBpmMatch(-1.0); // 获取运动的人群
+        Integer bpmMatchCount = userDao.findUserByLastRunLtBpmMatch(calBpmMatch + 1); // 获取超越 匹配人群
+        if (allUserCount == 0 || bpmMatchCount == 0) {
+            return bpmMatch;
+        }
+        // 计算 超出 100% 用户， 超出运动人群
+        if (bpmMatchCount >= allUserCount) {
+            return 100.00;
+        }
+        return  MathUtil.round(((double)bpmMatchCount) / allUserCount, 2) * 100;
+    }
+
+
+
+    /**
+     * 根据 uid ，和 运动开始时间删除 更新历史记录
+     * @param uid 用户编号
+     * @param startTime 运动开始时间
+     */
+    public void removeRun (Integer uid, Long startTime) {
+        userRunDao.updateByUidAndStartTime(uid, startTime, Update.update("state", UserRun.STATE_INVALID).set("updateTime", System.currentTimeMillis()));
+    }
+
+
+    /**
+     * 根据 uid ，和 运动开始时间删除 更新历史记录 [多个]
+     * @param uid 用户编号
+     * @param startTime 运动开始时间
+     */
+    public void removeRuns (Integer uid, Long[] startTime) {
+        userRunDao.updateByUidAndStartTimes(uid, Lists.newArrayList(startTime), Update.update("state", UserRun.STATE_INVALID).set("updateTime", System.currentTimeMillis()));
+    }
+
+    /**
+     * 历史运动轨迹数据 , lastLoginTime 空则返回 所有
+     * @param uid 用户编号
+     * @param lastAddTime 分页
+     * @return 所有运动轨迹数据
+     */
+    public Object[] historyUserRun(Integer uid, Long lastAddTime) {
+        // lastAddTime 查询 updateTime 和 addTime
+        UserRun lastUpdateUserRun = userRunDao.findLastUpdateUserRun(uid, "updateTime"); // 最后更新记录
+        if (lastAddTime != null) {
+            List<UserRun> newUserRunList = userRunDao.findNewUserRun(uid, lastAddTime);
+            buildUserRunFileUrl(newUserRunList);
+            List<UserRun> removeUserRunList = userRunDao.findRemoveUserRun(uid, lastAddTime, "startTime");
+            return new Object[]{newUserRunList, removeUserRunList, lastUpdateUserRun};
+        }
+        else {
+            List<UserRun> newUserRunList = userRunDao.findByUidWidthStartTime(uid);
+            buildUserRunFileUrl(newUserRunList);
+            return new Object[]{newUserRunList, lastUpdateUserRun};
+        }
+    }
+
+    /**
+     * 历史运动分页
+     *
+     * @param uid 用户编号
+     * @param index 第几页
+     * @return 用户运动集合
+     */
+    public List<UserRun> historyUserRun(Integer uid, Integer index) {
+        Page<UserRun> page = new Page<>();
+        page.setSize(SysParam.INSTANCE.APP_USER_RUN_HISTORY_SIZE);
+        page.setIndex(index);
+        page.getFilter().put("uid", uid);
+
+        page.getFilter().put("type", UserRun.TYPE_RUN);
+
+        userRunDao.findPageUserRun(page);
+        return page.getResult();
+    }
+
+
+    /**
+     * 根据城市查询最新20个用户数据
+     *
+     * @param cityId 城市
+     * @return 用户运动集合
+     */
+    public List<UserRun> historyUserRunLimit(String cityId) {
+        //根据城市ID查询20个用户信息
+        List<User> listUser = userDao.historyUserLimit(cityId);
+        List<UserRun> resultList=new ArrayList<UserRun>();
+        for(User user:listUser){
+            //根据用户ID查询运动记录（最新一条运动记录）
+            List<UserRun> listUserRun = userRunDao.historyUserRunLimit(user.getId());
+            if(listUserRun.size()>0){
+                resultList.add(listUserRun.get(0));
+            }
+        }
+        return resultList;
+    }
+
+
+    /**
+     * 重构文件 url地址
+     * @param userRunList 用户运动集合
+     */
+    public void buildUserRunFileUrl (List<UserRun> userRunList) {
+        if (!CollectionUtils.isEmpty(userRunList)) {
+            for (UserRun userRun : userRunList) {
+                buildUserRunFileUrl(userRun);
+            }
+        }
+    }
+
+    public void buildUserRunFileUrl(UserRun userRun) {
+        if (null == userRun) {
+            return;
+        }
+        if (null != userRun.getDetail()) {
+            userRun.setDetail(FileCenterClient.buildUrl(userRun.getDetail()));
+        }
+       if (null != userRun.getStepDetail()) {
+           userRun.setStepDetail(FileCenterClient.buildUrl(userRun.getStepDetail()));
+       }
+        if (null != userRun.getHeartRate() && null != userRun.getHeartRate().getHeartRateFileLink()) {
+            userRun.getHeartRate().setHeartRateFileLink(FileCenterClient.buildUrl(userRun.getHeartRate().getHeartRateFileLink()));
+        }
+        if (null != userRun.getWatchZipFile()) {
+            userRun.setWatchZipFile(FileCenterClient.buildUrl(userRun.getWatchZipFile()));
+        }
+    }
+
+    /**
+     * 获取昨天运动数据
+     * @param uid   用户id
+     * @return  用户昨日运动相关数据
+     */
+    public List<UserRun> findUserRunInYesterday(Integer uid){
+        long addTime = DateUtil.getDayBegin(DateUtil.getDayBefore(new Date())).getTime();
+        List<UserRun> userRuns = userRunDao.findUserRunByAddTime(uid, addTime, addTime, "distance", "runtime", "step", "calorie");
+        return userRuns;
+    }
+
+    /**
+     *  获取当天的运动数据
+     * @param uid   用户id
+     * @return
+     */
+    public List<UserRun> findUserRun(Integer uid, Date date) {
+        long addTime = DateUtil.getDayBegin(date).getTime();
+        long endTime = DateUtil.getDayEnd(date).getTime();
+        List<UserRun> userRuns = userRunDao.findUserRunByAddTime(uid, addTime, endTime, "distance", "runtime", "step", "calorie");
+        return userRuns;
+    }
+
+    /**
+     * 查询城市编号
+     * @param currenCity 城市名称（中文）
+     * @return 城市编号
+     */
+    public CityNo findCityNo(String currenCity){
+        int areaId = cityNoCoreDao.findCityByAreaCh(currenCity, "areaId").getAreaId();
+        CityNo cityNo = new CityNo();
+        cityNo.setAreaId(areaId);
+        return cityNo;
+    }
+
+    /**
+     * 获取弹窗相关内容（暂时只能通过城市获取城市当天天气）
+     * @param currentCity
+     * @return 弹窗相关数据
+     */
+    public PopUp findPopUp(String currentCity, Integer uid){
+        if(currentCity.contains("市")||currentCity.contains("区")||currentCity.contains("县")){
+            currentCity = currentCity.substring(0,currentCity.length()-1);
+        }
+        int areaId = cityNoCoreDao.findCityByAreaCh(currentCity, "areaId").getAreaId();
+        String interfaceURL = SmartWeatherUtil.getActionURL(areaId + "", "forecast_v");
+        PopUp popUp = new PopUp();
+        //获取天气
+        JSONObject jsonObject = JSON.parseObject(HttpUtil.get(interfaceURL));
+        //获取返回json的元素f（key:"f"）的value(即天气预报)
+        JSONObject j_f = JSON.parseObject(jsonObject.get("f").toString());
+        //获取返回json元素f.f1（"key:"f1""）的value(即为三天的天气预报)
+        JSONArray j_f1 = JSON.parseArray(j_f.get("f1").toString());
+        //获取返回json元素f.f1[0]的value(即当天天气预报)
+        JSONObject result = JSON.parseObject(j_f1.get(0).toString());
+        //获取返回json元素f.f1[0].fc(fd、fa、fb)的value(即白天天气现象、晚上天气现象、白天温度、晚上温度)
+        popUp.setTemperature1(Integer.parseInt(result.get("fc").toString()));
+        popUp.setTemperature2(Integer.parseInt(result.get("fd").toString()));
+        popUp.setWeather1(result.get("fa").toString());
+        popUp.setWeather2(result.get("fb").toString());
+        popUp.setAreaCh(currentCity);
+        //获取用户昨日运动数据
+        popUp.setUserEveryDayRun(userEveryDayRunService.findUserRunInYesterday(uid));
+        return popUp;
+    }
+
+    /**
+     * 获取用户跑步记录
+     * @param id
+     * @param uid
+     * @return
+     */
+    public UserRun findUserRunByIdAndUid(Integer id, Integer uid) {
+        return userRunDao.findUserRunByIdAndUid(id, uid) ;
+    }
+
+    /**
+     * 统计用户有效记录
+     * @param startUid
+     * @param endUid
+     * @return
+     */
+    public Map<Integer, Long> statisticsValidUserRunByUid(Integer startUid, Integer endUid) {
+        return userRunDao.statisticsValidUserRunByUid(startUid, endUid, "id", "uid", "distance", "bpm");
+    }
+
+    /**
+     * 添加用户运动轨迹
+     *
+     * @param userRun 运动数据
+     */
+    public synchronized int addUserRun (UserRun userRun) {
+        UserRun beforeUserRun = userRunDao.findUserRunByStartTime(userRun.getUid(), userRun.getStartTime());
+        if (beforeUserRun != null) {
+            buildUserRunFileUrl(beforeUserRun);
+            return 2;
+        }
+
+        userRunDao.insertUserRun(userRun);
+
+        //更新最后运动数据、以及总运动数据
+        //更新俱乐部信息
+        //运动榜单
+        //异步任务
+        RedisMsgManager.sendUserRunTask(userRun);
+        if(UserRun.TYPE_RUN.equals(userRun.getType()) || UserRun.TYPE_UNKNOWN.equals(userRun.getType())) {
+            updateUser(userRun);
+            afterUserRunHandle(userRun);
+        }
+        // 构建 文件地址
+        buildUserRunFileUrl(userRun);
+        return 0;
+    }
+
+    public void afterUserRunHandle(UserRun userRun) {
+        RedisMsgManager.sendClubUserRunRankTask(userRun);
+        RedisMsgManager.sendRunRankTaskHandleMsg(userRun);
+        RedisMsgManager.sendUserRunStatTaskMsg(userRun);
+    }
+
+    /**
+     * 更新用户最后一次运动
+     * @param lastUserRun 最后用户运动信息
+     */
+    public void updateUser(UserRun lastUserRun) {
+        if (true) {
+            return;
+        }
+        // TODO 后面的无效了
+        Integer uid = lastUserRun.getUid();
+        if (null == lastUserRun.getStep()) { // TODO 兼容1.0.1[ 迭代 3个版本后去掉 ]
+            lastUserRun.setStep(0L);
+        }
+        if (null == lastUserRun.getCalorie()) { // TODO 兼容1.0.1[ 迭代 3个版本后去掉 ]
+            lastUserRun.setCalorie(0L);
+        }
+        Long runTime = 0L;
+        if (lastUserRun.getRunTime() != 0) { // TODO 兼容1.0.1[ 迭代 3个版本后去掉 ]
+            runTime = lastUserRun.getRunTime() / 1000 / 60;
+        }
+        if (null == lastUserRun.getConsumeFat()) {
+            lastUserRun.setConsumeFat(0D);
+        }
+        BeanManager.getBean(UserCoreDao.class).updateUserById(uid, Update.update("lastRun", lastUserRun)
+                .inc("distance", lastUserRun.getDistance()).inc("step", lastUserRun.getStep()).inc("calorie", lastUserRun.getCalorie())
+                .inc("runTime", runTime).inc("consumeFatSum", lastUserRun.getConsumeFat()));
+    }
+
+    /**
+     * 补充 detail 文件上传
+     */
+    public UserRun detailAddRun(Map<String, MultipartFile> fileMap, Long startTime, Integer uid) {
+        DefaultDao defaultDao = BeanManager.getBean(DefaultDao.class);
+        UserRun userRun = defaultDao.findOne(Query.query(Criteria.where("startTime").is(startTime).and("uid").is(uid)), UserRun.class);
+
+        Date begin = DateUtil.parse("2017-03-01", "yyyy-MM-dd");
+        Date end = DateUtil.parse("2017-03-25", "yyyy-MM-dd");
+        if (userRun.getAddTime() < begin.getTime() || userRun.getAddTime() > end.getTime()) {
+            return null;
+        }
+
+        if (!StringUtils.isEmpty(userRun.getDetail())) {
+            if (userRun.getDetail().contains(".json") || userRun.getDetail().contains(".step")) {
+                return null;
+            }
+        }
+
+        if (fileMap.containsKey("file")) {
+            MultipartFile file = fileMap.get("file");
+            if (file != null) {
+                String detailFile = AliyunCenterClient.putFile(FileConstants.FILE_TYPE_USER_RUN_DETAIL, file);
+                defaultDao.modifyFirst(Query.query(Criteria.where("startTime").is(startTime).and("uid").is(uid)), Update.update("detail", detailFile), UserRun.class);
+            }
+        }
+
+        userRun = defaultDao.findOne(Query.query(Criteria.where("startTime").is(startTime).and("uid").is(uid)),UserRun.class);
+        return userRun;
+    }
+
+    /**
+     * 查询用户的运动天数信息
+     *
+     * @param user 用户
+     */
+    public Object[] runDayInfo(User user) {
+        Integer uid = user.getId();
+        UserRunStat stat = userRunDao.findUserRunStatByUid(uid, UserRunStat.STAT_SUM, "--", UserRunStat.BASIC_INFO_FIELDS_SUM);
+        Long runDay = userRunDao.findUserRunDay(uid);
+
+        UserRun userRun = userRunDao.findLastUpdateUserRun(uid);
+        Long startTime = null;
+        if (userRun != null) {
+            startTime = userRun.getStartTime();
+        }
+
+        if (stat != null) {
+            user.setDistance(stat.getSumDistance());
+            user.setStep(stat.getSumStep());
+            user.setRunTime(stat.getRunTime() / 60 / 1000);
+            user.setCalorie(stat.getSumCalorie());
+            user.setConsumeFatSum(stat.getSumConsumeFat());
+        }
+        return new Object[]{runDay, startTime};
+    }
+
+    /**
+     * 获取月排行榜榜单
+     *
+     * @param uid 用户编号
+     */
+    public Object[] getRunMonthRank(Integer uid, Date time) {
+        UserRunStat allStat = userRunDao.findUserRunStatByUid(uid, UserRunStat.STAT_SUM, "--", "sumDistanceValid");
+
+        UserRunStat beforeStat = userRunDao.findUserRunStatByUid(uid, UserRunStat.STAT_MONTH, DateUtil.format(DateUtil.getMonthBeforeBegin(time), "yyyy-MM-dd"), UserRunStat.BASIC_INFO_FIELDS_VALID);
+
+        UserRunStat stat = userRunDao.findUserRunStatByUid(uid, UserRunStat.STAT_MONTH, DateUtil.format(time, "yyyy-MM-dd"), UserRunStat.BASIC_INFO_FIELDS_VALID);
+
+        Long rank;
+        Long beforeRank;
+
+        if (stat != null) {
+            if (stat.getLevel() != null && stat.getPace() != 0) {
+                rank = userRunDao.findUserRunStat(uid, stat.getType(), stat.getStatTime(), stat.getLevel(), stat.getSumDistanceValid(), stat.getPace(), stat.getRegisterTime());
+                stat.setRank(rank + 1);
+            }
+        }
+
+
+        if (beforeStat != null) {
+            if (beforeStat.getLevel() != null && beforeStat.getPace() != 0) {
+                beforeRank = userRunDao.findUserRunStat(uid, beforeStat.getType(), DateUtil.format(DateUtil.getMonthBeforeBegin(time), "yyyy-MM-dd"),
+                        beforeStat.getLevel(), beforeStat.getSumDistanceValid(), beforeStat.getPace(), beforeStat.getRegisterTime());
+                beforeStat.setRank(beforeRank + 1);
+            }
+        }
+        return new Object[]{allStat, stat, beforeStat};
+    }
+
+    /**
+     * 用户运动pk
+     *
+     * @param uid 用户编号
+     * @param targetUid 目标用户编号
+     * @param time 时间
+     */
+    public Object[] runMonthRankPk(Integer uid, Integer targetUid, Date time) {
+        UserRunStat stat = userRunDao.findUserRunStatByUid(uid, UserRunStat.STAT_MONTH, DateUtil.format(time, "yyyy-MM-dd"), UserRunStat.BASIC_INFO_FIELDS_VALID);
+        UserRunStat targetStat = userRunDao.findUserRunStatByUid(targetUid, UserRunStat.STAT_MONTH, DateUtil.format(time, "yyyy-MM-dd"), UserRunStat.BASIC_INFO_FIELDS_VALID);
+        return new Object[]{stat, targetStat};
+    }
+
+    /**
+     * 用户运动统计
+     *
+     * @param page 分页对象
+     * @param uid 用户编号
+     * @param statTime 时间
+     */
+    public void runMonthRank(Page<UserRunStat> page, Integer uid, String statTime) {
+        if (!page.getFilter().containsKey("level")) {
+            UserRunStat stat = userRunDao.findUserRunStatByUid(uid, UserRunStat.STAT_MONTH, statTime, "level");
+            if (stat == null || stat.getLevel() == null) {
+                page.getFilter().put("level", 1);
+            } else {
+                page.getFilter().put("level", stat.getLevel());
+            }
+        }
+        page.getFilter().put("statTime", statTime);
+        userRunCoreDao.runMonthRank(page);
+        List<UserRunStat> stats = page.getResult();
+        if (!CollectionUtils.isEmpty(stats)) {
+            Set<Integer> uids = new HashSet<>();
+            for (UserRunStat s : stats) {
+                uids.add(s.getUid());
+            }
+            List<User> users = userDao.findUserByIds(uids, "gender", "avatar", "name");
+            Map<Integer, User> userMap = new HashMap<>();
+            for (User u : users) {
+                u.setAvatar(FileCenterClient.buildUrl(u.getAvatar()));
+                userMap.put(u.getId(), u);
+            }
+            for (UserRunStat s : stats) {
+                s.setUser(userMap.get(s.getUid()));
+            }
+        }
+    }
+
+    /**
+     * 添加用户运动轨迹
+     *
+     * @param userRun 运动数据
+     */
+    public synchronized int addWatchRun (UserRun userRun) {
+        UserRun beforeUserRun = userRunDao.findUserRunByStartTime(userRun.getUid(), userRun.getStartTime());
+        //手表运动记录存在
+        if (beforeUserRun != null) {
+            userRun = beforeUserRun;
+        }
+        //手表运动记录存在且状态为0“失效”
+        if(beforeUserRun != null && beforeUserRun.getState()==0){
+            //将原有运动记录改成1“有效”
+            userRunDao.updateUserRunState(beforeUserRun.getUid(), userRun.getStartTime(), Update.update("state", UserRun.STATE_EFFECTIVE).set("updateTime", System.currentTimeMillis()));
+        }
+        //手表运动记录不存在
+        if(beforeUserRun==null){
+            //插入
+            userRunDao.insertUserRun(userRun);
+
+            RedisMsgManager.sendUserRunWatchTask(userRun);
+        }
+
+
+        // 构建 文件地址
+        userRun.setWatchZipFile(FileCenterClient.buildUrl(userRun.getWatchZipFile()));
+        return 0;
+    }
+
+    /**
+     * @param uid 测试手表文件
+     */
+    public String getZipFile (Integer uid) {
+        UserRun userRun = userRunDao.findLastUpdateUserRun(uid);
+        return userRun.getWatchSourceZipFile();
+    }
+
+
+
+}

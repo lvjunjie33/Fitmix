@@ -1,0 +1,726 @@
+var map = new BMap.Map('map');
+//map.centerAndZoom(new BMap.Point(116.404269,39.916042), 12);
+Array.prototype.max = function(){
+    return Math.max.apply({},this)
+};
+Array.prototype.min = function(){
+    return Math.min.apply({},this)
+};
+map.addControl(new BMap.NavigationControl());        // 添加平移缩放控件
+map.addControl(new BMap.ScaleControl());             // 添加比例尺控件
+map.addControl(new BMap.OverviewMapControl());       //添加缩略地图控件
+map.enableScrollWheelZoom();                         //启用滚轮放大缩小
+map.disable3DBuilding();
+
+//个性化在线编辑器地址：http://developer.baidu.com/map/custom/
+var styleJson = [
+    //大背景
+    {
+        "featureType": "background",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#1D2328",
+            "visibility": "on"
+        }
+    },
+    //绿地
+
+    {
+        "featureType": "green",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#2D3439",
+            "visibility": "on"
+        }
+    },
+
+    //人造区域
+    {
+        "featureType": "manmade",
+        "elementType": "labels",
+        "stylers": {
+            "color": "#353b40",
+            "visibility": "off"
+        }
+    },
+
+
+    //建筑
+    {
+        "featureType": "building",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#30363C",
+            "visibility": "on"
+        }
+    },
+
+
+    //水系
+    {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#33393E",
+            "visibility": "on"
+        }
+    },
+
+
+    //陆地
+    {
+        "featureType": "land",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#282F34",
+            "visibility": "on"
+        }
+    } ,
+
+
+//===================================
+
+    //兴趣点
+    {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#3B4045",
+            "visibility": "on"
+        }
+    },
+
+    //兴趣点描边
+
+
+    {
+        "featureType": "poi",
+        "elementType": "labels.text.stroke",
+        "stylers": {
+            "color": "#353b40",
+            "visibility": "on"
+        }
+    },
+
+    //兴趣点填充
+
+
+    {
+        "featureType": "poi",
+        "elementType": "labels.text.fill",
+        "stylers": {
+            "color": "#999999",
+            "visibility": "on"
+        }
+    } ,
+    //兴趣点图标不显示
+    {
+        "featureType": "poi",
+        "elementType": "labels.icon",
+        "stylers": {
+            "visibility": "off"
+        }
+    } ,
+//===================================
+
+
+
+    //行政区块
+    {
+        "featureType": "administrative",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#3B4045",
+            "visibility": "on"
+        }
+    },
+
+
+    //行政标注
+
+
+    {
+        "featureType": "label",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#7f6000",
+            "visibility": "on"
+
+        }
+    },
+
+
+    //行政标注填充
+
+    {
+        "featureType": "label",
+        "elementType": "labels.text.fill",
+        "stylers": {
+            "color": "#999999",
+            "visibility": "on"
+        }
+    },
+
+
+
+    //行政标注描边
+
+    {
+        "featureType": "label",
+        "elementType": "labels.text.stroke",
+        "stylers": {
+            "color": "#353b40",
+            "visibility": "on"
+        }
+    },
+
+    //边界
+    {
+        "featureType": "boundary",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#43484D",
+            "visibility": "on"
+        }
+    },
+
+//===================================
+
+    //道路
+    {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#53575B",
+            "visibility": "on"
+        }
+    },
+    //道路文本填充
+    {
+        "featureType": "road",
+        "elementType": "labels.text.fill",
+        "stylers": {
+            "color": "#999999",
+            "visibility": "on"
+        }
+    },
+    //道路文本描边
+    {
+        "featureType": "road",
+        "elementType": "labels.text.stroke",
+        "stylers": {
+            "color": "#353b40",
+            "visibility": "on"
+        }
+    },
+    //城市主干道
+
+    {
+        "featureType": "arterial",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#505459",
+            "visibility": "on"
+        }
+    },
+
+
+    //普通道路
+
+    {
+        "featureType": "local",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#4E5256",
+            "visibility": "on"
+        }
+    },
+
+
+    //铁路
+
+    {
+        "featureType": "railway",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#4B4F54",
+            "visibility": "on"
+        }
+    },
+
+    //地铁
+
+    {
+        "featureType": "subway",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#484D51",
+            "visibility": "on"
+        }
+    },
+
+    //高速
+    {
+        "featureType": "highway",
+        "elementType": "geometry",
+        "stylers": {
+            "color": "#454A4F",
+            "visibility": "on"
+        }
+    }
+
+];
+map.setMapStyle({styleJson:styleJson});
+
+function drawMap(array) {
+    //var array = [
+    //    {"time":1525249138021,"sportState":false,"lng":113.935301,"lat":22.557330,"Accuracy":13,"altitude":58.8,"speed":0},
+    //    {"time":1525249165050,"sportState":false,"lng":113.935263,"lat":22.557353,"Accuracy":17,"altitude":43.6,"speed":0},
+    //    {"time":1525249322745,"sportState":false,"lng":113.935186,"lat":22.557311,"Accuracy":14,"altitude":41.5,"speed":0},
+    //    {"time":1525249502976,"sportState":false,"lng":113.935217,"lat":22.557334,"Accuracy":13,"altitude":47.2,"speed":0},
+    //    {"time":1525249565152,"sportState":false,"lng":113.935232,"lat":22.557324,"Accuracy":12,"altitude":46.8,"speed":0},
+    //    {"time":1525249895875,"sportState":false,"lng":113.935247,"lat":22.557307,"Accuracy":13,"altitude":46.8,"speed":0},
+    //    {"time":1525250086025,"sportState":false,"lng":113.935278,"lat":22.557275,"Accuracy":12,"altitude":46.6,"speed":0},
+    //    {"time":1525250159012,"sportState":false,"lng":113.935293,"lat":22.557261,"Accuracy":12,"altitude":48.3,"speed":0}
+    //];
+    if(typeof array == 'undefined' || array.length <= 0) {
+        $(".map-wrapper").css("display", "none");
+        $(".map-bottom").css("opacity",0);
+        $(".map-especially").css("opacity",0);
+        $(".map-position").css("opacity",0);
+        $(".no-map").css("display", "block");// 没有地图时显示头像，公里（即可能数据丢失）
+        setTimeout(function () {
+            // 圣诞节专用，显示麋鹿的样式
+            var aboutTime = window.share.attributes.startTime;
+            var bTime = 1513958400000;//真实的
+            var eTime = 1514217599000;//真实的
+//            var bTime1 = 1513785600000;
+            var nowTime = new Date().getTime();
+            if(nowTime >= bTime && nowTime <= eTime){
+                $(".map-especially").css("opacity",1);
+            }else{
+                $('.map-especially').remove();
+                $(".map-bottom").css("opacity",1);
+            }
+
+
+            $(".map-position").css("opacity",1);
+            $("#distance").addClass("show");
+            if(typeof window.share.attributes.distance != 'undefined' && window.share.attributes.distance != null) {
+                var distance = new CountUp("distance", 0, window.share.attributes.distance / 1000, 2, 2, {
+                    useEasing: true,
+                    easingFn: function (t, b, c, d) {
+                        var ts = (t /= d) * t;
+                        var tc = ts * t;
+                        return b + c * (tc + -3 * ts + 3 * t);
+                    },
+                    useGrouping: false,
+                    separator: '',
+                    decimal: '.',
+                    prefix: '',
+                    suffix: 'KM'
+                });
+                distance.start();
+            } else {
+                $("#distance").text("--");
+            }
+        }, 100);
+    } else {
+        window.viewPort = map.getViewport(array);
+        console.log(viewPort);
+        var latList = new Array(); //纬度
+        var lngList = new Array(); //经度
+
+        for(var i = 0;i < array.length; i++) {
+            latList.push(array[i].lat);
+            lngList.push(array[i].lng);
+
+        }
+
+        var maxLng = lngList.max();
+        var minLng = lngList.min();
+        var maxLat = latList.max();
+        var minLat = latList.min();
+        //console.log("maxLng1 = "+maxLng1+"minLng1="+minLng1+"maxLat1="+maxLat1+"minLat1="+minLat1);
+
+        //获取zoom的函数方法2
+        //function getZoom (maxLng, minLng, maxLat, minLat) {
+        //var zoom = ["50","100","200","500","1000","2000","5000","10000","20000","25000","50000","100000","200000","500000","1000000","2000000"]//级别18到3。
+        //var pointA = new BMap.Point(maxLng,maxLat);  // 创建点坐标A
+        //var pointB = new BMap.Point(minLng,minLat);  // 创建点坐标B
+        //var distance = map.getDistance(pointA,pointB).toFixed(1);  //获取两点距离,保留小数点后两位
+        //for (var i = 0,zoomLen = zoom.length; i < zoomLen; i++) {
+        //    if(zoom[i] - distance > 0){
+        //        return 18-i;//之所以会多3，是因为地图范围常常是比例尺距离的10倍以上。所以级别会增加3。
+        //    }
+        //};
+        //}
+        window.center = coordtransform.gcj02tobd09((maxLng + minLng) / 2, (maxLat + minLat) / 2);
+        //console.log("center="+center+"viewPort.center="+viewPort.center.lat+" "+viewPort.center.lng);
+
+        //获取zoom的函数方法1
+        //function caculateZoom(zoom){
+        //    map.centerAndZoom(new BMap.Point(center[0], center[1]), zoom);
+        //    var bounds = map.getBounds();
+        //    console.log(bounds);
+        //    if (maxLat > bounds.ul.lat || maxLng > bounds.ul.lng || minLat < bounds.Ll.lat || minLng < bounds.Ll.lng){
+        //        zoom -= 1;
+        //        console.log("caculateZoom = "+zoom);
+        //        caculateZoom(zoom);
+        //    }else{
+        //        return zoom;
+        //    }
+        //}
+
+        var points = new Array();
+        var totalDistance = 0;
+        var totalSpeed = 0;
+        var avgSpeed = 0;
+        var matchSpeedList = new Array();
+        for (var i = 0; i < array.length; i++) {
+            if (array[0].used != undefined) {
+                //android
+                if (array[i].used == 1 || array[i].used == true) {
+                    if(i > 2 && array.length > 4) {
+                        // 轨迹圆润处理
+                        var ax, ay, bx, by, cx, cy, dx, dy;
+                        for (var t = 0; t <= 1; t += 0.2) {
+                            ax = (-array[i-3].lng + 3 * array[i-2].lng - 3 * array[i-1].lng + array[i].lng) / 6;
+                            ay = (-array[i-3].lat + 3 * array[i-2].lat - 3 * array[i-1].lat + array[i].lat) / 6;
+                            bx = (array[i-3].lng - 2 * array[i-2].lng + array[i-1].lng) / 2;
+                            by = (array[i-3].lat - 2 * array[i-2].lat + array[i-1].lat) / 2;
+                            cx = (-array[i-3].lng + array[i-1].lng) / 2;
+                            cy = (-array[i-3].lat + array[i-1].lat) / 2;
+                            dx = (array[i-3].lng + 4 * array[i-2].lng + array[i-1].lng) / 6;
+                            dy = (array[i-3].lat + 4 * array[i-2].lat + array[i-1].lat) / 6;
+                            points.push([ax * Math.pow(t, 3) + bx * Math.pow(t, 2) + cx * t + dx, ay * Math.pow(t, 3) + by * Math.pow(t, 2) + cy * t + dy, array[i].speed]);
+                        }
+                    } else {
+                        points.push([array[i].lng, array[i].lat, array[i].speed]);
+                    }
+                    if(i != 0) {
+                        totalDistance += getDistance(array[i-1].lat, array[i-1].lng, array[i].lat, array[i].lng);
+                        totalSpeed += array[i].speed;
+                        if(totalDistance >= 1) {
+                            avgSpeed = totalSpeed / (i + 1);
+                            totalDistance -= 1;
+                            matchSpeedList.push(parseInt(1000/avgSpeed));
+                        }
+                        // console.log(totalDistance);
+                    } else {
+                        totalSpeed += array[i].speed;
+                    }
+                }
+            } else {
+                points.push([array[i].lng,array[i].lat, array[i].Speed]);
+                if(i != 0) {
+                    totalDistance += getDistance(array[i-1].lat, array[i-1].lng, array[i].lat, array[i].lng);
+                    totalSpeed += array[i].Speed;
+                    if(totalDistance >= 1) {
+                        avgSpeed = totalSpeed / (i + 1);
+                        totalDistance -= 1;
+                        matchSpeedList.push(parseInt(1000/avgSpeed));
+                    }
+                    // console.log(totalDistance);
+                } else {
+                    totalSpeed += array[i].Speed;
+                }
+            }
+
+
+
+        }
+        if(matchSpeedList.length <= 0) {
+            matchSpeedList.push(parseInt(1000/(totalDistance * 1000 / (window.share.attributes.runTime/1000) )));
+        }
+        var fast = matchSpeedList.min();
+        var slow = matchSpeedList.max();
+
+        // $(".slow").text("最慢配速" + parseInt(slow / 60) + "'" + slow % 60);
+        // $(".fast").text("最快配速" + parseInt(fast / 60) + "'" + fast % 60);
+
+        var interval = parseInt((fast - slow) / 5);
+
+        var colors = ['#82e7fe', '#3CFFC3', '#fffa00', '#FFAC00', '#e16323', '#e16323'];
+        var prevPointList = [];
+        var pointList = [];
+        var userMobile = userArg();
+        function creatStroke(list,color){
+            if(userMobile == true){
+                //alert('andriod');
+                var polyline = new BMap.Polyline(list, {strokeColor: color, strokeWeight:4, strokeOpacity:1});   //andriod
+            }else{
+                //alert('ios');
+                var polyline = new BMap.Polyline(list, {strokeColor: color, strokeWeight:6, strokeOpacity:1});   //ios
+            }
+            return polyline;
+        }
+
+        totalSpeed = 0;
+        var count = 0;
+        for(var i = 0; i < points.length; i++) {
+            // 高德坐标转 百度坐标
+            var temp = coordtransform.gcj02tobd09(points[i][0], points[i][1]);
+            if(count == 10) {
+                count = 0;
+                avgSpeed = parseInt(totalSpeed / 10);
+                totalSpeed = 0;
+                if(avgSpeed > 5) {
+                    if(prevPointList.length > 0) {
+                        var prevList = [];
+                        prevList.push(prevPointList[prevPointList.length-1]);
+                        prevList.push(pointList[0]);
+                        var poly = creatStroke(prevList,colors[5]);
+                        //var polyline = new BMap.Polyline(prevList, {strokeColor: colors[5], strokeWeight:4, strokeOpacity:1});   //创建折线
+                        map.addOverlay(poly);   //增加折线
+                    }
+                    var poly = creatStroke(pointList,colors[5]);
+                    //var polyline = new BMap.Polyline(pointList, {strokeColor: colors[5], strokeWeight:4, strokeOpacity:1});   //创建折线
+                    map.addOverlay(poly);   //增加折线
+                } else {
+                    if(prevPointList.length > 0) {
+                        var prevList = [];
+                        prevList.push(prevPointList[prevPointList.length-1]);
+                        prevList.push(pointList[0]);
+                        var poly = creatStroke(prevList,colors[avgSpeed]);
+                        //var polyline = new BMap.Polyline(prevList, {strokeColor: colors[avgSpeed], strokeWeight:4, strokeOpacity:1});   //创建折线
+                        map.addOverlay(poly);   //增加折线
+                    }
+                    var poly = creatStroke(pointList,colors[avgSpeed]);
+                    //var polyline = new BMap.Polyline(pointList, {strokeColor: colors[avgSpeed], strokeWeight:4, strokeOpacity:1});   //创建折线
+                    map.addOverlay(poly);   //增加折线
+                }
+                prevPointList = pointList;
+                pointList = [];
+            } else {
+                totalSpeed += points[i][2];
+                count++;
+            }
+
+            pointList.push(new BMap.Point(temp[0], temp[1]));
+        }
+
+        if(pointList.length > 0) {
+            avgSpeed = parseInt(totalSpeed / 10);
+            if(avgSpeed > 5) {
+                var poly = creatStroke(pointList,colors[5]);
+                //var polyline = new BMap.Polyline(pointList, {strokeColor: colors[5], strokeWeight:4, strokeOpacity:1});   //创建折线
+                map.addOverlay(poly);   //增加折线
+            } else {
+                var poly = creatStroke(pointList,colors[avgSpeed]);
+                //var polyline = new BMap.Polyline(pointList, {strokeColor: colors[avgSpeed], strokeWeight:4, strokeOpacity:1});   //创建折线
+                map.addOverlay(poly);   //增加折线
+            }
+        }
+
+// 开始图标
+        var start = coordtransform.gcj02tobd09(points[0][0], points[0][1]);
+        var pt1 = new BMap.Point(start[0], start[1]);
+        if(userMobile == true){
+            //alert('andriod');
+            var startIcon = new BMap.Icon("/static/user-run-share/imgs/run_start_new.png", new BMap.Size(30,30));
+        }else{
+            //alert('ios');
+            var startIcon = new BMap.Icon("/static/user-run-share/imgs/run_start_new.png", new BMap.Size(50,50));
+        }
+        var startMarker = new BMap.Marker(pt1,{icon:startIcon});  // 创建标注
+        map.addOverlay(startMarker);              // 将标注添加到地图中
+// 结束图标
+        var end = coordtransform.gcj02tobd09(points[points.length-1][0], points[points.length-1][1]);
+        var pt2 = new BMap.Point(end[0], end[1]);
+
+
+        if(userMobile == true){
+            //alert('andriod');
+            var endIcon = new BMap.Icon("/static/user-run-share/imgs/run_end_new.png", new BMap.Size(30,30));
+        }else{
+            //alert('ios');
+            var endIcon = new BMap.Icon("/static/user-run-share/imgs/run_end_new.png", new BMap.Size(50,50));
+        }
+        var endMarker = new BMap.Marker(pt2,{icon:endIcon});  // 创建标注
+        map.addOverlay(endMarker);
+
+
+        var contentTime = $("#markTimeTemplate").html();
+        var date = new Date(window.share.attributes.startTime);
+        contentTime = contentTime.replace("{0}", date.Format('MM月dd日 hh:mm'));
+        $(".map-wrapper").append(contentTime);
+        $(".map-wrapper").append($("#markUserImgTemplate").html());
+
+        setTimeout(function () {
+            // 圣诞节专用，显示麋鹿的样式
+            if (center == undefined) {
+                return;
+            }
+            var aboutTime = window.share.attributes.startTime;
+            var bTime = 1513958400000;//真实的
+            var eTime = 1514217599000;//真实的
+//            var bTime1 = 1513785600000;
+            var nowTime = new Date().getTime();
+            console.log("nowTime");
+            console.log(nowTime);
+            console.log('time');
+            console.log(window.share.attributes.startTime);
+            if(nowTime >= bTime && nowTime <= eTime){
+                $(".map-especially").css("opacity",1);
+            }else{
+                $('.map-especially').remove();
+                $(".map-bottom").css("opacity",1);
+            }
+
+            $(".map-position").css("opacity",1);
+            $("#distance").addClass("show");
+            // 总里程
+            console.log(window.share.attributes.distance / 1000);
+            if(typeof window.share.attributes.distance != 'undefined' && window.share.attributes.distance != null) {
+                var distance = new CountUp("distance", 0, window.share.attributes.distance / 1000, 2, 2, {
+                    useEasing: true,
+                    easingFn: function (t, b, c, d) {
+                        var ts = (t /= d) * t;
+                        var tc = ts * t;
+                        return b + c * (tc + -3 * ts + 3 * t);
+                    },
+                    useGrouping: false,
+                    separator: '',
+                    decimal: '.',
+                    prefix: '',
+                    suffix: 'KM'
+                });
+                distance.start();
+            } else {
+                $("#distance").text("--");
+            }
+            map.centerAndZoom(new BMap.Point(center[0], center[1]), viewPort.zoom);
+            var canvas = document.getElementById('map').getElementsByTagName('canvas')[0];
+            canvas.height=$(document).height();       // DOM元素过滤
+        }, 100);
+    }
+}
+
+
+//计算 配速
+var stepArray = window.share.attributes.stepDetail['array'];
+var max = 0;
+var min = 0;
+var matchList = new Array();
+
+//if(share.attributes.type != undefined && (share.attributes.model == 4 || share.attributes.model == 15)){
+if(share.attributes.type != undefined){
+    // 手表数据都用maxPace   maxPace表示一公里用了多少秒
+    console.log('手表数据看这里');
+    var maxPace = (window.share.attributes.maxPace/60).toFixed(2) + '';
+    $('.fast').text("最快配速" + maxPace.split('.')[0] + "'" + ((0+'.'+maxPace.split('.')[1])*60).toFixed(0) + '"');
+    //手表 骑行
+    //if(typeof window.share.attributes.maxPace != 'undefined' && window.share.attributes.maxPace != null) {
+    //    var maxPace = 3600 / window.share.attributes.maxPace;
+    //
+    //    //去除数组对象里面重复的对象
+    //    //var newArr = [];
+    //    //
+    //    //for (var i = 0; i < stepArray.length; i++) {
+    //    //    if (i == 0) {
+    //    //        currentVal = stepArray[i].distance;
+    //    //        newArr[0] = stepArray[i];
+    //    //        continue;
+    //    //    }
+    //    //
+    //    //    if (currentVal == stepArray[i].distance) {
+    //    //        continue;
+    //    //    }
+    //    //    currentVal = stepArray[i].distance;
+    //    //    newArr[newArr.length] = stepArray[i];
+    //    //}
+    //    //console.log("newArr");
+    //    //console.log(newArr);
+    //    //
+    //
+    //
+    //
+    //    $(".slow").text("最慢时速" + 0 + "km/h");
+    //    $(".fast").text("最快时速" + maxPace.toFixed(2) + "km/h");
+    //}else{
+    //    $(".slow").text("最慢时速" + 0 + "km/h");
+    //    $(".fast").text("最快时速" + 0 + "km/h");
+    //}
+}else{
+    //app数据
+    if(!(typeof stepArray == 'undefined') && stepArray.length > 0) {
+        if(stepArray[0].time > 1000000) {
+            //安卓
+            var distance = 1000;
+            var temp = stepArray[0];
+            for(var i = 0; i < stepArray.length; i++) {
+                if(stepArray[i].distance >= distance) {
+                    matchList.push( parseInt( (stepArray[i].time - temp.time) / 1000 ) );
+                    distance += 1000;
+                    temp = stepArray[i];
+                }
+            }
+            if(stepArray[stepArray.length - 1].distance > (distance - 1000)) {
+                matchList.push( parseInt(1000/((stepArray[stepArray.length - 1].distance - temp.distance) / ( (stepArray[stepArray.length - 1].time - temp.time) / 1000 ))));
+            }
+            if(matchList.length == 0) {
+                min = parseInt(1000/((stepArray[stepArray.length - 1].distance - temp.distance) / ( (stepArray[stepArray.length - 1].time - temp.time) / 1000)));
+                max = min;
+            } else {
+                max = matchList.max();
+                min = matchList.min();
+            }
+        } else {
+            // IOS
+            var distance = 1;
+            var temp =stepArray[0];
+            for(var i = 0; i < stepArray.length; i++) {
+                if(parseFloat(stepArray[i].distance) >= distance) {
+                    if(distance == 1) {
+                        matchList.push(parseInt(stepArray[i].time));
+                    } else {
+                        matchList.push(parseInt(stepArray[i].time - temp.time));
+                    }
+                    distance += 1;
+                    temp = stepArray[i];
+                }
+            }
+            if(stepArray[stepArray.length - 1].distance > (distance - 1)) {
+                matchList.push( parseInt(1000/( ( (parseFloat(stepArray[stepArray.length-1].distance) - parseFloat(temp.distance))*1000 ) / ( ( parseInt(stepArray[stepArray.length-1].time) - parseInt(temp.time)) ) )) );
+            }
+            if(matchList.length == 0) {
+                min = parseInt(1000/( ( (parseFloat(stepArray[stepArray.length-1].distance) - parseFloat(stepArray[0].distance))*1000 ) / ( ( parseInt(stepArray[stepArray.length-1].time) - parseInt(stepArray[0].time)) ) ));
+                max = min;
+            } else {
+                max = matchList.max();
+                min = matchList.min();
+            }
+        }
+
+
+        if (isNaN(max)) {
+            max = 0;
+        }
+        if (isNaN(min)) {
+            min = 0;
+        }
+        $(".slow").text("最慢配速" + parseInt(max / 60) + "'" + (max % 60 < 10 ? "0" + max % 60 : max % 60) + "\"");
+        $(".fast").text("最快配速" + parseInt(min / 60) + "'" + (min % 60 < 10 ? "0" + min % 60 : min % 60) + "\"");
+    }
+}
+
+
+
+// var cr = new BMap.CopyrightControl({anchor: BMAP_ANCHOR_BOTTOM_RIGHT});   //设置版权控件位置
+// map.addControl(cr); //添加版权控件
+//
+// var bs = map.getBounds();   //返回地图可视区域
+// var content = $("#markTimeTemplate").html();
+// var date = new Date(window.share.attributes.startTime);
+// content = content.replace("{0}", date.Format('MM月dd日 hh:mm'));
+//
+// cr.addCopyright({id: 1, content: content, bounds: bs});
+
+//
+// var cr1 = new BMap.CopyrightControl({anchor: BMAP_ANCHOR_TOP_LEFT});   //设置版权控件位置
+// map.addControl(cr1); //添加版权控件
+//
+// var bs1 = map.getBounds();
+// var content1 = $("#markLogoTemplate").html();
+// cr1.addCopyright({id: 1, content: content1, bounds: bs1});

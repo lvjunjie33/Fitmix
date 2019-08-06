@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.business.work.scheduler.SchedulerMapper">
+
+    <select id="list" parameterType="Page" resultType="SchedulerJobConfig">
+        SELECT
+            jb.*,
+            t.PREV_FIRE_TIME,
+            t.NEXT_FIRE_TIME
+        FROM SCHEDULE_JOB_CONFIG jb
+            LEFT JOIN QRTZ_TRIGGERS t
+               ON t.TRIGGER_NAME = jb.TRIGGER_NAME
+					 AND t.TRIGGER_GROUP = jb.TRIGGER_GROUP
+        ORDER BY id DESC
+        LIMIT #{index}, #{size}
+    </select>
+
+    <select id="listCount" parameterType="Page" resultType="int">
+        SELECT
+            count(*)
+        FROM SCHEDULE_JOB_CONFIG
+    </select>
+
+    <insert id="insert" parameterType="SchedulerJobConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO SCHEDULE_JOB_CONFIG (JOB_NAME, JOB_GROUP, TRIGGER_NAME, TRIGGER_GROUP, JOB_NICKNAME
+            , TRIGGER_TYPE, `STATUS`, TRIGGER_EXPRESSION, JOB_DESC)
+        VALUES (#{jobName}, #{jobGroup}, #{triggerName}, #{triggerGroup}, #{jobNickname}
+            , #{triggerType}, #{status}, #{triggerExpression}, #{jobDesc})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE SCHEDULE_JOB_CONFIG
+        SET `STATUS` = #{status}
+        WHERE ID = #{id}
+    </update>
+
+    <select id="findById" parameterType="int" resultType="SchedulerJobConfig">
+        select
+            *
+        from SCHEDULE_JOB_CONFIG
+        where ID = #{id}
+    </select>
+
+    <update id="modifyTrigger" parameterType="SchedulerJobConfig">
+        update SCHEDULE_JOB_CONFIG
+        set
+        TRIGGER_TYPE=#{triggerType},
+        <if test="jobDesc!=null">
+            job_desc=#{jobDesc},
+        </if>
+        TRIGGER_EXPRESSION=#{triggerExpression}
+        where
+        ID=#{id}
+    </update>
+
+</mapper>
