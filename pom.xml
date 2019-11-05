@@ -39,7 +39,7 @@
         <hibernate-validator.version>4.3.1.Final</hibernate-validator.version>
         <jolokia.version>1.1.1</jolokia.version>
         <joda-time.version>2.3</joda-time.version> <!-- 2.5 -->
-        <jackson.version>2.2.0</jackson.version>
+        <jackson.version>2.10.0</jackson.version>
         <slf4j.version>1.7.5</slf4j.version> <!-- 1.7.7 -->
         <logback.version>1.0.13</logback.version> <!--- 1.1.2 -->
         <commons-lang3.version>3.1</commons-lang3.version> <!-- 3.3.2 -->
