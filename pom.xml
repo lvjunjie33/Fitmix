@@ -57,7 +57,7 @@
         <javaPNS.version>2.2</javaPNS.version>
         <jpush.version>v2.4.2</jpush.version> <!-- 有更新！ -->
         <gson.version>2.2.4</gson.version> <!-- 2.3 -->
-        <xstream.version>1.4.4</xstream.version> <!-- 1.4.7 -->
+        <xstream.version>1.4.10-java7</xstream.version> <!-- 1.4.7 -->
         <ansj_seg.version>0.8</ansj_seg.version>
         <ansj.tree_split.version>1.0.1</ansj.tree_split.version>
         <IKAnalyzer.version>2012_u6</IKAnalyzer.version>
