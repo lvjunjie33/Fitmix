@@ -43,7 +43,7 @@
         <slf4j.version>1.7.5</slf4j.version> <!-- 1.7.7 -->
         <logback.version>1.0.13</logback.version> <!--- 1.1.2 -->
         <commons-lang3.version>3.1</commons-lang3.version> <!-- 3.3.2 -->
-        <commons-io.version>2.4</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <httpclient.version>4.3.3</httpclient.version> <!-- 4.4-beta1 -->
         <freemarker.version>2.3.20</freemarker.version> <!-- 2.3.21 -->
         <junit.version>4.11</junit.version> <!-- 4.12-beta-2 -->
