@@ -23,7 +23,7 @@
 
     <properties>
         <!-- 主要依赖库的版本定义 -->
-        <spring.version>4.2.1.RELEASE</spring.version> <!-- 4.2.1.RELEASE -->
+        <spring.version>5.3.19</spring.version> <!-- 4.2.1.RELEASE -->
         <mybatis.version>3.2.8</mybatis.version> <!-- 3.2.8 -->
         <mybatis-spring.version>1.2.2</mybatis-spring.version> <!-- 1.2.2 -->
         <pagehelper.version>4.1.6</pagehelper.version>
