@@ -28,7 +28,7 @@
         <mybatis-spring.version>1.2.2</mybatis-spring.version> <!-- 1.2.2 -->
         <pagehelper.version>4.1.6</pagehelper.version>
         <spring-data-jpa.version>1.9.0.RELEASE</spring-data-jpa.version> <!-- 1.9.1 -->
-        <spring-data-mongodb.version>1.8.1.RELEASE</spring-data-mongodb.version> <!-- 1.7.1 -->
+        <spring-data-mongodb.version>3.3.5</spring-data-mongodb.version> <!-- 1.7.1 -->
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <shiro.version>1.2.2</shiro.version> <!-- 1.2.3 -->
         <cxf.version>2.7.4</cxf.version>
