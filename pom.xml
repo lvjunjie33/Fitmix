@@ -31,7 +31,7 @@
         <spring-data-mongodb.version>1.8.1.RELEASE</spring-data-mongodb.version> <!-- 1.7.1 -->
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <shiro.version>1.2.2</shiro.version> <!-- 1.2.3 -->
-        <cxf.version>2.7.4</cxf.version>
+        <cxf.version>2.7.8</cxf.version>
         <activemq.version>5.7.0</activemq.version>
         <quartz.version>2.2.0</quartz.version>
         <ehcache.version>2.6.5</ehcache.version>
