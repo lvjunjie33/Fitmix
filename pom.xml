@@ -74,7 +74,7 @@
         <commons-cli.version>1.2</commons-cli.version>
         <zxing.version>2.3.0</zxing.version>
         <logstash-logback-encoder.version>2.1</logstash-logback-encoder.version>
-        <jsoup.version>1.7.3</jsoup.version>
+        <jsoup.version>1.15.3</jsoup.version>
         <ganymed-ssh2.version>build210</ganymed-ssh2.version> <!-- 262 -->
         <cos.version>26Dec2008</cos.version>
         <tomcat-catalina.version>7.0.32</tomcat-catalina.version>
